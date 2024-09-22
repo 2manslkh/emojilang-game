@@ -1,67 +1,53 @@
 <script lang="ts">
 	interface GrammarRule {
 		category: string;
-		rules: string[];
+		description: string;
+		rules: Array<{ rule: string; example?: string }>;
 	}
 
 	const grammarRules: GrammarRule[] = [
 		{
-			category: 'Basic Structure',
+			category: 'Formal Grammar',
+			description: 'Basic sentence structure in Emojilang',
 			rules: [
-				'Subject + Verb + Object',
-				'Adjectives come before nouns',
-				'Adverbs come before verbs'
+				{ rule: '<sentence> ::= [<question>] <subject> <predicate> [<object>] [<modifiers>]' },
+				{ rule: '<subject> ::= <noun_phrase> | <pronoun>' },
+				{ rule: '<predicate> ::= <verb_phrase> | <passive_phrase>' }
 			]
 		},
 		{
-			category: 'Pronouns',
+			category: 'Lexicon',
+			description: 'Common emojis and their meanings',
 			rules: [
-				'I/Me: 👤',
-				'You: 👉',
-				'He/Him: 👨',
-				'She/Her: 👩',
-				'It: 🔵',
-				'We/Us: 👥',
-				'They/Them: 👥👥'
+				{
+					rule: 'Pronouns: 👤 (I/Me), 👉 (You), 👨 (He/Him), 👩 (She/Her), 🔵 (It), 👥 (We/Us), 👥👥 (They/Them)'
+				},
+				{ rule: 'Verbs: 🟰 (To be), 🚶 (To go), 🍽️ (To eat), ❤️ (To love)' },
+				{ rule: 'Tenses: ⏪ (Past), ⏩ (Future)' }
 			]
 		},
 		{
-			category: 'Common Verbs',
+			category: 'Semantic Roles',
+			description: 'Roles played by sentence elements',
 			rules: [
-				'To be: 🟰',
-				'To have: 🫴',
-				'To go: 🚶',
-				'To eat: 🍽️',
-				'To drink: 🥤',
-				'To see: 👀',
-				'To hear: 👂',
-				'To speak: 🗣️',
-				'To love: ❤️',
-				'To hate: 💢'
+				{ rule: 'Agent: Doer of the action', example: '👤🚶 (I walk)' },
+				{ rule: 'Patient: Receiver of the action', example: '🐕🍖 (Dog eats bone)' }
 			]
 		},
 		{
-			category: 'Tenses',
-			rules: ['Past: ⏪ (before verb)', 'Present: No symbol (default)', 'Future: ⏩ (before verb)']
-		},
-		{
-			category: 'Other',
+			category: 'Cultural Context',
+			description: 'Ensuring universal understanding',
 			rules: [
-				'Question mark: ❓ (at the end)',
-				'Negation: ❌ (before verb)',
-				'And: ➕',
-				'Or: 🔀',
-				'But: 🚫➡️'
+				{ rule: '🌐 : Global context' },
+				{ rule: '🇺🇳 : United Nations or international context' }
 			]
 		},
 		{
 			category: 'Example Sentences',
+			description: 'Complex sentence structures',
 			rules: [
-				"'I love you': 👤 ❤️ 👉",
-				"'The big dog eats a small bone': 🔝 🐕 🍽️ 🔽 🦴",
-				"'We will go to the beach tomorrow': 👥 ⏩ 🚶 ➡️ 🏖️ 🔜",
-				"'Do you like pizza?': 👉 ❤️ 🍕 ❓",
-				"'She doesn't drink coffee': 👩 ❌ 🥤 ☕"
+				{ rule: "'The big dog often eats small bones'", example: '🔝🐕🔁🍽️🔽🦴' },
+				{ rule: "'When will we go to the beach?'", example: '🕐❓👥⏩🚶➡️🏖️' }
 			]
 		}
 	];
@@ -72,9 +58,15 @@
 	{#each grammarRules as section}
 		<div class="mb-6">
 			<h3 class="text-xl font-semibold text-gray-700 mb-2">{section.category}</h3>
+			<p class="text-gray-600 mb-2">{section.description}</p>
 			<ul class="list-disc pl-6">
-				{#each section.rules as rule}
-					<li class="text-gray-600 mb-1">{rule}</li>
+				{#each section.rules as { rule, example }}
+					<li class="text-gray-600 mb-1">
+						{rule}
+						{#if example}
+							<span class="text-gray-500 italic"> - Example: {example}</span>
+						{/if}
+					</li>
 				{/each}
 			</ul>
 		</div>
