@@ -24,7 +24,7 @@ iconlang.net/)
    npm run dev
    ```
 
-4. Open your browser and navigate to `http://localhost:5000` (or the port specified in the console output).
+4. Open your browser and navigate to `http://localhost:5173` (or the port specified in the console output).
 
 ## Emojilang Guide
 
