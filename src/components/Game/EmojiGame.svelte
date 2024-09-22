@@ -1,100 +1,90 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 
-	let currentSentence: string = '';
+	let currentQuestion: { emojilang: string; level: number } | null = null;
 	let userTranslation: string = '';
 	let score: number = 0;
 	let feedback: string = '';
 	let gameActive: boolean = true;
 	let submitDisabled: boolean = false;
+	let currentLevel: number = 1;
+	let levels: any[] = [];
+	let questions: any[] = [];
+	let correctAnswersInLevel: number = 0;
 
-	const emojiSentences: string[] = [
-		'👤 ❤️ 👉',
-		'🔝 🐕 🍽️ 🔽 🦴',
-		'👥 ⏩ 🚶 ➡️ 🏖️ 🔜',
-		'👉 ❤️ 🍕 ❓',
-		'👩 ❌ 🥤 ☕',
-		'👨 ⏪ 👀 🎬',
-		'🔢 🐦 🚶 ⬆️ 🌳',
-		'👥👥 ➕ 👤 🍽️ 🍕',
-		'🔵 🟰 🔝 🔵',
-		'👩 🗣️ ➡️ 👨 ➕ 👨 👂',
-		'🌞 ⏩ 🌧️ 🔜',
-		'👤 ⏪ 🚶 🏫 ⏪',
-		'🐈 ➕ 🐕 🟰 🐾',
-		'👥 ❓ 🍽️ 🍔 🔜',
-		'🌍 ⏩ 🔥 ⬆️'
-	];
-
-	const correctTranslations: string[] = [
-		'I love you',
-		'The big dog eats a small bone',
-		'We will go to the beach tomorrow',
-		'Do you like pizza?',
-		"She doesn't drink coffee",
-		'He watched a movie',
-		'Many birds walk on the tree',
-		'They and I eat pizza',
-		'It is a big thing',
-		'She speaks to him and he listens',
-		'The sun will rain soon',
-		'I went to school yesterday',
-		'Cats and dogs are pets',
-		'Shall we eat burgers later?',
-		'The world will get hotter'
-	];
-
-	function getRandomSentence(): string {
-		const index = Math.floor(Math.random() * emojiSentences.length);
-		return emojiSentences[index];
+	async function fetchLevels() {
+		const response = await fetch('/api/levels');
+		levels = await response.json();
 	}
 
-	function startGame() {
+	async function fetchQuestions(level: number) {
+		const response = await fetch(`/api/levels/${level}/questions`);
+		questions = await response.json();
+	}
+
+	function getRandomQuestion(): { emojilang: string; level: number } {
+		const index = Math.floor(Math.random() * questions.length);
+		return questions[index];
+	}
+
+	async function startGame() {
 		gameActive = true;
 		score = 0;
-		nextSentence();
+		currentLevel = 1;
+		correctAnswersInLevel = 0;
+		await fetchQuestions(currentLevel);
+		nextQuestion();
 	}
 
-	function nextSentence() {
-		currentSentence = getRandomSentence();
+	function nextQuestion() {
+		currentQuestion = getRandomQuestion();
 		userTranslation = '';
 		feedback = '';
 		submitDisabled = false;
 	}
 
-	function submitTranslation() {
+	async function submitTranslation() {
 		submitDisabled = true;
-		const index = emojiSentences.indexOf(currentSentence);
-		const correctTranslation = correctTranslations[index];
 
-		// Simple scoring function (replace with AI agent in real implementation)
-		const similarity = stringSimilarity(
-			userTranslation.toLowerCase(),
-			correctTranslation.toLowerCase()
-		);
-		const newPoints = Math.round(similarity * 10);
+		const response = await fetch('/api/validate-answer', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				emojilang: currentQuestion?.emojilang,
+				userAnswer: userTranslation
+			})
+		});
 
-		score += newPoints;
-		feedback = `You earned ${newPoints} points. Correct translation: "${correctTranslation}"`;
+		const result = await response.json();
 
-		setTimeout(nextSentence, 3000);
-	}
+		if (result.isCorrect) {
+			score += 10;
+			correctAnswersInLevel++;
+			feedback = 'Correct! +10 points';
 
-	// Simple string similarity function (replace with more sophisticated method or AI agent)
-	function stringSimilarity(str1: string, str2: string): number {
-		const len1 = str1.length;
-		const len2 = str2.length;
-		const maxLen = Math.max(len1, len2);
-		let matches = 0;
-
-		for (let i = 0; i < maxLen; i++) {
-			if (str1[i] === str2[i]) matches++;
+			if (correctAnswersInLevel === 3) {
+				currentLevel++;
+				correctAnswersInLevel = 0;
+				if (currentLevel <= 10) {
+					feedback += ` Congratulations! You've advanced to level ${currentLevel}!`;
+					await fetchQuestions(currentLevel);
+				} else {
+					gameActive = false;
+					feedback = 'Congratulations! You completed all levels!';
+					return;
+				}
+			}
+		} else {
+			feedback = `Incorrect. The correct answer is: "${result.correctAnswer}"`;
 		}
 
-		return matches / maxLen;
+		setTimeout(nextQuestion, 3000);
 	}
 
-	onMount(() => {
+	onMount(async () => {
+		await fetchLevels();
 		startGame();
 	});
 </script>
@@ -103,7 +93,7 @@
 	<div class="p-6">
 		<h2 class="text-2xl font-bold text-center mb-4">Emoji Translation Game</h2>
 
-		<div class="text-4xl text-center mb-4">{currentSentence}</div>
+		<div class="text-4xl text-center mb-4">{currentQuestion?.emojilang}</div>
 
 		<input
 			type="text"
@@ -122,9 +112,13 @@
 		</button>
 
 		<div class="mb-4">
-			<p class="font-semibold mb-1">Total Score: {score}</p>
+			<p class="font-semibold mb-1">Level: {currentLevel} | Total Score: {score}</p>
+			<p class="text-sm text-gray-600">Correct answers in this level: {correctAnswersInLevel}/3</p>
 			<div class="w-full bg-gray-200 rounded-full h-2.5">
-				<div class="bg-blue-600 h-2.5 rounded-full" style="width: {(score / 150) * 100}%"></div>
+				<div
+					class="bg-blue-600 h-2.5 rounded-full"
+					style="width: {(correctAnswersInLevel / 3) * 100}%"
+				></div>
 			</div>
 		</div>
 
