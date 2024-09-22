@@ -6,6 +6,7 @@
 	let score: number = 0;
 	let feedback: string = '';
 	let gameActive: boolean = true;
+	let submitDisabled: boolean = false;
 
 	const emojiSentences: string[] = [
 		'👤 ❤️ 👉',
@@ -58,9 +59,11 @@
 		currentSentence = getRandomSentence();
 		userTranslation = '';
 		feedback = '';
+		submitDisabled = false;
 	}
 
 	function submitTranslation() {
+		submitDisabled = true;
 		const index = emojiSentences.indexOf(currentSentence);
 		const correctTranslation = correctTranslations[index];
 
@@ -107,16 +110,21 @@
 			bind:value={userTranslation}
 			placeholder="Enter your translation"
 			class="w-full p-2 border rounded-md mb-4"
+			disabled={submitDisabled}
 		/>
 
-		<button on:click={submitTranslation} class="w-full bg-black text-white py-2 rounded-md mb-4">
+		<button
+			on:click={submitTranslation}
+			class="w-full bg-black text-white py-2 rounded-md mb-4 disabled:opacity-50 disabled:cursor-not-allowed"
+			disabled={submitDisabled}
+		>
 			Submit Translation
 		</button>
 
-		<div>
-			<p class="font-semibold mb-1">Score:</p>
+		<div class="mb-4">
+			<p class="font-semibold mb-1">Total Score: {score}</p>
 			<div class="w-full bg-gray-200 rounded-full h-2.5">
-				<div class="bg-blue-600 h-2.5 rounded-full" style="width: {(score / 100) * 100}%"></div>
+				<div class="bg-blue-600 h-2.5 rounded-full" style="width: {(score / 150) * 100}%"></div>
 			</div>
 		</div>
 
