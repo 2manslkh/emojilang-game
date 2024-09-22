@@ -1,0 +1,1 @@
+export { default as EmojiGame } from './EmojiGame.svelte';
