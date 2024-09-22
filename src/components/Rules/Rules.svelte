@@ -7,45 +7,50 @@
 
 	const grammarRules: GrammarRule[] = [
 		{
-			category: 'Formal Grammar',
-			description: 'Basic sentence structure in Emojilang',
+			category: 'Core Principles',
+			description: 'Fundamental concepts of Emojilang',
 			rules: [
-				{ rule: '<sentence> ::= [<question>] <subject> <predicate> [<object>] [<modifiers>]' },
-				{ rule: '<subject> ::= <noun_phrase> | <pronoun>' },
-				{ rule: '<predicate> ::= <verb_phrase> | <passive_phrase>' },
-				{ rule: '<verb_phrase> ::= [<tense>] [<negation>] <verb>' },
-				{ rule: '<passive_phrase> ::= 🔄 <verb_phrase>' },
-				{ rule: '<question> ::= <sentence> ❓' }
+				{ rule: 'Visual Communication: Use emojis as primary means of expression' },
+				{ rule: 'Simplicity and Intuitiveness: Easy-to-learn structure' },
+				{ rule: 'Expressiveness: Convey a wide range of ideas' },
+				{ rule: 'Cultural Neutrality: Inclusive and adaptable across cultures' },
+				{ rule: 'Machine Readability: Structured for easy parsing and translation' }
 			]
 		},
 		{
-			category: 'Lexicon',
-			description: 'Common emojis and their meanings',
+			category: 'Vocabulary',
+			description: 'Basic elements of Emojilang',
 			rules: [
 				{
-					rule: 'Pronouns: 👤 (I/Me), 👉 (You), 👨 (He/Him), 👩 (She/Her), 🔵 (It), 👥 (We/Us), 👥👥 (They/Them)'
+					rule: 'Nouns: Represented by emojis depicting objects, people, or concepts',
+					example: '👤 (person), 🏫 (school)'
+				},
+				{ rule: 'Verbs: Emojis showing actions or processes', example: '🚶 (walk), 📝 (write)' },
+				{
+					rule: 'Adjectives/Adverbs: Placed after the noun/verb they modify',
+					example: '🔥 (hot), 😊 (happy)'
 				},
 				{
-					rule: 'Verbs: 🟰 (To be), 🚶 (To go), 🍽️ (To eat), ❤️ (To love), 👀 (To see), 👂 (To hear), 🗣️ (To speak)'
-				},
-				{ rule: 'Tenses: ⏪ (Past), ⏩ (Future), No marker for present' },
-				{ rule: 'Modifiers: 🔝 (Big/Very), 🔽 (Small/Little), 🔁 (Often/Repeatedly)' },
-				{ rule: 'Conjunctions: ➕ (And), 🔀 (Or), 🚫➡️ (But)' },
-				{ rule: "Negation: ❌ (Not/Don't)" },
-				{ rule: 'Question words: 🕐❓ (When), 📍❓ (Where), 🤔❓ (Why), 👤❓ (Who)' }
+					rule: 'Modifiers: Attached directly to the emoji they modify',
+					example: '⬆️ (very), 🔁 (often)'
+				}
 			]
 		},
 		{
-			category: 'Semantic Roles',
-			description: 'Roles played by sentence elements',
+			category: 'Grammar and Syntax',
+			description: 'Sentence structure and grammatical rules',
 			rules: [
-				{ rule: 'Agent: Doer of the action', example: '👤🚶 (I walk)' },
-				{ rule: 'Patient: Receiver of the action', example: '🐕🍖 (Dog eats bone)' },
 				{
-					rule: 'Instrument: Tool used for the action',
-					example: '👤✂️🧻 (I cut paper with scissors)'
+					rule: 'Basic Structure: Subject (S) + Verb (V) + Object (O)',
+					example: '[S]👤 [V]🚶 [O]🏫 (I walk to school)'
 				},
-				{ rule: 'Recipient: Entity receiving something', example: '👤🎁👉 (I give you a gift)' }
+				{
+					rule: 'Tense: ⏪ (Past), ⏩ (Future), No marker for present',
+					example: '👤⏪🚶 (I walked)'
+				},
+				{ rule: 'Negation: Use ❌ before the verb', example: "👤❌🚶 (I don't walk)" },
+				{ rule: 'Questions: Add ❓ at the end of the sentence', example: '👤🚶❓ (Do I walk?)' },
+				{ rule: 'Passive Voice: Use 🔄 before the verb', example: '🏠🔄🏗️ (The house is built)' }
 			]
 		},
 		{
@@ -60,18 +65,30 @@
 					rule: 'Comparative: Use ⬆️ or ⬇️',
 					example: '🐘⬆️🔝🐁 (An elephant is bigger than a mouse)'
 				},
-				{ rule: 'Possessive: Place owned object after owner', example: '👤🏠 (My house)' },
-				{ rule: 'Relative Clauses: Use 🔗', example: '👤👀🐕🔗🏃 (I see the dog that is running)' }
+				{ rule: 'Superlative: Use 🔝 after the adjective', example: '👤😊🔝 (I am the happiest)' },
+				{ rule: 'Conjunctions: & (and), | (or), ↔️ (but)', example: '👤🚶&🏃 (I walk and run)' },
+				{ rule: 'Abstract Concepts: Combine emojis', example: '⚖️ (justice), 💭💡 (hypothesis)' }
 			]
 		},
 		{
-			category: 'Cultural Context',
+			category: 'Cultural Adaptability',
 			description: 'Ensuring universal understanding',
 			rules: [
-				{ rule: '🌐 : Global context' },
-				{ rule: '🇺🇳 : United Nations or international context' },
+				{
+					rule: 'Context Markers: 🌐 (Global), 🇺🇳 (International)',
+					example: '🌐👤🗣️ (I speak globally)'
+				},
 				{ rule: 'Use universally recognizable emojis when possible' },
 				{ rule: 'Avoid culture-specific idioms or expressions' }
+			]
+		},
+		{
+			category: 'Machine Compatibility',
+			description: 'Features for NLP and machine translation',
+			rules: [
+				{ rule: 'Formal Grammar Specification: Define syntax rules for parsing' },
+				{ rule: 'Unique Codes: Assign codes to each emoji for processing' },
+				{ rule: 'Provide machine-readable resources (JSON, XML)' }
 			]
 		},
 		{
@@ -84,8 +101,8 @@
 					rule: "'If it's sunny tomorrow, I'll play tennis with my friend'",
 					example: '🎲☀️🔜👤⏩🎾👥'
 				},
-				{ rule: "'She doesn't like coffee but loves tea'", example: '👩❌❤️☕🚫➡️❤️🍵' },
-				{ rule: "'The book I read yesterday was very interesting'", example: '👤⏪👀📕🔗🟰🔝🤔' }
+				{ rule: "'She doesn't like coffee but loves tea'", example: '👩❌❤️☕↔️❤️🍵' },
+				{ rule: "'The book I read yesterday was very interesting'", example: '👤⏪👀📕🔗🟰⬆️🤔' }
 			]
 		}
 	];
