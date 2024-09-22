@@ -8,13 +8,18 @@
 	let gameActive: boolean = true;
 	let submitDisabled: boolean = false;
 	let currentLevel: number = 1;
-	let levels: any[] = [];
+	let levels: { number: number; name: string; description: string }[] = [];
 	let questions: any[] = [];
 	let correctAnswersInLevel: number = 0;
 
 	async function fetchLevels() {
 		const response = await fetch('/api/levels');
 		levels = await response.json();
+	}
+
+	function getCurrentLevelName(): string {
+		const currentLevelObj = levels.find((level) => level.number === currentLevel);
+		return currentLevelObj ? currentLevelObj.name : '';
 	}
 
 	async function fetchQuestions(level: number) {
@@ -80,7 +85,7 @@
 			feedback = `Incorrect. The correct answer is: "${result.correctAnswer}"`;
 		}
 
-		setTimeout(nextQuestion, 3000);
+		setTimeout(nextQuestion, 1000);
 	}
 
 	onMount(async () => {
@@ -112,7 +117,9 @@
 		</button>
 
 		<div class="mb-4">
-			<p class="font-semibold mb-1">Level: {currentLevel} | Total Score: {score}</p>
+			<p class="font-semibold mb-1">
+				Level {currentLevel}: {getCurrentLevelName()} | Total Score: {score}
+			</p>
 			<p class="text-sm text-gray-600">Correct answers in this level: {correctAnswersInLevel}/3</p>
 			<div class="w-full bg-gray-200 rounded-full h-2.5">
 				<div
