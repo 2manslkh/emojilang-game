@@ -17,7 +17,12 @@
 		'🔢 🐦 🚶 ⬆️ 🌳',
 		'👥👥 ➕ 👤 🍽️ 🍕',
 		'🔵 🟰 🔝 🔵',
-		'👩 🗣️ ➡️ 👨 ➕ 👨 👂'
+		'👩 🗣️ ➡️ 👨 ➕ 👨 👂',
+		'🌞 ⏩ 🌧️ 🔜',
+		'👤 ⏪ 🚶 🏫 ⏪',
+		'🐈 ➕ 🐕 🟰 🐾',
+		'👥 ❓ 🍽️ 🍔 🔜',
+		'🌍 ⏩ 🔥 ⬆️'
 	];
 
 	const correctTranslations: string[] = [
@@ -30,7 +35,12 @@
 		'Many birds walk on the tree',
 		'They and I eat pizza',
 		'It is a big thing',
-		'She speaks to him and he listens'
+		'She speaks to him and he listens',
+		'The sun will rain soon',
+		'I went to school yesterday',
+		'Cats and dogs are pets',
+		'Shall we eat burgers later?',
+		'The world will get hotter'
 	];
 
 	function getRandomSentence(): string {
