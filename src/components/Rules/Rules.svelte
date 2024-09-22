@@ -2,107 +2,116 @@
 	interface GrammarRule {
 		category: string;
 		description: string;
-		rules: Array<{ rule: string; example?: string }>;
+		rules: Array<{ rule: string; examples?: string[] }>;
 	}
 
 	const grammarRules: GrammarRule[] = [
 		{
-			category: 'Core Principles',
-			description: 'Fundamental concepts of Emojilang',
+			category: 'Nouns',
+			description: 'Represented by emojis depicting objects, people, or concepts',
 			rules: [
-				{ rule: 'Visual Communication: Use emojis as primary means of expression' },
-				{ rule: 'Simplicity and Intuitiveness: Easy-to-learn structure' },
-				{ rule: 'Expressiveness: Convey a wide range of ideas' },
-				{ rule: 'Cultural Neutrality: Inclusive and adaptable across cultures' },
-				{ rule: 'Machine Readability: Structured for easy parsing and translation' }
+				{ rule: 'People', examples: ['👤 (person)', '👩 (woman)', '👨 (man)'] },
+				{ rule: 'Places', examples: ['🏫 (school)', '🏠 (house)', '🏖️ (beach)'] },
+				{ rule: 'Objects', examples: ['📕 (book)', '🍎 (apple)', '🚗 (car)'] },
+				{ rule: 'Concepts', examples: ['❤️ (love)', '⚖️ (justice)', '💡 (idea)'] }
 			]
 		},
 		{
-			category: 'Vocabulary',
-			description: 'Basic elements of Emojilang',
+			category: 'Verbs',
+			description: 'Emojis showing actions or processes',
+			rules: [
+				{ rule: 'Action verbs', examples: ['🚶 (walk)', '🍽️ (eat)', '👀 (see)'] },
+				{ rule: 'State verbs', examples: ['❤️ (love)', '💭 (think)', '🟰 (be)'] },
+				{ rule: 'Process verbs', examples: ['🏗️ (build)', '📝 (write)', '🎨 (create)'] }
+			]
+		},
+		{
+			category: 'Adjectives & Adverbs',
+			description: 'Placed after the noun/verb they modify',
+			rules: [
+				{ rule: 'Descriptive adjectives', examples: ['🔥 (hot)', '😊 (happy)', '🔝 (big)'] },
+				{ rule: 'Adverbs of manner', examples: ['🏃 (quickly)', '🐌 (slowly)'] },
+				{ rule: 'Adverbs of frequency', examples: ['🔁 (often)', '1️⃣ (once)'] }
+			]
+		},
+		{
+			category: 'Modifiers & Affixes',
+			description: 'Attached directly to the emoji they modify',
+			rules: [
+				{ rule: 'Intensity modifiers', examples: ['⬆️ (very)', '⬇️ (slightly)'] },
+				{ rule: 'Comparative', examples: ['🐘⬆️🔝🐁 (An elephant is bigger than a mouse)'] },
+				{ rule: 'Superlative', examples: ['👤😊🔝 (I am the happiest)'] }
+			]
+		},
+		{
+			category: 'Tense & Aspect',
+			description: 'Indicating when an action occurs',
+			rules: [
+				{ rule: 'Past tense: ⏪', examples: ['👤⏪🚶 (I walked)'] },
+				{ rule: 'Future tense: ⏩', examples: ['👤⏩🚶 (I will walk)'] },
+				{ rule: 'Present tense: No marker', examples: ['👤🚶 (I walk)'] },
+				{ rule: 'Continuous aspect: 🔄', examples: ['👤🔄🚶 (I am walking)'] }
+			]
+		},
+		{
+			category: 'Negation',
+			description: 'Expressing the opposite or absence of something',
 			rules: [
 				{
-					rule: 'Nouns: Represented by emojis depicting objects, people, or concepts',
-					example: '👤 (person), 🏫 (school)'
-				},
-				{ rule: 'Verbs: Emojis showing actions or processes', example: '🚶 (walk), 📝 (write)' },
-				{
-					rule: 'Adjectives/Adverbs: Placed after the noun/verb they modify',
-					example: '🔥 (hot), 😊 (happy)'
-				},
-				{
-					rule: 'Modifiers: Attached directly to the emoji they modify',
-					example: '⬆️ (very), 🔁 (often)'
+					rule: 'Use ❌ before the verb',
+					examples: ["👤❌🚶 (I don't walk)", "👤❌❤️🍕 (I don't like pizza)"]
 				}
 			]
 		},
 		{
-			category: 'Grammar and Syntax',
-			description: 'Sentence structure and grammatical rules',
+			category: 'Plurality & Quantity',
+			description: 'Expressing multiple items or specific amounts',
 			rules: [
+				{ rule: 'Repeat emoji for plural', examples: ['🐈🐈 (cats)', '🌳🌳🌳 (trees)'] },
 				{
-					rule: 'Basic Structure: Subject (S) + Verb (V) + Object (O)',
-					example: '[S]👤 [V]🚶 [O]🏫 (I walk to school)'
-				},
-				{
-					rule: 'Tense: ⏪ (Past), ⏩ (Future), No marker for present',
-					example: '👤⏪🚶 (I walked)'
-				},
-				{ rule: 'Negation: Use ❌ before the verb', example: "👤❌🚶 (I don't walk)" },
-				{ rule: 'Questions: Add ❓ at the end of the sentence', example: '👤🚶❓ (Do I walk?)' },
-				{ rule: 'Passive Voice: Use 🔄 before the verb', example: '🏠🔄🏗️ (The house is built)' }
+					rule: 'Use numbers for specific quantities',
+					examples: ['3️⃣🍎 (three apples)', '💯👤 (hundred people)']
+				}
 			]
 		},
 		{
-			category: 'Advanced Structures',
-			description: 'Complex grammatical constructions',
+			category: 'Possession',
+			description: 'Showing ownership or belonging',
 			rules: [
 				{
-					rule: 'Conditional: Use 🎲 to indicate "if/when"',
-					example: '🎲🌧️👤⏩🏠 (If it rains, I will stay home)'
-				},
-				{
-					rule: 'Comparative: Use ⬆️ or ⬇️',
-					example: '🐘⬆️🔝🐁 (An elephant is bigger than a mouse)'
-				},
-				{ rule: 'Superlative: Use 🔝 after the adjective', example: '👤😊🔝 (I am the happiest)' },
-				{ rule: 'Conjunctions: & (and), | (or), ↔️ (but)', example: '👤🚶&🏃 (I walk and run)' },
-				{ rule: 'Abstract Concepts: Combine emojis', example: '⚖️ (justice), 💭💡 (hypothesis)' }
+					rule: 'Place owned object after owner',
+					examples: ['👤🏠 (my house)', "🐕🦴 (dog's bone)"]
+				}
 			]
 		},
 		{
-			category: 'Cultural Adaptability',
-			description: 'Ensuring universal understanding',
+			category: 'Questions',
+			description: 'Forming interrogative sentences',
 			rules: [
 				{
-					rule: 'Context Markers: 🌐 (Global), 🇺🇳 (International)',
-					example: '🌐👤🗣️ (I speak globally)'
+					rule: 'Add ❓ at the end of the sentence',
+					examples: ['👤🚶❓ (Do I walk?)', '👉❤️🍕❓ (Do you like pizza?)']
 				},
-				{ rule: 'Use universally recognizable emojis when possible' },
-				{ rule: 'Avoid culture-specific idioms or expressions' }
-			]
-		},
-		{
-			category: 'Machine Compatibility',
-			description: 'Features for NLP and machine translation',
-			rules: [
-				{ rule: 'Formal Grammar Specification: Define syntax rules for parsing' },
-				{ rule: 'Unique Codes: Assign codes to each emoji for processing' },
-				{ rule: 'Provide machine-readable resources (JSON, XML)' }
+				{ rule: 'Who: 👤❓', examples: ['👤❓🚶➡️🏫 (Who walks to school?)'] },
+				{ rule: 'What: 🤷❓', examples: ['🤷❓👉🍽️ (What do you eat?)'] },
+				{ rule: 'When: 🕐❓', examples: ['🕐❓👥⏩🚶 (When will we go?)'] },
+				{ rule: 'Where: 📍❓', examples: ['📍❓👉🏠 (Where do you live?)'] },
+				{ rule: 'Why: 🤔❓', examples: ["🤔❓👤❌🚶 (Why don't I walk?)"] },
+				{ rule: 'How: 🛠️❓', examples: ['🛠️❓👉🏗️🏠 (How do you build a house?)'] }
 			]
 		},
 		{
 			category: 'Example Sentences',
-			description: 'Complex sentence structures',
+			description: 'Complex sentence structures demonstrating multiple rules',
 			rules: [
-				{ rule: "'The big dog often eats small bones'", example: '🔝🐕🔁🍽️🔽🦴' },
-				{ rule: "'When will we go to the beach?'", example: '🕐❓👥⏩🚶➡️🏖️' },
+				{ rule: 'The big dog often eats small bones', examples: ['🔝🐕🔁🍽️🔽🦴'] },
+				{ rule: 'When will we go to the beach?', examples: ['🕐❓👥⏩🚶➡️🏖️'] },
 				{
-					rule: "'If it's sunny tomorrow, I'll play tennis with my friend'",
-					example: '🎲☀️🔜👤⏩🎾👥'
+					rule: "If it's sunny tomorrow, I'll play tennis with my friend",
+					examples: ['🎲☀️🔜👤⏩🎾👥']
 				},
-				{ rule: "'She doesn't like coffee but loves tea'", example: '👩❌❤️☕↔️❤️🍵' },
-				{ rule: "'The book I read yesterday was very interesting'", example: '👤⏪👀📕🔗🟰⬆️🤔' }
+				{ rule: "She doesn't like coffee but loves tea", examples: ['👩❌❤️☕↔️❤️🍵'] },
+				{ rule: 'The book I read yesterday was very interesting', examples: ['👤⏪👀📕🔗🟰⬆️🤔'] }
 			]
 		}
 	];
@@ -115,11 +124,15 @@
 			<h3 class="text-xl font-semibold text-gray-700 mb-2">{section.category}</h3>
 			<p class="text-gray-600 mb-2">{section.description}</p>
 			<ul class="list-disc pl-6">
-				{#each section.rules as { rule, example }}
+				{#each section.rules as { rule, examples }}
 					<li class="text-gray-600 mb-1">
 						{rule}
-						{#if example}
-							<span class="text-gray-500 italic"> - Example: {example}</span>
+						{#if examples}
+							<ul class="list-disc pl-6">
+								{#each examples as example}
+									<li class="text-gray-500">{example}</li>
+								{/each}
+							</ul>
 						{/if}
 					</li>
 				{/each}
