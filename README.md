@@ -1,38 +1,74 @@
-# create-svelte
+# Emojilang
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/main/packages/create-svelte).
+Emojilang is an innovative language game that challenges players to translate sentences written in emojis into English. This project is birthed out of ClaudeAI and is inspired by [Iconlang](https://
+iconlang.net/)
 
-## Creating a project
+## Installation Guide
 
-If you're seeing this, you've probably already done this step. Congrats!
+1. Clone the repository:
 
-```bash
-# create a new project in the current directory
-npm create svelte@latest
+   ```
+   git clone https://github.com/yourusername/emojilang.git
+   cd emojilang
+   ```
 
-# create a new project in my-app
-npm create svelte@latest my-app
-```
+2. Install dependencies:
 
-## Developing
+   ```
+   npm install
+   ```
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+3. Run the development server:
 
-```bash
-npm run dev
+   ```
+   npm run dev
+   ```
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
+4. Open your browser and navigate to `http://localhost:5000` (or the port specified in the console output).
 
-## Building
+## Emojilang Guide
 
-To create a production version of your app:
+Emojilang is a constructed language using emojis as its primary vocabulary. Here's a brief guide to understanding and using Emojilang:
 
-```bash
-npm run build
-```
+### Basic Grammar
 
-You can preview the production build with `npm run preview`.
+1. Sentence Structure: Subject + Verb + Object
+   Example: 👤 🍽️ 🍎 (I eat an apple)
 
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+2. Tenses:
+
+   - Past: ⏪ (before the verb)
+   - Present: No marker (default)
+   - Future: ⏩ (before the verb)
+     Example: 👤 ⏩ 🚶 ➡️ 🏫 (I will go to school)
+
+3. Questions: Add ❓ at the end of the sentence
+   Example: 👉 ❤️ 🍕 ❓ (Do you like pizza?)
+
+### Common Emojis
+
+- Pronouns: 👤 (I/Me), 👉 (You), 👨 (He/Him), 👩 (She/Her), 🔵 (It), 👥 (We/Us), 👥👥 (They/Them)
+- Verbs: 🟰 (To be), 🚶 (To go), 🍽️ (To eat), ❤️ (To love)
+- Modifiers: 🔝 (Big/Very), 🔽 (Small/Little)
+- Negation: ❌ (Not/Don't)
+
+### Advanced Concepts
+
+1. Conjunctions: Use ➕ to join clauses
+   Example: 👩 🗣️ ➕ 👨 👂 (She speaks and he listens)
+
+2. Passive Voice: Use 🔄 before the verb
+   Example: 🍎 🔄 🍽️ 👤 (The apple is eaten by me)
+
+3. Conditional: Use 🎲 to indicate "if/when"
+   Example: 🎲 🌧️ 👤 ⏩ 🏠 (If it rains, I will stay home)
+
+Remember, Emojilang is flexible and context-dependent. Practice and creativity will help you become fluent in this unique language!
+
+## Contributing
+
+We welcome contributions to Emojilang! Please read our CONTRIBUTING.md file for guidelines on how to submit issues, feature requests, and code.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE.md file for details.
