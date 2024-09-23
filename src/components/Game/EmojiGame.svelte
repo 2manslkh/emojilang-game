@@ -23,7 +23,9 @@
 	}
 
 	function getRandomQuestion(): { emojilang: string; level: number } {
-		const index = Math.floor(Math.random());
+		const index = Math.floor(Math.random() * levels[currentLevel].questions.length);
+		console.log(levels[currentLevel].questions);
+		console.log(index);
 		return levels[currentLevel].questions[index];
 	}
 
@@ -61,6 +63,10 @@
 			score += 10;
 			correctAnswersInLevel++;
 			feedback = 'Correct! +10 points';
+			// Remove the current question from the list
+			levels[currentLevel].questions = levels[currentLevel].questions.filter(
+				(q) => q.emojilang !== currentQuestion?.emojilang
+			);
 
 			if (correctAnswersInLevel === 3) {
 				currentLevel++;
