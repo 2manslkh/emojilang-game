@@ -19,8 +19,8 @@
 		property="og:description"
 		content="Learn to communicate with emojis in this fun translation game!"
 	/>
-	<meta property="og:image" content="https://yourdomain.com/path-to-image.jpg" />
-	<meta property="og:url" content="https://yourdomain.com" />
+	<meta property="og:image" content="https://emojilang-game.vercel.app/og.png" />
+	<meta property="og:url" content="https://emojilang-game.vercel.app" />
 	<meta name="twitter:card" content="summary_large_image" />
 </svelte:head>
 
