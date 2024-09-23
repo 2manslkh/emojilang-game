@@ -63,7 +63,7 @@
 			// Assuming a score of 80 or above is considered correct
 			score += 10;
 			correctAnswersInLevel++;
-			feedback = `Correct! +10 points. Score: ${result.score}`;
+			feedback = `Correct! +10 points. Accuracy: ${result.score}%`;
 			// Remove the current question from the list
 			levels[currentLevel].questions = levels[currentLevel].questions.filter(
 				(q) => q.emojilang !== currentQuestion?.emojilang
@@ -81,7 +81,7 @@
 				}
 			}
 		} else {
-			feedback = `Incorrect. The correct translation is: "${result.correct_translation}". Score: ${result.score}`;
+			feedback = `Incorrect. The correct translation is: "${result.correct_translation}". Accuracy: ${result.score}%`;
 		}
 
 		setTimeout(nextQuestion, 2000);
@@ -136,7 +136,7 @@
 				</div>
 			</div>
 
-			<div class="h-4">
+			<div class="h-6">
 				{#if feedback}
 					<p class="text-sm text-gray-600">{feedback}</p>
 				{/if}
