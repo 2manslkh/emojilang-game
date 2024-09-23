@@ -12,6 +12,16 @@
 <svelte:head>
 	<title>Emoji Translation Game</title>
 	<meta name="description" content="Play the Emoji Translation Game" />
+	<meta name="keywords" content="emoji, translation, game, language learning, emojilang" />
+	<meta name="author" content="Your Name or Company" />
+	<meta property="og:title" content="Emoji Translation Game" />
+	<meta
+		property="og:description"
+		content="Learn to communicate with emojis in this fun translation game!"
+	/>
+	<meta property="og:image" content="https://yourdomain.com/path-to-image.jpg" />
+	<meta property="og:url" content="https://yourdomain.com" />
+	<meta name="twitter:card" content="summary_large_image" />
 </svelte:head>
 
 <main class="container mx-auto px-4 py-10 flex flex-col items-center justify-center min-h-screen">
