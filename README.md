@@ -26,10 +26,10 @@ iconlang.net/)
 
 4. Open your browser and navigate to `http://localhost:5173` (or the port specified in the console output).
 
-# **Emojilang: An Updated Comprehensive Guide**
+# **Emojilang: A Comprehensive Guide**
 
-**Version**: 2.1  
-**Objective**: Emojilang is a visual, emoji-based language designed for concise, expressive, and universal communication. It utilizes emojis as words and grammatical elements to construct sentences capable of conveying simple to complex ideas. This guide presents the updated rules and structures of Emojilang, incorporating improvements for efficiency, expandability, consistency, and adaptability.
+**Version**: 2.3  
+**Objective**: Emojilang is a visual, emoji-based language designed for concise, expressive, and universal communication. It utilizes emojis as words and grammatical elements to construct sentences capable of conveying simple to complex ideas. This guide presents the updated rules and structures of Emojilang, incorporating improvements for clarity, efficiency, and adaptability.
 
 ---
 
@@ -37,11 +37,12 @@ iconlang.net/)
 
 - [Emojilang](#emojilang)
   - [Installation Guide](#installation-guide)
-- [**Emojilang: An Updated Comprehensive Guide**](#emojilang-an-updated-comprehensive-guide)
+- [**Emojilang: A Comprehensive Guide**](#emojilang-a-comprehensive-guide)
   - [**Table of Contents**](#table-of-contents)
   - [**1. Introduction**](#1-introduction)
   - [**2. Core Principles**](#2-core-principles)
   - [**3. Vocabulary**](#3-vocabulary)
+    - [**Pronouns**](#pronouns)
     - [**Nouns**](#nouns)
     - [**Verbs**](#verbs)
     - [**Adjectives and Adverbs**](#adjectives-and-adverbs)
@@ -62,18 +63,19 @@ iconlang.net/)
     - [**Hypothetical and Conditional Statements**](#hypothetical-and-conditional-statements)
     - [**Conjunctions and Connectors**](#conjunctions-and-connectors)
   - [**7. Cultural and Contextual Adaptability**](#7-cultural-and-contextual-adaptability)
-  - [**8. Machine Compatibility**](#8-machine-compatibility)
-    - [**Formal Grammar Specification**](#formal-grammar-specification)
-    - [**Machine-Readable Resources**](#machine-readable-resources)
-  - [**9. Examples**](#9-examples)
+  - [**8. Examples**](#8-examples)
     - [**Simple Statements**](#simple-statements)
+    - [**Using Pronouns**](#using-pronouns)
     - [**Using Modifiers**](#using-modifiers)
     - [**Superlatives and Comparatives**](#superlatives-and-comparatives-1)
     - [**Plurality and Quantity**](#plurality-and-quantity-1)
     - [**Questions**](#questions-1)
     - [**Passive Voice**](#passive-voice-1)
     - [**Complex Sentences**](#complex-sentences)
-  - [**10. Conclusion**](#10-conclusion)
+  - [**9. Conclusion**](#9-conclusion)
+- [Emojilang Dictionary: Nouns and Verbs with Usage Examples](#emojilang-dictionary-nouns-and-verbs-with-usage-examples)
+  - [Nouns](#nouns-1)
+  - [Verbs](#verbs-1)
   - [Contributing](#contributing)
   - [License](#license)
 
@@ -91,17 +93,30 @@ Emojilang aims to bridge the gap between visual symbols and linguistic expressio
 - **Simplicity and Intuitiveness**: Maintain an easy-to-learn structure, enabling users to quickly grasp and use the language.
 - **Expressiveness**: Allow for the expression of a wide range of ideas, from basic statements to complex concepts.
 - **Cultural Neutrality**: Design the language to be inclusive and adaptable across different cultures.
-- **Machine Readability**: Structure the language to facilitate parsing and translation by natural language processing systems.
 
 ---
 
 ## **3. Vocabulary**
 
+### **Pronouns**
+
+- Pronouns represent specific or general entities without naming them directly.
+
+  | Pronoun                       | Emoji    | Meaning               |
+  | ----------------------------- | -------- | --------------------- |
+  | First Person Singular         | **👤**   | I, me                 |
+  | Second Person Singular        | **👉**   | you                   |
+  | Third Person Singular Male    | **👨**   | he, him               |
+  | Third Person Singular Female  | **👩**   | she, her              |
+  | Third Person Singular Neutral | **🧑**   | they (singular), them |
+  | First Person Plural           | **👥**   | we, us                |
+  | Second Person Plural          | **👉➕** | you all               |
+  | Third Person Plural           | **👥➕** | they, them (plural)   |
+
 ### **Nouns**
 
 - Represented by emojis depicting people, animals, objects, places, and ideas.
 - **Examples**:
-  - **👤**: "person"
   - **🐕**: "dog"
   - **🏫**: "school"
   - **🌳**: "tree"
@@ -137,13 +152,10 @@ Emojilang aims to bridge the gap between visual symbols and linguistic expressio
 
 ### **Sentence Structure**
 
-- **Standard Structure**: **Subject (S) + Verb (V) + Object (O)**
-- **Syntax Markers (Optional for Clarity)**:
-  - **[S]**: Subject
-  - **[V]**: Verb
-  - **[O]**: Object
+- **Standard Structure**: **Subject + Verb + Object**
+- Pronouns or nouns can serve as the subject and object.
 - **Example**:
-  - **[S]👤 [V]🚶 [O]🏫**: "I walk to school."
+  - **👤 🚶 🏫**: "I walk to school."
 
 ### **Tense and Aspect**
 
@@ -170,8 +182,9 @@ Emojilang aims to bridge the gap between visual symbols and linguistic expressio
 
 ### **Plurality and Quantity**
 
-- **Plural Marker**: **➕** attached as a **suffix** to nouns.
+- **Plural Marker**: **➕** attached as a **suffix** to nouns and pronouns.
   - **🐕➕**: "dogs"
+  - **👥➕**: "they" (plural third person)
 - **Alternative Plural Form**: Use the **repetition** of the noun emoji.
   - **🐕🐕**: "dogs"
 - **Specific Quantity**:
@@ -185,8 +198,8 @@ Emojilang aims to bridge the gap between visual symbols and linguistic expressio
 - **Possessive Marker**: **'s** or **🖐️** as a **suffix** to the possessor.
 - **Examples**:
   - **👤's🏠**: "my house"
-  - **👤🖐️🏠**: "my house"
-  - **👥's🐕➕**: "our dogs"
+  - **👉's🐕**: "your dog"
+  - **👥's🌳**: "our tree"
 
 ### **Questions**
 
@@ -200,7 +213,7 @@ Emojilang aims to bridge the gap between visual symbols and linguistic expressio
   - **How**: **🧐❓**
   - **How Many**: **❓🔢**
 - **Example**:
-  - **🕐❓ [S]👤 [V]🚶📅 [O]🏫**: "When will I go to school?"
+  - **🕐❓ 👤 🚶📅 🏫**: "When will I go to school?"
 
 ### **Passive Voice**
 
@@ -208,7 +221,7 @@ Emojilang aims to bridge the gap between visual symbols and linguistic expressio
 - **Structure**: **Object + Passive Marker + Verb + [by] + Subject**
 - **Optional**: **By** can be indicated using **🔛** or context.
 - **Example**:
-  - **[O]📖 [V]🔄📝⏳ [S]👤**: "The book was written by me."
+  - **📖 🔄📝⏳ 👨**: "The book was written by him."
 
 ---
 
@@ -231,11 +244,11 @@ Emojilang aims to bridge the gap between visual symbols and linguistic expressio
   - **🔝🔥**: "hottest"
   - **🔝😊**: "happiest"
 - **Usage in Sentences**:
-  - **[S]🌞 [V]🔥🔝**: "The sun is the hottest."
-  - **[S]🐇 [V]➕🏃**: "The rabbit runs faster."
+  - **🌞 🔝🔥**: "The sun is the hottest."
+  - **🐇 ➕🏃**: "The rabbit runs faster."
 - **Comparing Two Entities**:
   - Use **than**: **>**
-    - **[S]🐇 [V]🏃 [Adv]➕ [O]🐢 >**: "The rabbit runs faster than the turtle."
+    - **🐇 🏃 ➕ 🐢 >**: "The rabbit runs faster than the turtle."
 
 ---
 
@@ -254,7 +267,7 @@ Emojilang aims to bridge the gap between visual symbols and linguistic expressio
 
 - **Conditional Marker**: **❔** at the beginning of the condition clause.
 - **Example**:
-  - **❔👤🚶📅➡️🏫, [S]👤 [V]📝📅**: "If I go to school, I will write."
+  - **❔👤 🚶📅 🏫, 👤 📝📅**: "If I go to school, I will write."
 
 ### **Conjunctions and Connectors**
 
@@ -264,7 +277,7 @@ Emojilang aims to bridge the gap between visual symbols and linguistic expressio
 - **Because**: **🧭**
 - **Therefore**: **∴**
 - **Example**:
-  - **👤🚶⏳➡️🏫 🧭 👤📝⏳**: "I went to school because I wrote."
+  - **👤 🚶⏳ 🏫 🧭 👤 📝⏳**: "I went to school because I wrote."
 
 ---
 
@@ -278,107 +291,349 @@ Emojilang aims to bridge the gap between visual symbols and linguistic expressio
 
 ---
 
-## **8. Machine Compatibility**
-
-### **Formal Grammar Specification**
-
-- **Syntax Rules** are defined using formal grammar structures to aid parsing.
-- **Example Syntax**:
-  - **\<Sentence\>** ::= [\<Question\>] \<Subject\> \<Predicate\> [\<Object\>] [\<Modifiers\>]
-  - **\<Predicate\>** ::= \<Verb\> [\<Tense Marker\>] [\<Negation Marker\>]
-
-### **Machine-Readable Resources**
-
-- Provide lexicons and grammar rules in formats like JSON or XML.
-- **Unique Codes** can be assigned to each emoji for NLP processing.
-
----
-
-## **9. Examples**
+## **8. Examples**
 
 ### **Simple Statements**
 
-1. **[S]👤 [V]🚶🕒 [O]🏫**  
+1. **👤 🚶🕒 🏫**  
    "I walk to school."
 
-2. **[S]🐕➕ [V]🏃⏳**  
+2. **🐕➕ 🏃⏳**  
    "The dogs ran."
+
+### **Using Pronouns**
+
+1. **👉 🚶📅 🏠**  
+   "You will walk home."
+
+2. **👥 ❤️ 🌳**  
+   "We love trees."
+
+3. **👩 🎨 🖼️**  
+   "She creates art."
+
+4. **👨 🏃🔄**  
+   "He is running."
+
+5. **🧑 ❤️ 🐕**  
+   "They (singular) love dogs."
+
+6. **👥➕ 🏃🔄**  
+   "They (plural) are running."
 
 ### **Using Modifiers**
 
-1. **[S]🌞 [V]🔥⬆️**  
+1. **🌞 🔥⬆️**  
    "The sun is very hot."
 
-2. **[S]👤 [V]🔁🚶**  
+2. **👤 🔁 🚶**  
    "I often walk."
 
 ### **Superlatives and Comparatives**
 
-1. **[S]🌞 [V]🔥🔝**  
+1. **🌞 🔝🔥**  
    "The sun is the hottest."
 
-2. **[S]🐇 [V]➕🏃 [O]🐢 >**  
+2. **🐇 ➕🏃 🐢 >**  
    "The rabbit runs faster than the turtle."
 
-3. **[S]👤 [V]😊🔝**  
+3. **👤 🔝😊**  
    "I am the happiest."
 
 ### **Plurality and Quantity**
 
-1. **[S]👥 [V]❤️ [O]🌳🐕➕**  
+1. **👥 ❤️ 🌳 & 🐕➕**  
    "We love trees and dogs."
 
-2. **[S]👤 [V]🎨 [O]🐈🐈**  
+2. **👤 🎨 🐈🐈**  
    "I create cats." (plural by repetition)
 
-3. **[S]👤 [V]🛒 [O]2️⃣🍎**  
+3. **👤 🛒 2️⃣🍎**  
    "I buy two apples."
 
 ### **Questions**
 
-1. **👤❓ [V]🚶📅 [O]🏫**  
+1. **👤❓ 🚶📅 🏫**  
    "Who will go to school?"
 
-2. **🤔❓ [S]👤 [V]❌🚶➡️🏫**  
-   "Why am I not going to school?"
+2. **🤔❓ 👉 ❌🚶 ➡️ 🏫**  
+   "Why are you not going to school?"
 
 ### **Passive Voice**
 
-1. **[O]📖 [V]🔄📝⏳ [S]👤**  
-   "The book was written by me."
+1. **📖 🔄📝⏳ 👩**  
+   "The book was written by her."
 
-2. **[O]🏠 [V]🔄🏗️📅**  
+2. **🏠 🔄🏗️📅**  
    "The house will be built."
 
 ### **Complex Sentences**
 
-1. **❔👤🚶📅➡️🏫, [S]👤 [V]📝📅**  
+1. **❔👤 🚶📅 🏫, 👤 📝📅**  
    "If I go to school, I will write."
 
-2. **[S]👤 [V]❤️🕒 [O]🐕➕ & 🐈➕**  
-   "I love dogs and cats."
+2. **👤 ❤️🕒 🐕➕ & 🐈➕**  
+   "I loved dogs and cats."
 
-3. **[S]👥 [V]💭💡**  
+3. **👥 💭💡**  
    "We have an idea."
 
-4. **[S]👤 [V]🎓⏳ ∴ [S]👤 [V]🏢📅**  
+4. **👤 🎓⏳ ∴ 👤 🏢📅**  
    "I graduated, therefore I will work."
 
 ---
 
-## **10. Conclusion**
+## **9. Conclusion**
 
-Emojilang Version 2.1 presents a refined and expanded language system that balances simplicity with expressiveness. By integrating formal grammar rules, modifiers, and systematic emoji combinations, Emojilang enables users to communicate a wide range of ideas effectively. The inclusion of superlatives, comparatives, and enhanced plural forms adds depth to the language, allowing for more nuanced expressions. Its adaptability ensures cultural inclusivity, and its machine-friendly design facilitates integration with technology, paving the way for innovative communication in our increasingly interconnected world.
+Emojilang Version 2.3 presents a refined and expanded language system that balances simplicity with expressiveness. By integrating clear pronoun representations, formal grammar rules, modifiers, and systematic emoji combinations, Emojilang enables users to communicate a wide range of ideas effectively. The inclusion of distinct pronouns for "he", "she", and "they" ensures clarity and inclusivity, allowing for more nuanced expressions. Its adaptability ensures cultural relevance, paving the way for innovative communication in our increasingly interconnected world.
 
 ---
 
-**Next Steps for Learners**:
+# Emojilang Dictionary: Nouns and Verbs with Usage Examples
 
-- **Practice**: Use Emojilang in daily communication to become familiar with its structures.
-- **Contribute**: Participate in community discussions to further refine and expand the language.
-- **Explore Technology Integration**: Utilize apps and tools that support Emojilang for translation and learning.
+## Nouns
 
-Embrace Emojilang as a dynamic language that evolves with its users, fostering global understanding through the universal language of emojis.
+1. **Dog**
+
+   - **Emoji**: 🐕
+   - **Emojilang Sentence**: **👤 ❤️ 🐕**
+   - **Translation**: "I love dogs."
+
+2. **Cat**
+
+   - **Emoji**: 🐈
+   - **Emojilang Sentence**: **👥 🎨 🐈**
+   - **Translation**: "We draw a cat."
+
+3. **Book**
+
+   - **Emoji**: 📖
+   - **Emojilang Sentence**: **👨 📖 📝**
+   - **Translation**: "He writes a book."
+
+4. **Car**
+
+   - **Emoji**: 🚗
+   - **Emojilang Sentence**: **👩 🚗 🚙📅**
+   - **Translation**: "She will drive a car."
+
+5. **House**
+
+   - **Emoji**: 🏠
+   - **Emojilang Sentence**: **👥 🏠 🏡**
+   - **Translation**: "We live in a house."
+
+6. **Tree**
+
+   - **Emoji**: 🌳
+   - **Emojilang Sentence**: **👤 ❤️ 🌳**
+   - **Translation**: "I love trees."
+
+7. **Sun**
+
+   - **Emoji**: 🌞
+   - **Emojilang Sentence**: **🌞 🔝🔥**
+   - **Translation**: "The sun is the hottest."
+
+8. **Moon**
+
+   - **Emoji**: 🌜
+   - **Emojilang Sentence**: **👥 👀 🌜**
+   - **Translation**: "We see the moon."
+
+9. **Star**
+
+   - **Emoji**: ⭐
+   - **Emojilang Sentence**: **👉 👀 ⭐➕**
+   - **Translation**: "You see stars."
+
+10. **Water**
+
+    - **Emoji**: 💧
+    - **Emojilang Sentence**: **👤 🥤 💧**
+    - **Translation**: "I drink water."
+
+11. **Fire**
+
+    - **Emoji**: 🔥
+    - **Emojilang Sentence**: **👤 👀 🔥**
+    - **Translation**: "I see fire."
+
+12. **Flower**
+
+    - **Emoji**: 🌸
+    - **Emojilang Sentence**: **👥 ❤️ 🌸**
+    - **Translation**: "We love flowers."
+
+13. **Food**
+
+    - **Emoji**: 🍲
+    - **Emojilang Sentence**: **👨 🍽️ 🍲**
+    - **Translation**: "He eats food."
+
+14. **Friend**
+
+    - **Emoji**: 🤝
+    - **Emojilang Sentence**: **👩 🤝 👥**
+    - **Translation**: "She is our friend."
+
+15. **School**
+
+    - **Emoji**: 🏫
+    - **Emojilang Sentence**: **👤 🚶 🏫**
+    - **Translation**: "I walk to school."
+
+16. **Heart**
+
+    - **Emoji**: ❤️
+    - **Emojilang Sentence**: **👤 ❤️ 🐕**
+    - **Translation**: "I love dogs."
+
+17. **Bird**
+
+    - **Emoji**: 🐦
+    - **Emojilang Sentence**: **🐦 🛫**
+    - **Translation**: "The bird flies."
+
+18. **Time**
+
+    - **Emoji**: ⏰
+    - **Emojilang Sentence**: **⏰ ⏳**
+    - **Translation**: "Time passed."
+
+19. **Mountain**
+
+    - **Emoji**: 🏔️
+    - **Emojilang Sentence**: **👥 🚶📅 🏔️**
+    - **Translation**: "We will hike the mountain."
+
+20. **Music**
+    - **Emoji**: 🎵
+    - **Emojilang Sentence**: **👤 🎧 🎵**
+    - **Translation**: "I listen to music."
+
+---
+
+## Verbs
+
+1. **Eat**
+
+   - **Emoji**: 🍽️
+   - **Emojilang Sentence**: **👥 🍽️ 🍲**
+   - **Translation**: "We eat food."
+
+2. **Sleep**
+
+   - **Emoji**: 😴
+   - **Emojilang Sentence**: **👤 😴 🛌**
+   - **Translation**: "I sleep in bed."
+
+3. **Run**
+
+   - **Emoji**: 🏃
+   - **Emojilang Sentence**: **🐕 🏃**
+   - **Translation**: "The dog runs."
+
+4. **Read**
+
+   - **Emoji**: 👀📖
+   - **Emojilang Sentence**: **👩 👀 📖**
+   - **Translation**: "She reads a book."
+
+5. **Write**
+
+   - **Emoji**: 📝
+   - **Emojilang Sentence**: **👤 📝 📄**
+   - **Translation**: "I write a document."
+
+6. **Sing**
+
+   - **Emoji**: 🎤
+   - **Emojilang Sentence**: **👥 🎤 🎵**
+   - **Translation**: "We sing songs."
+
+7. **Dance**
+
+   - **Emoji**: 💃
+   - **Emojilang Sentence**: **👨 💃 🎶**
+   - **Translation**: "He dances to music."
+
+8. **Swim**
+
+   - **Emoji**: 🏊
+   - **Emojilang Sentence**: **👥 🏊 🌊**
+   - **Translation**: "We swim in the sea."
+
+9. **Fly**
+
+   - **Emoji**: 🛫
+   - **Emojilang Sentence**: **✈️ 🛫 🌤️**
+   - **Translation**: "The airplane flies."
+
+10. **Drink**
+
+    - **Emoji**: 🥤
+    - **Emojilang Sentence**: **👤 🥤 💧**
+    - **Translation**: "I drink water."
+
+11. **See**
+
+    - **Emoji**: 👀
+    - **Emojilang Sentence**: **👤 👀 🌞**
+    - **Translation**: "I see the sun."
+
+12. **Hear**
+
+    - **Emoji**: 👂
+    - **Emojilang Sentence**: **👥 👂 🎵**
+    - **Translation**: "We hear music."
+
+13. **Speak**
+
+    - **Emoji**: 🗣️
+    - **Emojilang Sentence**: **👤 🗣️ 👉**
+    - **Translation**: "I speak to you."
+
+14. **Think**
+
+    - **Emoji**: 💭
+    - **Emojilang Sentence**: **👩 💭 💡**
+    - **Translation**: "She thinks of an idea."
+
+15. **Work**
+
+    - **Emoji**: 💼
+    - **Emojilang Sentence**: **👨 💼 🏢**
+    - **Translation**: "He works at the office."
+
+16. **Play**
+
+    - **Emoji**: 🎮
+    - **Emojilang Sentence**: **👤 🎮 🎲**
+    - **Translation**: "I play games."
+
+17. **Drive**
+
+    - **Emoji**: 🚗
+    - **Emojilang Sentence**: **👉 🚗 🏠**
+    - **Translation**: "You drive home."
+
+18. **Study**
+
+    - **Emoji**: 📚
+    - **Emojilang Sentence**: **👥 📚 🏫**
+    - **Translation**: "We study at school."
+
+19. **Buy**
+
+    - **Emoji**: 🛒
+    - **Emojilang Sentence**: **👤 🛒 🍎**
+    - **Translation**: "I buy apples."
+
+20. **Love**
+    - **Emoji**: ❤️
+    - **Emojilang Sentence**: **👤 ❤️ 👩**
+    - **Translation**: "I love her."
 
 ## Contributing
 

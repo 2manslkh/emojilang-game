@@ -46,23 +46,24 @@
 	async function submitTranslation() {
 		submitDisabled = true;
 
-		const response = await fetch('/api/validate-answer', {
+		const response = await fetch('/api/ai/validate', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify({
-				emojilang: currentQuestion?.emojilang,
-				userAnswer: userTranslation
+				emojilang_expression: currentQuestion?.emojilang,
+				user_translation: userTranslation
 			})
 		});
 
 		const result = await response.json();
 
-		if (result.isCorrect) {
+		if (result.score >= 80) {
+			// Assuming a score of 80 or above is considered correct
 			score += 10;
 			correctAnswersInLevel++;
-			feedback = 'Correct! +10 points';
+			feedback = `Correct! +10 points. Score: ${result.score}`;
 			// Remove the current question from the list
 			levels[currentLevel].questions = levels[currentLevel].questions.filter(
 				(q) => q.emojilang !== currentQuestion?.emojilang
@@ -80,7 +81,7 @@
 				}
 			}
 		} else {
-			feedback = `Incorrect. The correct answer is: "${result.correctAnswer}"`;
+			feedback = `Incorrect. The correct translation is: "${result.correct_translation}". Score: ${result.score}`;
 		}
 
 		setTimeout(nextQuestion, 2000);
