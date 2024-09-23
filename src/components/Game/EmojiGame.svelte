@@ -1,15 +1,16 @@
 <script lang="ts">
+	import type { Level } from '$lib/emojilang/types';
 	import { onMount } from 'svelte';
 
 	let currentQuestion: { emojilang: string; level: number } | null = null;
 	let userTranslation: string = '';
 	let score: number = 0;
 	let feedback: string = '';
-	let gameActive: boolean = true;
 	let submitDisabled: boolean = false;
 	let currentLevel: number = 1;
-	let levels: { number: number; name: string; description: string }[] = [];
-	let questions: any[] = [];
+	let levels: Record<number, Level> = {};
+	$: levels;
+	$: levelName = levels[currentLevel]?.name;
 	let correctAnswersInLevel: number = 0;
 
 	async function fetchLevels() {
@@ -18,26 +19,18 @@
 	}
 
 	function getCurrentLevelName(): string {
-		const currentLevelObj = levels.find((level) => level.number === currentLevel);
-		return currentLevelObj ? currentLevelObj.name : '';
-	}
-
-	async function fetchQuestions(level: number) {
-		const response = await fetch(`/api/levels/${level}/questions`);
-		questions = await response.json();
+		return levels[currentLevel].name;
 	}
 
 	function getRandomQuestion(): { emojilang: string; level: number } {
-		const index = Math.floor(Math.random() * questions.length);
-		return questions[index];
+		const index = Math.floor(Math.random());
+		return levels[currentLevel].questions[index];
 	}
 
 	async function startGame() {
-		gameActive = true;
 		score = 0;
 		currentLevel = 1;
 		correctAnswersInLevel = 0;
-		await fetchQuestions(currentLevel);
 		nextQuestion();
 	}
 
@@ -74,9 +67,8 @@
 				correctAnswersInLevel = 0;
 				if (currentLevel <= 10) {
 					feedback += ` Congratulations! You've advanced to level ${currentLevel}!`;
-					await fetchQuestions(currentLevel);
+					// await fetchQuestions(currentLevel);
 				} else {
-					gameActive = false;
 					feedback = 'Congratulations! You completed all levels!';
 					return;
 				}
@@ -85,7 +77,7 @@
 			feedback = `Incorrect. The correct answer is: "${result.correctAnswer}"`;
 		}
 
-		setTimeout(nextQuestion, 1000);
+		setTimeout(nextQuestion, 2000);
 	}
 
 	onMount(async () => {
@@ -95,42 +87,53 @@
 </script>
 
 <div class="max-w-md mx-auto bg-white rounded-lg shadow-md overflow-hidden">
-	<div class="p-6">
+	<div class="p-6 flex flex-col">
 		<h2 class="text-2xl font-bold text-center mb-4">Emoji Translation Game</h2>
+		<h3 class="text-lg font-bold text-center mb-4">
+			Level {currentLevel}: {levelName}
+		</h3>
 
-		<div class="text-4xl text-center mb-4">{currentQuestion?.emojilang}</div>
+		<div class="flex-grow flex flex-col justify-between">
+			<div>
+				<div class="text-4xl text-center mb-4">{currentQuestion?.emojilang}</div>
 
-		<input
-			type="text"
-			bind:value={userTranslation}
-			placeholder="Enter your translation"
-			class="w-full p-2 border rounded-md mb-4"
-			disabled={submitDisabled}
-		/>
+				<input
+					type="text"
+					bind:value={userTranslation}
+					placeholder="Enter your translation"
+					class="w-full p-2 border rounded-md mb-4"
+					disabled={submitDisabled}
+				/>
 
-		<button
-			on:click={submitTranslation}
-			class="w-full bg-black text-white py-2 rounded-md mb-4 disabled:opacity-50 disabled:cursor-not-allowed"
-			disabled={submitDisabled}
-		>
-			Submit Translation
-		</button>
+				<button
+					on:click={submitTranslation}
+					class="w-full bg-black text-white py-2 rounded-md mb-4 disabled:opacity-50 disabled:cursor-not-allowed"
+					disabled={submitDisabled}
+				>
+					Submit Translation
+				</button>
 
-		<div class="mb-4">
-			<p class="font-semibold mb-1">
-				Level {currentLevel}: {getCurrentLevelName()} | Total Score: {score}
-			</p>
-			<p class="text-sm text-gray-600">Correct answers in this level: {correctAnswersInLevel}/3</p>
-			<div class="w-full bg-gray-200 rounded-full h-2.5">
-				<div
-					class="bg-blue-600 h-2.5 rounded-full"
-					style="width: {(correctAnswersInLevel / 3) * 100}%"
-				></div>
+				<div class="mb-4">
+					<p class="font-semibold mb-1">
+						Total Score: {score}
+					</p>
+					<p class="text-sm text-gray-600">
+						Correct answers in this level: {correctAnswersInLevel}/3
+					</p>
+					<div class="w-full bg-gray-200 rounded-full h-2.5">
+						<div
+							class="bg-blue-600 h-2.5 rounded-full"
+							style="width: {(correctAnswersInLevel / 3) * 100}%"
+						></div>
+					</div>
+				</div>
+			</div>
+
+			<div class="h-4">
+				{#if feedback}
+					<p class="text-sm text-gray-600">{feedback}</p>
+				{/if}
 			</div>
 		</div>
-
-		{#if feedback}
-			<p class="mt-4 text-sm text-gray-600">{feedback}</p>
-		{/if}
 	</div>
 </div>
