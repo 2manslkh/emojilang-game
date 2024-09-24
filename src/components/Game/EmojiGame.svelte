@@ -44,13 +44,11 @@
 			}, 1000);
 
 			setTimeout(() => {
-				feedback = '';
 				inputElement.focus(); // Re-focus the input element
 			}, 1001);
 
 			setTimeout(() => {
 				feedback = '';
-				inputElement.focus(); // Re-focus the input element
 			}, 2000);
 		}
 	}
