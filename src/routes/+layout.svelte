@@ -1,5 +1,9 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import '../app.css';
+	import { inject } from '@vercel/analytics';
+
+	onMount(inject);
 </script>
 
 <div class="app">
