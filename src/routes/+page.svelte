@@ -47,3 +47,24 @@
 		</div>
 	</div>
 </main>
+
+<footer class="w-full text-center py-4 bg-gray-100">
+	<div class="container mx-auto px-4">
+		<a
+			href="https://github.com/2manslkh/emojilang-game"
+			target="_blank"
+			rel="noopener noreferrer"
+			class="text-blue-600 hover:text-blue-800 mr-4"
+		>
+			GitHub
+		</a>
+		<a
+			href="https://t.me/emojilanggame"
+			target="_blank"
+			rel="noopener noreferrer"
+			class="text-blue-600 hover:text-blue-800"
+		>
+			Submit Feedback / Report Bugs
+		</a>
+	</div>
+</footer>
