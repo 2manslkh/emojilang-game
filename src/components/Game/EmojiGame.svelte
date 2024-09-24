@@ -7,9 +7,8 @@
 	let feedback: string = '';
 	let submitDisabled: boolean = false;
 	$: currentQuestion = game?.getCurrentQuestion();
-	$: levels = game?.getLevels() || {};
 	$: currentLevel = game?.getCurrentLevel() || 1;
-	$: levelName = levels[currentLevel]?.name;
+	let levelName: string = '';
 	$: score = game?.getScore() || 0;
 	$: correctAnswersInLevel = game?.getCorrectAnswersInLevel() || 0;
 	let inputElement: HTMLInputElement;
@@ -19,6 +18,7 @@
 		await game.fetchLevels();
 		game.startGame();
 		currentQuestion = game.getCurrentQuestion();
+		levelName = game.getCurrentLevelName();
 	}
 
 	function handleKeydown(event: KeyboardEvent) {
@@ -33,14 +33,20 @@
 		const result = await game.submitTranslation(userTranslation);
 		feedback = result.feedback;
 		score = result.score;
-		currentLevel = result.currentLevel;
 		correctAnswersInLevel = result.correctAnswersInLevel;
 		if (!result.gameCompleted) {
 			setTimeout(() => {
 				game.nextQuestion();
 				currentQuestion = game.getCurrentQuestion();
+				currentLevel = game.getCurrentLevel();
+				levelName = game.getCurrentLevelName();
 				userTranslation = '';
 				submitDisabled = false;
+
+				if (result.correctAnswersInLevel === 3) {
+					game.resetCorrectAnswersInLevel();
+					correctAnswersInLevel = game.getCorrectAnswersInLevel();
+				}
 			}, 1000);
 
 			setTimeout(() => {

@@ -30,6 +30,10 @@ export class EmojilangGame {
         return this.correctAnswersInLevel;
     }
 
+    resetCorrectAnswersInLevel(): void {
+        this.correctAnswersInLevel = 0;
+    }
+
     private getRandomQuestion(): Question {
         const index = Math.floor(Math.random() * this.levels[this.currentLevel].questions.length);
         return this.levels[this.currentLevel].questions[index];
@@ -80,7 +84,6 @@ export class EmojilangGame {
 
             if (this.correctAnswersInLevel === 3) {
                 this.currentLevel++;
-                this.correctAnswersInLevel = 0;
                 if (this.currentLevel <= 10) {
                     feedback += ` Congratulations! You've advanced to level ${this.currentLevel}!`;
                 } else {
