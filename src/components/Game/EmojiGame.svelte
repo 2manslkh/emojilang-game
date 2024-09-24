@@ -1,8 +1,8 @@
 <script lang="ts">
-	import type { Level } from '$lib/emojilang/types';
+	import type { Level, Question } from '$lib/emojilang/types';
 	import { onMount } from 'svelte';
 
-	let currentQuestion: { emojilang: string; level: number } | null = null;
+	let currentQuestion: Question | null = null;
 	let userTranslation: string = '';
 	let score: number = 0;
 	let feedback: string = '';
@@ -22,7 +22,7 @@
 		return levels[currentLevel].name;
 	}
 
-	function getRandomQuestion(): { emojilang: string; level: number } {
+	function getRandomQuestion(): Question {
 		const index = Math.floor(Math.random() * levels[currentLevel].questions.length);
 		console.log(levels[currentLevel].questions);
 		console.log(index);
@@ -46,16 +46,19 @@
 	async function submitTranslation() {
 		submitDisabled = true;
 
-		const response = await fetch('/api/ai/validate', {
+		const response = await fetch('/api/ai/validatev2', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify({
+				correct_translation: currentQuestion?.answer,
 				emojilang_expression: currentQuestion?.emojilang,
 				user_translation: userTranslation
 			})
 		});
+
+		console.log('🚀 | submitTranslation | response:', response);
 
 		const result = await response.json();
 
@@ -81,7 +84,7 @@
 				}
 			}
 		} else {
-			feedback = `Incorrect. The correct translation is: "${result.correct_translation}". Accuracy: ${result.score}%`;
+			feedback = `Incorrect. The correct translation is: "${currentQuestion?.answer}". Accuracy: ${result.score}%`;
 		}
 
 		setTimeout(nextQuestion, 2000);

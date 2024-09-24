@@ -1,228 +1,945 @@
 import type { Question } from "./types";
 
 export const questions: Question[] = [
+
     // Level 1: Single Nouns
-    { emojilang: "👤", answer: "Person", level: 1 },
-    { emojilang: "🐕", answer: "Dog", level: 1 },
-    { emojilang: "🏫", answer: "School", level: 1 },
-    { emojilang: "🍎", answer: "Apple", level: 1 },
-    { emojilang: "🏠", answer: "House", level: 1 },
-    { emojilang: "🚗", answer: "Car", level: 1 },
-    { emojilang: "🌳", answer: "Tree", level: 1 },
-    { emojilang: "📱", answer: "Phone", level: 1 },
-    { emojilang: "🐈", answer: "Cat", level: 1 },
-    { emojilang: "🌞", answer: "Sun", level: 1 },
-    { emojilang: "🌙", answer: "Moon", level: 1 },
-    { emojilang: "🌊", answer: "Ocean", level: 1 },
-    { emojilang: "🏔️", answer: "Mountain", level: 1 },
-    { emojilang: "🌺", answer: "Flower", level: 1 },
-    { emojilang: "🍕", answer: "Pizza", level: 1 },
-    { emojilang: "📚", answer: "Books", level: 1 },
-    { emojilang: "🎵", answer: "Music", level: 1 },
-    { emojilang: "⚽", answer: "Soccer", level: 1 },
-    { emojilang: "🖥️", answer: "Computer", level: 1 },
-    { emojilang: "🛋️", answer: "Couch", level: 1 },
+    {
+        "emojilang": "🐕",
+        "answer": "dog",
+        "level": 1
+    },
+    {
+        "emojilang": "🐈",
+        "answer": "cat",
+        "level": 1
+    },
+    {
+        "emojilang": "🍎",
+        "answer": "apple",
+        "level": 1
+    },
+    {
+        "emojilang": "🚗",
+        "answer": "car",
+        "level": 1
+    },
+    {
+        "emojilang": "🏠",
+        "answer": "house",
+        "level": 1
+    },
+    {
+        "emojilang": "🌳",
+        "answer": "tree",
+        "level": 1
+    },
+    {
+        "emojilang": "📖",
+        "answer": "book",
+        "level": 1
+    },
+    {
+        "emojilang": "🖊️",
+        "answer": "pen",
+        "level": 1
+    },
+    {
+        "emojilang": "🎵",
+        "answer": "music",
+        "level": 1
+    },
+    {
+        "emojilang": "☕",
+        "answer": "coffee",
+        "level": 1
+    },
+    {
+        "emojilang": "🌞",
+        "answer": "sun",
+        "level": 1
+    },
+    {
+        "emojilang": "🌜",
+        "answer": "moon",
+        "level": 1
+    },
+    {
+        "emojilang": "🍞",
+        "answer": "bread",
+        "level": 1
+    },
+    {
+        "emojilang": "👓",
+        "answer": "glasses",
+        "level": 1
+    },
+    {
+        "emojilang": "🕰️",
+        "answer": "clock",
+        "level": 1
+    },
+    {
+        "emojilang": "🛏️",
+        "answer": "bed",
+        "level": 1
+    },
+    {
+        "emojilang": "✈️",
+        "answer": "airplane",
+        "level": 1
+    },
+    {
+        "emojilang": "🌊",
+        "answer": "ocean",
+        "level": 1
+    },
+    {
+        "emojilang": "🎂",
+        "answer": "cake",
+        "level": 1
+    },
+    {
+        "emojilang": "🚲",
+        "answer": "bicycle",
+        "level": 1
+    },
 
     // Level 2: Simple Verbs
-    { emojilang: "🚶", answer: "Walk", level: 2 },
-    { emojilang: "📝", answer: "Write", level: 2 },
-    { emojilang: "🍽️", answer: "Eat", level: 2 },
-    { emojilang: "👀", answer: "See", level: 2 },
-    { emojilang: "💤", answer: "Sleep", level: 2 },
-    { emojilang: "🏃", answer: "Run", level: 2 },
-    { emojilang: "🗣️", answer: "Talk", level: 2 },
-    { emojilang: "👂", answer: "Listen", level: 2 },
-    { emojilang: "🎨", answer: "Paint", level: 2 },
-    { emojilang: "🎵", answer: "Sing", level: 2 },
-    { emojilang: "💃", answer: "Dance", level: 2 },
-    { emojilang: "📚", answer: "Study", level: 2 },
-    { emojilang: "🏊", answer: "Swim", level: 2 },
-    { emojilang: "✈️", answer: "Fly", level: 2 },
-    { emojilang: "🛒", answer: "Shop", level: 2 },
-    { emojilang: "🍳", answer: "Cook", level: 2 },
-    { emojilang: "📞", answer: "Call", level: 2 },
-    { emojilang: "💻", answer: "Work", level: 2 },
-    { emojilang: "🎮", answer: "Play", level: 2 },
-    { emojilang: "😴", answer: "Rest", level: 2 },
+    {
+        "emojilang": "🍽️",
+        "answer": "eat",
+        "level": 2
+    },
+    {
+        "emojilang": "🏃",
+        "answer": "run",
+        "level": 2
+    },
+    {
+        "emojilang": "🚶",
+        "answer": "walk",
+        "level": 2
+    },
+    {
+        "emojilang": "📝",
+        "answer": "write",
+        "level": 2
+    },
+    {
+        "emojilang": "🗣️",
+        "answer": "speak",
+        "level": 2
+    },
+    {
+        "emojilang": "🎨",
+        "answer": "draw",
+        "level": 2
+    },
+    {
+        "emojilang": "💤",
+        "answer": "sleep",
+        "level": 2
+    },
+    {
+        "emojilang": "🎧",
+        "answer": "listen",
+        "level": 2
+    },
+    {
+        "emojilang": "📖",
+        "answer": "read",
+        "level": 2
+    },
+    {
+        "emojilang": "💭",
+        "answer": "think",
+        "level": 2
+    },
+    {
+        "emojilang": "👀",
+        "answer": "see",
+        "level": 2
+    },
+    {
+        "emojilang": "👂",
+        "answer": "hear",
+        "level": 2
+    },
+    {
+        "emojilang": "🛫",
+        "answer": "fly",
+        "level": 2
+    },
+    {
+        "emojilang": "🏊",
+        "answer": "swim",
+        "level": 2
+    },
+    {
+        "emojilang": "🛒",
+        "answer": "buy",
+        "level": 2
+    },
+    {
+        "emojilang": "❤️",
+        "answer": "love",
+        "level": 2
+    },
+    {
+        "emojilang": "🚗",
+        "answer": "drive",
+        "level": 2
+    },
+    {
+        "emojilang": "🎤",
+        "answer": "sing",
+        "level": 2
+    },
+    {
+        "emojilang": "💃",
+        "answer": "dance",
+        "level": 2
+    },
+    {
+        "emojilang": "💼",
+        "answer": "work",
+        "level": 2
+    },
 
     // Level 3: Noun Phrases (Nouns with Modifiers)
-    { emojilang: "🔝🐕", answer: "Big dog", level: 3 },
-    { emojilang: "😊👤", answer: "Happy person", level: 3 },
-    { emojilang: "🔵🚗", answer: "Blue car", level: 3 },
-    { emojilang: "🔥☕", answer: "Hot coffee", level: 3 },
-    { emojilang: "🔽🏠", answer: "Small house", level: 3 },
-    { emojilang: "🆕📱", answer: "New phone", level: 3 },
-    { emojilang: "🔝🌳", answer: "Tall tree", level: 3 },
-    { emojilang: "🔴🍎", answer: "Red apple", level: 3 },
-    { emojilang: "😺🐈", answer: "Cute cat", level: 3 },
-    { emojilang: "🏃🐕", answer: "Fast dog", level: 3 },
-    { emojilang: "🧠👤", answer: "Smart person", level: 3 },
-    { emojilang: "🔝🏔️", answer: "High mountain", level: 3 },
-    { emojilang: "🔵🌊", answer: "Blue ocean", level: 3 },
-    { emojilang: "🌈🌺", answer: "Colorful flower", level: 3 },
-    { emojilang: "🔥🍕", answer: "Hot pizza", level: 3 },
-    { emojilang: "📚🧠", answer: "Interesting book", level: 3 },
-    { emojilang: "🎵😊", answer: "Happy music", level: 3 },
-    { emojilang: "⚽🏃", answer: "Fast soccer", level: 3 },
-    { emojilang: "💻🆕", answer: "New computer", level: 3 },
-    { emojilang: "🛋️😊", answer: "Comfortable couch", level: 3 },
+    {
+        "emojilang": "🐕 🔝",
+        "answer": "big dog",
+        "level": 3
+    },
+    {
+        "emojilang": "🔴 🍎",
+        "answer": "red apple",
+        "level": 3
+    },
+    {
+        "emojilang": "🚗 🆕",
+        "answer": "new car",
+        "level": 3
+    },
+    {
+        "emojilang": "🟢 🌳",
+        "answer": "green tree",
+        "level": 3
+    },
+    {
+        "emojilang": "📚 📖",
+        "answer": "book collection",
+        "level": 3
+    },
+    {
+        "emojilang": "🎵 🎶",
+        "answer": "musical notes",
+        "level": 3
+    },
+    {
+        "emojilang": "☕ 🔥",
+        "answer": "hot coffee",
+        "level": 3
+    },
+    {
+        "emojilang": "🌞 ☀️",
+        "answer": "bright sun",
+        "level": 3
+    },
+    {
+        "emojilang": "🍞 🥖",
+        "answer": "bread loaf",
+        "level": 3
+    },
+    {
+        "emojilang": "👓 🕶️",
+        "answer": "dark glasses",
+        "level": 3
+    },
+    {
+        "emojilang": "🕰️ ⏰",
+        "answer": "alarm clock",
+        "level": 3
+    },
+    {
+        "emojilang": "✈️ 🛫",
+        "answer": "departing airplane",
+        "level": 3
+    },
+    {
+        "emojilang": "🌊 🌊",
+        "answer": "big ocean",
+        "level": 3
+    },
+    {
+        "emojilang": "🎂 🎉",
+        "answer": "birthday cake",
+        "level": 3
+    },
+    {
+        "emojilang": "🚲 🆕",
+        "answer": "new bicycle",
+        "level": 3
+    },
+    {
+        "emojilang": "⚫ 🐈",
+        "answer": "black cat",
+        "level": 3
+    },
+
 
     // Level 4: Simple Sentences (Subject + Verb)
-    { emojilang: "👤🚶", answer: "I walk", level: 4 },
-    { emojilang: "🐕💤", answer: "The dog sleeps", level: 4 },
-    { emojilang: "👩📝", answer: "She writes", level: 4 },
-    { emojilang: "👨🍽️", answer: "He eats", level: 4 },
-    { emojilang: "🐈🏃", answer: "The cat runs", level: 4 },
-    { emojilang: "👥💃", answer: "We dance", level: 4 },
-    { emojilang: "👉🗣️", answer: "You talk", level: 4 },
-    { emojilang: "🐦✈️", answer: "The bird flies", level: 4 },
-    { emojilang: "👶😴", answer: "The baby sleeps", level: 4 },
-    { emojilang: "👩‍🍳🍳", answer: "The chef cooks", level: 4 },
-    { emojilang: "👨‍🎨🎨", answer: "The artist paints", level: 4 },
-    { emojilang: "👩‍🏫📚", answer: "The teacher studies", level: 4 },
-    { emojilang: "👨‍💻💻", answer: "The programmer works", level: 4 },
-    { emojilang: "👩‍🌾🌱", answer: "The farmer plants", level: 4 },
-    { emojilang: "👨‍🔬🔬", answer: "The scientist researches", level: 4 },
-    { emojilang: "👩‍⚖️⚖️", answer: "The judge decides", level: 4 },
-    { emojilang: "👨‍🚀🚀", answer: "The astronaut launches", level: 4 },
-    { emojilang: "👩‍🔧🔧", answer: "The mechanic fixes", level: 4 },
-    { emojilang: "👨‍🚒🚒", answer: "The firefighter rescues", level: 4 },
-    { emojilang: "👩‍✈️✈️", answer: "The pilot flies", level: 4 },
+    {
+        "emojilang": "👤 🚶",
+        "answer": "I walk.",
+        "level": 4
+    },
+    {
+        "emojilang": "👩 🎤",
+        "answer": "She sings.",
+        "level": 4
+    },
+    {
+        "emojilang": "👨 🏃",
+        "answer": "He runs.",
+        "level": 4
+    },
+    {
+        "emojilang": "👥 🏊",
+        "answer": "We swim.",
+        "level": 4
+    },
+    {
+        "emojilang": "👉 💼",
+        "answer": "You work.",
+        "level": 4
+    },
+    {
+        "emojilang": "🧑 🎧",
+        "answer": "They listen.",
+        "level": 4
+    },
+    {
+        "emojilang": "🐕 🏃",
+        "answer": "The dog runs.",
+        "level": 4
+    },
+    {
+        "emojilang": "🐈 😴",
+        "answer": "The cat sleeps.",
+        "level": 4
+    },
+    {
+        "emojilang": "👤 💭",
+        "answer": "I think.",
+        "level": 4
+    },
+    {
+        "emojilang": "👥 ❤️",
+        "answer": "We love.",
+        "level": 4
+    },
+    {
+        "emojilang": "👨 📖",
+        "answer": "He reads.",
+        "level": 4
+    },
+    {
+        "emojilang": "👩 📝",
+        "answer": "She writes.",
+        "level": 4
+    },
+    {
+        "emojilang": "👤 🍽️",
+        "answer": "I eat.",
+        "level": 4
+    },
+    {
+        "emojilang": "👉 🎮",
+        "answer": "You play.",
+        "level": 4
+    },
+    {
+        "emojilang": "👥 🗣️",
+        "answer": "We speak.",
+        "level": 4
+    },
+    {
+        "emojilang": "🧑 💃",
+        "answer": "They dance.",
+        "level": 4
+    },
+    {
+        "emojilang": "👤 😴",
+        "answer": "I sleep.",
+        "level": 4
+    },
+    {
+        "emojilang": "👨 🛫",
+        "answer": "He flies.",
+        "level": 4
+    },
+    {
+        "emojilang": "👩 🎨",
+        "answer": "She draws.",
+        "level": 4
+    },
+    {
+        "emojilang": "👥 💼",
+        "answer": "We work.",
+        "level": 4
+    },
 
     // Level 5: Sentences with Objects (Subject + Verb + Object)
-    { emojilang: "👤❤️🍕", answer: "I love pizza", level: 5 },
-    { emojilang: "👩📝📕", answer: "She writes a book", level: 5 },
-    { emojilang: "🐕🍽️🦴", answer: "The dog eats a bone", level: 5 },
-    { emojilang: "👨👀🌅", answer: "He sees the sunset", level: 5 },
-    { emojilang: "👥🎵🎸", answer: "We play guitar", level: 5 },
-    { emojilang: "👉🍽️🍎", answer: "You eat an apple", level: 5 },
-    { emojilang: "🐈🏃🐁", answer: "The cat chases a mouse", level: 5 },
-    { emojilang: "👩‍🍳🍳🍳", answer: "The chef cooks eggs", level: 5 },
-    { emojilang: "👨‍🎨🎨🖼️", answer: "The artist paints a picture", level: 5 },
-    { emojilang: "👩‍🏫📚📖", answer: "The teacher reads a book", level: 5 },
-    { emojilang: "👨‍💻💻🖥️", answer: "The programmer uses a computer", level: 5 },
-    { emojilang: "👩‍🌾🌱🌻", answer: "The farmer grows sunflowers", level: 5 },
-    { emojilang: "👨‍🔬🔬🧪", answer: "The scientist conducts an experiment", level: 5 },
-    { emojilang: "👩‍⚖️⚖️📜", answer: "The judge interprets the law", level: 5 },
-    { emojilang: "👨‍🚀🚀🌙", answer: "The astronaut explores the moon", level: 5 },
-    { emojilang: "👩‍🔧🔧🚗", answer: "The mechanic fixes a car", level: 5 },
-    { emojilang: "👨‍🚒🚒🔥", answer: "The firefighter extinguishes the fire", level: 5 },
-    { emojilang: "👩‍✈️✈️🛫", answer: "The pilot flies a plane", level: 5 },
-    { emojilang: "👤🎮🕹️", answer: "I play video games", level: 5 },
-    { emojilang: "👥👀🎬", answer: "We watch a movie", level: 5 },
+    {
+        "emojilang": "👤 ❤️ 🐕",
+        "answer": "I love dogs.",
+        "level": 5
+    },
+    {
+        "emojilang": "👩 📝 📖",
+        "answer": "She writes a book.",
+        "level": 5
+    },
+    {
+        "emojilang": "👨 🍽️ 🍎",
+        "answer": "He eats an apple.",
+        "level": 5
+    },
+    {
+        "emojilang": "👥 🎧 🎵",
+        "answer": "We listen to music.",
+        "level": 5
+    },
+    {
+        "emojilang": "👉 👀 🌞",
+        "answer": "You see the sun.",
+        "level": 5
+    },
+    {
+        "emojilang": "👤 🚗 🏠",
+        "answer": "I drive home.",
+        "level": 5
+    },
+    {
+        "emojilang": "🧑 🏃 🏞️",
+        "answer": "They run in the park.",
+        "level": 5
+    },
+    {
+        "emojilang": "👨 🗣️ 👩",
+        "answer": "He speaks to her.",
+        "level": 5
+    },
+    {
+        "emojilang": "👩 🎤 🎶",
+        "answer": "She sings songs.",
+        "level": 5
+    },
+    {
+        "emojilang": "👥 🛒 🍞",
+        "answer": "We buy bread.",
+        "level": 5
+    },
+    {
+        "emojilang": "👤 🏊 🌊",
+        "answer": "I swim in the sea.",
+        "level": 5
+    },
+    {
+        "emojilang": "👉 🎮 🎲",
+        "answer": "You play games.",
+        "level": 5
+    },
+    {
+        "emojilang": "👥 📝 📄",
+        "answer": "We write documents.",
+        "level": 5
+    },
+    {
+        "emojilang": "🧑 👀 📺",
+        "answer": "They watch TV.",
+        "level": 5
+    },
+    {
+        "emojilang": "👤 💭 💡",
+        "answer": "I think of an idea.",
+        "level": 5
+    },
+    {
+        "emojilang": "👨 🎨 🖼️",
+        "answer": "He draws a picture.",
+        "level": 5
+    },
+    {
+        "emojilang": "👩 🍽️ 🍰",
+        "answer": "She eats cake.",
+        "level": 5
+    },
+    {
+        "emojilang": "👥 ❤️ 🐈",
+        "answer": "We love cats.",
+        "level": 5
+    },
+    {
+        "emojilang": "👉 📖 📚",
+        "answer": "You read books.",
+        "level": 5
+    },
+    {
+        "emojilang": "👤 🗣️ 🧑",
+        "answer": "I speak to them.",
+        "level": 5
+    },
 
     // Level 6: Sentences with Modifiers (Adjectives, Adverbs)
-    { emojilang: "🔝🐕🏃", answer: "The big dog runs quickly", level: 6 },
-    { emojilang: "😊👩🔁📝", answer: "The happy woman often writes", level: 6 },
-    { emojilang: "👤⬆️❤️🔵🚗", answer: "I really love the blue car", level: 6 },
-    { emojilang: "🐌👨🚶➡️🏫", answer: "The man walks slowly to school", level: 6 },
-    { emojilang: "🔥☀️🔥🏖️", answer: "The hot sun warms the beach", level: 6 },
-    { emojilang: "🌈🐦🎵😊", answer: "The colorful bird sings beautifully", level: 6 },
-    { emojilang: "🏃👩🏃➡️🏞️", answer: "The athletic woman runs in the park", level: 6 },
-    { emojilang: "🧠👨📚🔁", answer: "The smart man studies frequently", level: 6 },
-    { emojilang: "😺🐈🐌🚶", answer: "The cute cat walks lazily", level: 6 },
-    { emojilang: "🔝🌳🍃💨", answer: "The tall trees sway gently", level: 6 },
-    { emojilang: "🆕👩‍🍳🍳⬆️🔥", answer: "The new chef cooks very spicy", level: 6 },
-    { emojilang: "🏃🐎⬆️🏃➡️🏞️", answer: "The fast horse gallops swiftly through the field", level: 6 },
-    { emojilang: "🧠🐘🐌🚶", answer: "The wise elephant walks slowly", level: 6 },
-    { emojilang: "😊👶⬆️😄", answer: "The happy baby laughs loudly", level: 6 },
-    { emojilang: "🔝🏔️⬆️❄️", answer: "The high mountain is very snowy", level: 6 },
-    { emojilang: "🔵🌊🔁🌊", answer: "The blue ocean waves constantly", level: 6 },
-    { emojilang: "🌈🌺⬆️🌸", answer: "The colorful flower blooms beautifully", level: 6 },
-    { emojilang: "🔥🍕⬆️😋", answer: "The hot pizza tastes delicious", level: 6 },
-    { emojilang: "📚🧠👨🐌📚", answer: "The interesting book is read slowly", level: 6 },
-    { emojilang: "🎵😊👥🔁💃", answer: "The happy music makes people dance often", level: 6 },
+    {
+        "emojilang": "👤 🚶 🔜",
+        "answer": "I am going to walk.",
+        "level": 6
+    },
+    {
+        "emojilang": "👩 📝 📖 📅",
+        "answer": "She will write a book.",
+        "level": 6
+    },
+    {
+        "emojilang": "👨 🍽️ 🍎 😋",
+        "answer": "He eats a delicious apple.",
+        "level": 6
+    },
+    {
+        "emojilang": "👥 🎧 🎵 🔁",
+        "answer": "We listen to music often.",
+        "level": 6
+    },
+    {
+        "emojilang": "👉 👀 🌞",
+        "answer": "You see the sun.",
+        "level": 6
+    },
+    {
+        "emojilang": "👤 🚗 🏠 🏃",
+        "answer": "I drive home quickly.",
+        "level": 6
+    },
+    {
+        "emojilang": "🧑 🏃 ⬆️ 🏞️",
+        "answer": "They run in the big park.",
+        "level": 6
+    },
+    {
+        "emojilang": "👨 🗣️ 👩 😊",
+        "answer": "He speaks happily to her.",
+        "level": 6
+    },
+    {
+        "emojilang": "👩 🎤 🎶 🎙️",
+        "answer": "She sings songs loudly.",
+        "level": 6
+    },
+    {
+        "emojilang": "👥 🛒 🍞 🍞",
+        "answer": "We buy fresh bread.",
+        "level": 6
+    },
+    {
+        "emojilang": "👤 🏊 🌊 🆒",
+        "answer": "I swim in the cool sea.",
+        "level": 6
+    },
+    {
+        "emojilang": "👉 🎮 🎲 🎯",
+        "answer": "You play games skillfully.",
+        "level": 6
+    },
+    {
+        "emojilang": "👥 📝 📄 📅",
+        "answer": "We will write documents.",
+        "level": 6
+    },
+    {
+        "emojilang": "🧑 👀 📺 😂",
+        "answer": "They watch funny TV.",
+        "level": 6
+    },
+    {
+        "emojilang": "👤 💭 💡 💡",
+        "answer": "I think of a bright idea.",
+        "level": 6
+    },
+    {
+        "emojilang": "👨 🎨 🖼️ 🎨",
+        "answer": "He draws a colorful picture.",
+        "level": 6
+    },
+    {
+        "emojilang": "👩 🍽️ 🍰 🎂",
+        "answer": "She eats birthday cake.",
+        "level": 6
+    },
+    {
+        "emojilang": "👥 ❤️ 🐈 🐈",
+        "answer": "We love little cats.",
+        "level": 6
+    },
+    {
+        "emojilang": "👉 📖 📚 🕒",
+        "answer": "You read books now.",
+        "level": 6
+    },
+    {
+        "emojilang": "👤 🗣️ 🧑 🤔",
+        "answer": "I speak thoughtfully to them.",
+        "level": 6
+    },
+    {
+        "emojilang": "👥 📝⏳ 👥's 💡 📖",
+        "answer": "We wrote our ideas in a book",
+        "level": 6
+    },
 
     // Level 7: Questions
-    { emojilang: "👉❤️🍕❓", answer: "Do you like pizza?", level: 7 },
-    { emojilang: "🕐❓👥⏩🚶", answer: "When will we walk?", level: 7 },
-    { emojilang: "👤❓🚶➡️🏫", answer: "Who walks to school?", level: 7 },
-    { emojilang: "🤔❓👉❌🍽️", answer: "Why don't you eat?", level: 7 },
-    { emojilang: "📍❓👉🏠", answer: "Where do you live?", level: 7 },
-    { emojilang: "🤷❓👉🍽️", answer: "What do you eat?", level: 7 },
-    { emojilang: "🛠️❓👉🏗️🏠", answer: "How do you build a house?", level: 7 },
-    { emojilang: "👉❤️🐕|🐈❓", answer: "Do you prefer dogs or cats?", level: 7 },
-    { emojilang: "🕐❓🌞🔜🌙", answer: "When does the sun set?", level: 7 },
-    { emojilang: "👤❓⏩🏆🏅", answer: "Who will win the competition?", level: 7 },
-    { emojilang: "🤔❓🌧️🔜", answer: "Why is it going to rain?", level: 7 },
-    { emojilang: "📍❓👥⏩🏖️", answer: "Where shall we go to the beach?", level: 7 },
-    { emojilang: "🤷❓👉⏩🎁👤", answer: "What will you give me?", level: 7 },
-    { emojilang: "🛠️❓👉🍳🍳", answer: "How do you cook eggs?", level: 7 },
-    { emojilang: "👉🏃🔁❓", answer: "Do you run often?", level: 7 },
-    { emojilang: "🕐❓👥🔜👀", answer: "When will we see each other?", level: 7 },
-    { emojilang: "👤❓⏪📞👉", answer: "Who called you yesterday?", level: 7 },
-    { emojilang: "🤔❓👉❤️🎵", answer: "Why do you love music?", level: 7 },
-    { emojilang: "📍❓👉⏩💼", answer: "Where will you work?", level: 7 },
-    { emojilang: "🤷❓👉💭🔗👥🌍", answer: "What do you think about our world?", level: 7 },
+    {
+        "emojilang": "👤❓ 🚶 🏫",
+        "answer": "Who walks to school?",
+        "level": 7
+    },
+    {
+        "emojilang": "🕐❓ 👩 🎤",
+        "answer": "When does she sing?",
+        "level": 7
+    },
+    {
+        "emojilang": "🌐❓ 👨 🏃",
+        "answer": "Where does he run?",
+        "level": 7
+    },
+    {
+        "emojilang": "👥❓ ❤️ 🐕",
+        "answer": "Who loves dogs?",
+        "level": 7
+    },
+    {
+        "emojilang": "❓ 👉 🍽️ 🍎",
+        "answer": "What do you eat?",
+        "level": 7
+    },
+    {
+        "emojilang": "🤔❓ 👤 🚗 🏠",
+        "answer": "Why do I drive home?",
+        "level": 7
+    },
+    {
+        "emojilang": "🧐❓ 🧑 🏃 🏞️",
+        "answer": "How do they run in the park?",
+        "level": 7
+    },
+    {
+        "emojilang": "👥❓ 🎧 🎵",
+        "answer": "Who listens to music?",
+        "level": 7
+    },
+    {
+        "emojilang": "❓ 👨 📝 📖",
+        "answer": "What does he write?",
+        "level": 7
+    },
+    {
+        "emojilang": "🕐❓ 👩 🎨 🖼️",
+        "answer": "When does she draw a picture?",
+        "level": 7
+    },
+    {
+        "emojilang": "🌐❓ 👤 🏊 🌊",
+        "answer": "Where do I swim in the sea?",
+        "level": 7
+    },
+    {
+        "emojilang": "👤❓ 💭 💡",
+        "answer": "Who has an idea?",
+        "level": 7
+    },
+    {
+        "emojilang": "🧐❓ 👉 🎮 🎲",
+        "answer": "How do you play games?",
+        "level": 7
+    },
+    {
+        "emojilang": "🤔❓ 👥 📝 📄",
+        "answer": "Why do we write documents?",
+        "level": 7
+    },
+    {
+        "emojilang": "❓ 🧑 👀 📺",
+        "answer": "What do they watch?",
+        "level": 7
+    },
+    {
+        "emojilang": "👤❓ 🗣️ 🧑",
+        "answer": "Who do I speak to?",
+        "level": 7
+    },
+    {
+        "emojilang": "🕐❓ 👨 🍽️ 🍰",
+        "answer": "When does he eat cake?",
+        "level": 7
+    },
+    {
+        "emojilang": "🤔❓ 👥 ❤️ 🐈➕",
+        "answer": "Why do we love cats?",
+        "level": 7
+    },
+    {
+        "emojilang": "🧐❓ 👩 🎤 🎶",
+        "answer": "How does she sing songs?",
+        "level": 7
+    },
+    {
+        "emojilang": "🤔❓ 👥 📖 📚",
+        "answer": "Why do we read books?",
+        "level": 7
+    },
 
     // Level 8: Complex Sentences (Conjunctions, Passive Voice)
-    { emojilang: "👤❤️🍕&🍔", answer: "I love pizza and burgers", level: 8 },
-    { emojilang: "👩📝📕↔️👨🎨🖼️", answer: "She writes books but he paints pictures", level: 8 },
-    { emojilang: "🏠🔄🏗️⏪", answer: "The house was built yesterday", level: 8 },
-    { emojilang: "🎲☀️🔜👤⏩🚶➡️🏖️", answer: "If it's sunny tomorrow, I will go to the beach", level: 8 },
-    { emojilang: "👤🚶➡️🏫|👤🚌➡️🏫", answer: "I either walk to school or take the bus", level: 8 },
-    { emojilang: "👥⏩🍽️🍕🎲👥🏁💼", answer: "We will eat pizza when we finish work", level: 8 },
-    { emojilang: "👤❌🚶∵👤🦵🤕", answer: "I don't walk because my leg hurts", level: 8 },
-    { emojilang: "🎲👉🏃🔁👉⏩💪", answer: "If you run often, you will become strong", level: 8 },
-    { emojilang: "🐈🔄❤️↔️🐕🔄😠", answer: "Cats are loved but dogs are feared", level: 8 },
-    { emojilang: "👤⏩📞👉🎲👉🏠", answer: "I will call you when you are home", level: 8 },
-    { emojilang: "👥⏩🚶➡️🏞️|👥⏩🚗➡️🏖️", answer: "We will either walk to the park or drive to the beach", level: 8 },
-    { emojilang: "🎲🌧️👥⏩🏠↔️👥⏩🏞️", answer: "If it rains we will stay home, otherwise we will go to the park", level: 8 },
-    { emojilang: "👤🔄🎂🔜∴👤⏩🎉", answer: "My birthday is soon, so I will have a party", level: 8 },
-    { emojilang: "👉⏩🎓⏪👉⏩💼", answer: "After you graduate, you will work", level: 8 },
-    { emojilang: "🏠🔄🧼⏪↔️🔜🔄🎨", answer: "The house was cleaned yesterday but will be painted soon", level: 8 },
-    { emojilang: "👤⏩🍽️🎲👤🔚💼&⏪🏠", answer: "I will eat when I finish work and return home", level: 8 },
-    { emojilang: "👉❌🏃∵👉🦵🤕👉⏩🚶", answer: "You can't run because your leg hurts, but you can walk", level: 8 },
-    { emojilang: "🎲☀️👥⏩🏖️↔️🎲🌧️👥⏩🏛️", answer: "If it's sunny we'll go to the beach, but if it rains we'll visit a museum", level: 8 },
-    { emojilang: "👤💻🔜↔️👤📚🔜", answer: "I should work on the computer, but I should also study", level: 8 },
-    { emojilang: "👥🔄👀🎬🕐👉🔄💤", answer: "We were watching a movie while you were sleeping", level: 8 },
+    {
+        "emojilang": "👤 🚶 🏫 ⏱️ 👨 🚗 🏫",
+        "answer": "I walk to school while he drives to school.",
+        "level": 8
+    },
+    {
+        "emojilang": "📖 🔄📝⏳ 👩",
+        "answer": "The book was written by her.",
+        "level": 8
+    },
+    {
+        "emojilang": "👥 ❤️ 🐕 | 🐈",
+        "answer": "We love dogs or cats.",
+        "level": 8
+    },
+    {
+        "emojilang": "👨 🏃 ➕ 👩 >",
+        "answer": "He runs faster than she does.",
+        "level": 8
+    },
+    {
+        "emojilang": "🏠 🔄🏗️📅",
+        "answer": "The house will be built.",
+        "level": 8
+    },
+    {
+        "emojilang": "👤 🍽️ 🍎 ↔️ 🍌",
+        "answer": "I eat apples but not bananas.",
+        "level": 8
+    },
+    {
+        "emojilang": "❔👤 🚶 🏫, 👤 📅 ⏳",
+        "answer": "If I walk to school, I will be late.",
+        "level": 8
+    },
+    {
+        "emojilang": "👥 💭💡, 💡🔝",
+        "answer": "We have an idea, a great idea.",
+        "level": 8
+    },
+    {
+        "emojilang": "👩 🎤 🎶 🔛 👥",
+        "answer": "She sings songs to us.",
+        "level": 8
+    },
+    {
+        "emojilang": "👨 🏃 🏞️ ⏱️ 👩 🏃 🏖️",
+        "answer": "He runs in the park while she runs on the beach.",
+        "level": 8
+    },
+    {
+        "emojilang": "👥 ❤️ 🐕 & 🐈",
+        "answer": "We love dogs and cats.",
+        "level": 8
+    },
+    {
+        "emojilang": "❔👉 🏊 🌊, 👤 🏊 🏊",
+        "answer": "If you swim in the sea, I swim too.",
+        "level": 8
+    },
+    {
+        "emojilang": "👥 🎧 🎵 ↔️ 🎤 🎶",
+        "answer": "We listen to music but don't sing songs.",
+        "level": 8
+    },
+    {
+        "emojilang": "👨 📝 📖 🔝 📖💲",
+        "answer": "He writes a best-selling book.",
+        "level": 8
+    },
+    {
+        "emojilang": "🏢 🔝 👥💼",
+        "answer": "The office is filled with office workers.",
+        "level": 8
+    },
+    {
+        "emojilang": "🧑 💤 ➡️ 🧑 📺 👀",
+        "answer": "They are lazy, so they watch TV.",
+        "level": 8
+    },
+    {
+        "emojilang": "👨 🚗 🏠 & 👩 🚗 🏢",
+        "answer": "He drives home and she drives to work.",
+        "level": 8
+    },
+    {
+        "emojilang": "📖 🔄📝⏳ 👥",
+        "answer": "The book was written by us.",
+        "level": 8
+    },
 
     // Level 9: Sentences with Abstract Concepts
-    { emojilang: "👤💭💡🔗⚖️", answer: "I think ideas about justice", level: 9 },
-    { emojilang: "🌍⏩🔥⬆️", answer: "Global warming is increasing", level: 9 },
-    { emojilang: "👥🤝🟰💪", answer: "Unity is strength", level: 9 },
-    { emojilang: "🕰️🟰💰", answer: "Time is money", level: 9 },
-    { emojilang: "💡🔄🔦🌑", answer: "Knowledge illuminates darkness", level: 9 },
-    { emojilang: "❤️⚖️😊", answer: "Love balances happiness", level: 9 },
-    { emojilang: "🧠💭🟰🌍", answer: "Imagination creates worlds", level: 9 },
-    { emojilang: "👥🌱🌳🟰🌍💚", answer: "We plant trees for a greener world", level: 9 },
-    { emojilang: "🎭🟰🪞👥", answer: "Art reflects society", level: 9 },
-    { emojilang: "👤💪🟰👤💪🧠", answer: "True strength comes from the mind", level: 9 },
-    { emojilang: "🔄🟰🔑➡️💡", answer: "Change is the key to innovation", level: 9 },
-    { emojilang: "🗣️💪🟰🤐💪", answer: "Silence can be louder than words", level: 9 },
-    { emojilang: "🌊🔄🪨🟰⏳", answer: "Persistence overcomes resistance", level: 9 },
-    { emojilang: "👁️🟰🪞💖", answer: "Eyes are the mirror of the soul", level: 9 },
-    { emojilang: "🔓🧠🟰🔓🌍", answer: "Open minds open worlds", level: 9 },
-    { emojilang: "🌱💡🟰🌳💡", answer: "Small ideas grow into big ones", level: 9 },
-    { emojilang: "👣🔙🟰👣⏩", answer: "Looking back helps us move forward", level: 9 },
-    { emojilang: "🌈🟰🔗🌍", answer: "Diversity unites the world", level: 9 },
-    { emojilang: "💖🟰🔑😊", answer: "Love is the key to happiness", level: 9 },
-    { emojilang: "👥🟰1️⃣🌍", answer: "We are one world", level: 9 },
+    {
+        "emojilang": "👥 🕊️🔓 ❤️ 🌍",
+        "answer": "We love freedom and the world.",
+        "level": 9
+    },
+    {
+        "emojilang": "👤 💭💡 💡",
+        "answer": "I think of bright ideas.",
+        "level": 9
+    },
+    {
+        "emojilang": "👨 ⚖️ 📝 📖",
+        "answer": "He writes a book about justice.",
+        "level": 9
+    },
+    {
+        "emojilang": "👩 🔐❤️ 👨",
+        "answer": "She is committed to him.",
+        "level": 9
+    },
+    {
+        "emojilang": "👥 🔄 🕊️ 🧭 🌍 🕊️",
+        "answer": "We change peace because the world needs peace.",
+        "level": 9
+    },
+    {
+        "emojilang": "🧑 🌐❓ 🧠🔬",
+        "answer": "They ask about scientific knowledge.",
+        "level": 9
+    },
+    {
+        "emojilang": "👤 💭💡 ∴ 👥 🏗️ 🏫",
+        "answer": "I have an idea, therefore we build a school.",
+        "level": 9
+    },
+    {
+        "emojilang": "👩 ❤️ 🎨 🖼️ 🖌️",
+        "answer": "She loves artistic painting.",
+        "level": 9
+    },
+    {
+        "emojilang": "👨 💭💭 🌠",
+        "answer": "He dreams of stars.",
+        "level": 9
+    },
+    {
+        "emojilang": "👥 💬 🤝 🕊️",
+        "answer": "We discuss peace.",
+        "level": 9
+    },
+    {
+        "emojilang": "👤 🎓⏳ 🔝 🧠",
+        "answer": "I graduated with highest intelligence.",
+        "level": 9
+    },
+    {
+        "emojilang": "👥 🚶 🌈➡️🌟",
+        "answer": "We walk towards dreams.",
+        "level": 9
+    },
+    {
+        "emojilang": "👩 📝 📖 💭",
+        "answer": "She writes a book of thoughts.",
+        "level": 9
+    },
+    {
+        "emojilang": "👨 🛡️ 🔥 🔄🛡️🌊",
+        "answer": "He protects against fire by changing to water.",
+        "level": 9
+    },
+    {
+        "emojilang": "👥 ❤️ 🎵 🎶 🎼",
+        "answer": "We love music and melody.",
+        "level": 9
+    },
+    {
+        "emojilang": "👤 💭 🤔 🔮",
+        "answer": "I think deeply about the future.",
+        "level": 9
+    },
+    {
+        "emojilang": "🧑 👀 🌌",
+        "answer": "They look at the universe.",
+        "level": 9
+    },
+    {
+        "emojilang": "👩 🎓 ⏳ 🎓🔝",
+        "answer": "She graduated as the best student.",
+        "level": 9
+    },
+    {
+        "emojilang": "👨 💼 ⚖️",
+        "answer": "He works in justice.",
+        "level": 9
+    },
+    {
+        "emojilang": "👥 📝 📜 🕰️",
+        "answer": "We write history.",
+        "level": 9
+    },
 
     // Level 10: Full Paragraphs
     {
-        emojilang: "👤❤️🐕. 👤🐕🔝&🔵. 👤🔁🚶🐕➡️🏞️. 🐕⬆️😊🏃&🎾. 👤&🐕⬆️❤️🕰️👥.",
-        answer: "I love my dog. My dog is big and blue. I often walk my dog to the park. The dog is very happy running and playing. My dog and I really enjoy our time together.",
-        level: 10
+        "emojilang": "👨 🍽️ 🍎➕ & 🍌➕ ⏱️ 👩 🍽️ 🍞 & 🍰",
+        "answer": "He eats apples and bananas while she eats bread and cake.",
+        "level": 10
     },
     {
-        emojilang: "🌞⏩🌧️🔜. 👤⏩🚶🏠. 👤⏩📞👥. 👥⏩🍽️🍕&👀🎬. 👥⏩⬆️😊.",
-        answer: "It will rain soon. I will go home. I will call my friends. We will eat pizza and watch a movie. We will be very happy.",
-        level: 10
+        "emojilang": "👤 🚶⏳ 🏫 & 🎓⏳. ➡️ 🎓⏳, 👤 📝⏳ 📖",
+        "answer": "I went to university and graduated. After graduating, I wrote a book.",
+        "level": 10
     },
     {
-        emojilang: "👤🏢💼. 👤💻&📱. 👥👥💬🔗💼. 🕐12️⃣👤🍽️🥗. 👤🏃🏞️🔚💼. 🌙👤📚&💤.",
-        answer: "I work in an office. I use a computer and phone. We have meetings about work. At 12, I eat a salad. I run in the park after work. At night, I read and sleep.",
-        level: 10
+        "emojilang": "👨 🎧 👩's 🎶 😊. 👨 ❤️ 👩's 🎵",
+        "answer": "He listens to her songs happily. He is in love with her music.",
+        "level": 10
     },
     {
-        emojilang: "🔜👤🎂. 👥👥🎉. 👥⏩🍰&🍦. 👥⏩🎁👤. 👤⬆️😊👀👥. 👤❤️👥.",
-        answer: "Soon it's my birthday. We will have a party. We will eat cake and ice cream. They will give me presents. I'm very happy to see everyone. I love my friends.",
-        level: 10
+        "emojilang": "👥 📝⏳ 👥's 💡⬆️ 📖. 👥 😊⬆️",
+        "answer": "We wrote our bright ideas into our books. We are very satisfied by the outcome.",
+        "level": 10
     },
     {
-        emojilang: "🌍🔥⬆️. 👥🔜🌱🌳. 👥🔜♻️. 👥🔜🚶|🚲. 👥🔜💡💚. 👥1️⃣🟰🌍💚.",
-        answer: "Global warming is increasing. We should plant trees. We should recycle. We should walk or bike. We should use green energy. Together we can make a greener world.",
-        level: 10
+        "emojilang": "👤 🏊 🌊 ☀️. 🌊 🔝 🏊🏞️ >. 👤 😊 💭 💭.",
+        "answer": "I swim in the sea under the sun. The sea is better than the swimming pool. I feel happy thoughts.",
+        "level": 10
+    },
+    {
+        "emojilang": "👥 🗣️ 🤝 🕊️. 🕊️ 🔝 🌍 🔝 😊. 👥 🚶 🌍 🌈➡️ 🌟.",
+        "answer": "We talk to promote peace. Peace makes the world happier. We walk the world towards dreams.",
+        "level": 10
+    },
+    {
+        "emojilang": "👨 🎨 🖼️ 🎨. 👩 👀 🖼️ 😊. 🖼️ 🔝 🎭 >.",
+        "answer": "He paints pictures. She looks at the pictures happily. The pictures are better than the theater.",
+        "level": 10
+    },
+    {
+        "emojilang": "👤 📝 📖 💭. 📖 🔄📝⏳ 👤. 👤 🎧 🎵 📖 🔁.",
+        "answer": "I write a book of thoughts. The book was written by me. I listen to music while reading repeatedly.",
+        "level": 10
+    },
+    {
+        "emojilang": "👥 ❤️ 🌳 & 🌸. 👥 🚶 🏞️ 🔁. 🏞️ 🔝 🏙️ >.",
+        "answer": "We love trees and flowers. We walk in the park often. The park is better than the city.",
+        "level": 10
     }
 ];
