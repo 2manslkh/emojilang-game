@@ -17,6 +17,20 @@
 			]
 		},
 		{
+			category: 'Pronouns',
+			description: 'Emojis representing different persons and numbers',
+			rules: [
+				{ rule: 'First Person Singular', examples: ['👤 (I, me)'] },
+				{ rule: 'Second Person Singular', examples: ['👉 (you)'] },
+				{ rule: 'Third Person Singular Male', examples: ['👨 (he, him)'] },
+				{ rule: 'Third Person Singular Female', examples: ['👩 (she, her)'] },
+				{ rule: 'Third Person Singular Neutral', examples: ['🧑 (they, them - singular)'] },
+				{ rule: 'First Person Plural', examples: ['👥 (we, us)'] },
+				{ rule: 'Second Person Plural', examples: ['👉➕ (you all)'] },
+				{ rule: 'Third Person Plural', examples: ['👥➕ (they, them - plural)'] }
+			]
+		},
+		{
 			category: 'Verbs',
 			description: 'Emojis showing actions or processes',
 			rules: [
