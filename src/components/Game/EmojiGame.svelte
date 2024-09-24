@@ -12,6 +12,7 @@
 	$: levelName = levels[currentLevel]?.name;
 	$: score = game?.getScore() || 0;
 	$: correctAnswersInLevel = game?.getCorrectAnswersInLevel() || 0;
+	let inputElement: HTMLInputElement;
 
 	async function startGame() {
 		game = new EmojilangGame();
@@ -44,6 +45,12 @@
 
 			setTimeout(() => {
 				feedback = '';
+				inputElement.focus(); // Re-focus the input element
+			}, 1001);
+
+			setTimeout(() => {
+				feedback = '';
+				inputElement.focus(); // Re-focus the input element
 			}, 2000);
 		}
 	}
@@ -65,6 +72,7 @@
 				<input
 					type="text"
 					bind:value={userTranslation}
+					bind:this={inputElement}
 					placeholder="Enter your translation"
 					class="w-full p-2 border rounded-md mb-4"
 					disabled={submitDisabled}
