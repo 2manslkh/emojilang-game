@@ -1,99 +1,54 @@
 <script lang="ts">
-	import type { Level, Question } from '$lib/emojilang/types';
 	import { onMount } from 'svelte';
+	import { EmojilangGame } from '$lib/emojilang/game';
 
-	let currentQuestion: Question | null = null;
+	let game: EmojilangGame;
 	let userTranslation: string = '';
-	let score: number = 0;
 	let feedback: string = '';
 	let submitDisabled: boolean = false;
-	let currentLevel: number = 1;
-	let levels: Record<number, Level> = {};
-	$: levels;
+	$: currentQuestion = game?.getCurrentQuestion();
+	$: levels = game?.getLevels() || {};
+	$: currentLevel = game?.getCurrentLevel() || 1;
 	$: levelName = levels[currentLevel]?.name;
-	let correctAnswersInLevel: number = 0;
-
-	async function fetchLevels() {
-		const response = await fetch('/api/levels');
-		levels = await response.json();
-	}
-
-	function getCurrentLevelName(): string {
-		return levels[currentLevel].name;
-	}
-
-	function getRandomQuestion(): Question {
-		const index = Math.floor(Math.random() * levels[currentLevel].questions.length);
-		console.log(levels[currentLevel].questions);
-		console.log(index);
-		return levels[currentLevel].questions[index];
-	}
+	$: score = game?.getScore() || 0;
+	$: correctAnswersInLevel = game?.getCorrectAnswersInLevel() || 0;
 
 	async function startGame() {
-		score = 0;
-		currentLevel = 1;
-		correctAnswersInLevel = 0;
-		nextQuestion();
+		game = new EmojilangGame();
+		await game.fetchLevels();
+		game.startGame();
+		currentQuestion = game.getCurrentQuestion();
 	}
 
-	function nextQuestion() {
-		currentQuestion = getRandomQuestion();
-		userTranslation = '';
-		feedback = '';
-		submitDisabled = false;
+	function handleKeydown(event: KeyboardEvent) {
+		if (event.key === 'Enter' && !submitDisabled) {
+			submitTranslation();
+		}
 	}
 
 	async function submitTranslation() {
 		submitDisabled = true;
 
-		const response = await fetch('/api/ai/validatev2', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({
-				correct_translation: currentQuestion?.answer,
-				emojilang_expression: currentQuestion?.emojilang,
-				user_translation: userTranslation
-			})
-		});
+		const result = await game.submitTranslation(userTranslation);
+		feedback = result.feedback;
+		score = result.score;
+		currentLevel = result.currentLevel;
+		correctAnswersInLevel = result.correctAnswersInLevel;
+		if (!result.gameCompleted) {
+			setTimeout(() => {
+				game.nextQuestion();
+				currentQuestion = game.getCurrentQuestion();
+				userTranslation = '';
+				submitDisabled = false;
+			}, 1000);
 
-		console.log('🚀 | submitTranslation | response:', response);
-
-		const result = await response.json();
-
-		if (result.score >= 80) {
-			// Assuming a score of 80 or above is considered correct
-			score += 10;
-			correctAnswersInLevel++;
-			feedback = `Correct! +10 points. Accuracy: ${result.score}%`;
-			// Remove the current question from the list
-			levels[currentLevel].questions = levels[currentLevel].questions.filter(
-				(q) => q.emojilang !== currentQuestion?.emojilang
-			);
-
-			if (correctAnswersInLevel === 3) {
-				currentLevel++;
-				correctAnswersInLevel = 0;
-				if (currentLevel <= 10) {
-					feedback += ` Congratulations! You've advanced to level ${currentLevel}!`;
-					// await fetchQuestions(currentLevel);
-				} else {
-					feedback = 'Congratulations! You completed all levels!';
-					return;
-				}
-			}
-		} else {
-			feedback = `Incorrect. The correct translation is: "${currentQuestion?.answer}". Accuracy: ${result.score}%`;
+			setTimeout(() => {
+				feedback = '';
+			}, 2000);
 		}
-
-		setTimeout(nextQuestion, 2000);
 	}
 
-	onMount(async () => {
-		await fetchLevels();
-		startGame();
-	});
+	onMount(startGame);
 </script>
 
 <div class="max-w-md mx-auto bg-white rounded-lg shadow-md overflow-hidden">
@@ -113,6 +68,7 @@
 					placeholder="Enter your translation"
 					class="w-full p-2 border rounded-md mb-4"
 					disabled={submitDisabled}
+					on:keydown={handleKeydown}
 				/>
 
 				<button
