@@ -57,6 +57,7 @@ export class EmojilangGame {
         currentLevel: number;
         correctAnswersInLevel: number;
         gameCompleted: boolean;
+        correct: boolean;
     }> {
         const response = await fetch('/api/ai/validatev2', {
             method: 'POST',
@@ -99,6 +100,7 @@ export class EmojilangGame {
         return {
             feedback,
             score: this.score,
+            correct: result.score >= 80,
             currentLevel: this.currentLevel,
             correctAnswersInLevel: this.correctAnswersInLevel,
             gameCompleted

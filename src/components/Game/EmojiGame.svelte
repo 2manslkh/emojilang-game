@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { EmojilangGame } from '$lib/emojilang/game';
+	import { fade } from 'svelte/transition';
 
 	let game: EmojilangGame;
 	let userTranslation: string = '';
@@ -12,6 +13,13 @@
 	$: score = game?.getScore() || 0;
 	$: correctAnswersInLevel = game?.getCorrectAnswersInLevel() || 0;
 	let inputElement: HTMLInputElement;
+	let shakeComponent = false;
+	let correctAudio: HTMLAudioElement;
+
+	onMount(() => {
+		correctAudio = new Audio('/correct.mp3');
+		startGame();
+	});
 
 	async function startGame() {
 		game = new EmojilangGame();
@@ -34,6 +42,16 @@
 		feedback = result.feedback;
 		score = result.score;
 		correctAnswersInLevel = result.correctAnswersInLevel;
+
+		if (result.correct) {
+			correctAudio.play();
+		} else {
+			shakeComponent = true;
+			setTimeout(() => {
+				shakeComponent = false;
+			}, 500);
+		}
+
 		if (!result.gameCompleted) {
 			setTimeout(() => {
 				game.nextQuestion();
@@ -47,22 +65,25 @@
 					game.resetCorrectAnswersInLevel();
 					correctAnswersInLevel = game.getCorrectAnswersInLevel();
 				}
-			}, 1000);
+			}, 300);
 
 			setTimeout(() => {
 				inputElement.focus(); // Re-focus the input element
-			}, 1001);
+			}, 301);
 
 			setTimeout(() => {
 				feedback = '';
 			}, 2000);
 		}
 	}
-
-	onMount(startGame);
 </script>
 
-<div class="max-w-md mx-auto bg-white rounded-lg shadow-md overflow-hidden">
+<div
+	class="max-w-md mx-auto bg-white rounded-lg shadow-md overflow-hidden {shakeComponent
+		? 'shake'
+		: ''}"
+	transition:fade
+>
 	<div class="p-6 flex flex-col">
 		<h2 class="text-2xl font-bold text-center mb-4">Emoji Translation Game</h2>
 		<h3 class="text-lg font-bold text-center mb-4">
@@ -115,3 +136,27 @@
 		</div>
 	</div>
 </div>
+
+<style>
+	@keyframes shake {
+		0% {
+			transform: translateX(0);
+		}
+		25% {
+			transform: translateX(-5px);
+		}
+		50% {
+			transform: translateX(5px);
+		}
+		75% {
+			transform: translateX(-5px);
+		}
+		100% {
+			transform: translateX(0);
+		}
+	}
+
+	.shake {
+		animation: shake 0.5s;
+	}
+</style>
