@@ -19,5 +19,5 @@
 	>
 		Feedback
 	</a>
-	<span class="absolute right-0">v1.1.2</span>
+	<span class="absolute right-0">v1.2.0</span>
 </div>

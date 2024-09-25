@@ -289,284 +289,229 @@ export const questions: Question[] = [
     },
 
 
-    // Level 4: Simple Sentences (Subject + Verb)
+    // Level 4: Movie Titles
     {
-        "emojilang": "👤 🚶",
-        "answer": "I walk.",
+        "emojilang": "👑 🦁",
+        "answer": "The Lion King",
         "level": 4
     },
     {
-        "emojilang": "👩 🎤",
-        "answer": "She sings.",
+        "emojilang": "🧙‍♂️ 💍",
+        "answer": "The Lord of the Rings",
         "level": 4
     },
     {
-        "emojilang": "👨 🏃",
-        "answer": "He runs.",
+        "emojilang": "🦈 🌪️",
+        "answer": "Sharknado",
         "level": 4
     },
     {
-        "emojilang": "👥 🏊",
-        "answer": "We swim.",
+        "emojilang": "👻 👥",
+        "answer": "Ghostbusters",
         "level": 4
     },
     {
-        "emojilang": "👉 💼",
-        "answer": "You work.",
+        "emojilang": "🎭 🦇 🦸‍♂️",
+        "answer": "The Dark Knight",
         "level": 4
     },
     {
-        "emojilang": "🧑 🎧",
-        "answer": "They listen.",
+        "emojilang": "🧊 💎 🚢",
+        "answer": "Titanic",
         "level": 4
     },
     {
-        "emojilang": "🐕 🏃",
-        "answer": "The dog runs.",
+        "emojilang": "🦖 🏞️",
+        "answer": "Jurassic Park",
         "level": 4
     },
     {
-        "emojilang": "🐈 😴",
-        "answer": "The cat sleeps.",
+        "emojilang": "👽 📞 🏠",
+        "answer": "E.T. the Extra-Terrestrial",
         "level": 4
     },
     {
-        "emojilang": "👤 💭",
-        "answer": "I think.",
+        "emojilang": "🧑‍🔬 ⏰ 🚗",
+        "answer": "Back to the Future",
         "level": 4
     },
     {
-        "emojilang": "👥 ❤️",
-        "answer": "We love.",
+        "emojilang": "🎈 🏠 👴",
+        "answer": "Up",
         "level": 4
     },
     {
-        "emojilang": "👨 📖",
-        "answer": "He reads.",
+        "emojilang": "🧜‍♀️ 🐠",
+        "answer": "The Little Mermaid",
         "level": 4
     },
     {
-        "emojilang": "👩 📝",
-        "answer": "She writes.",
+        "emojilang": "🧙‍♂️ 👓 ⚡",
+        "answer": "Harry Potter",
         "level": 4
     },
     {
-        "emojilang": "👤 🍽️",
-        "answer": "I eat.",
+        "emojilang": "🦍 🗽",
+        "answer": "King Kong",
         "level": 4
     },
     {
-        "emojilang": "👉 🎮",
-        "answer": "You play.",
+        "emojilang": "🎭 👨‍👩‍👧‍👦",
+        "answer": "The Godfather",
         "level": 4
     },
     {
-        "emojilang": "👥 🗣️",
-        "answer": "We speak.",
-        "level": 4
-    },
-    {
-        "emojilang": "🧑 💃",
-        "answer": "They dance.",
-        "level": 4
-    },
-    {
-        "emojilang": "👤 😴",
-        "answer": "I sleep.",
-        "level": 4
-    },
-    {
-        "emojilang": "👨 🛫",
-        "answer": "He flies.",
-        "level": 4
-    },
-    {
-        "emojilang": "👩 🎨",
-        "answer": "She draws.",
-        "level": 4
-    },
-    {
-        "emojilang": "👥 💼",
-        "answer": "We work.",
+        "emojilang": "🧟‍♂️ 🧠",
+        "answer": "Zombieland",
         "level": 4
     },
 
-    // Level 5: Sentences with Objects (Subject + Verb + Object)
+    // Level 5: Crypto-related
     {
-        "emojilang": "👤 ❤️ 🐕",
-        "answer": "I love dogs.",
+        "emojilang": "💎⛽️",
+        "answer": "Ethereum",
         "level": 5
     },
     {
-        "emojilang": "👩 📝 📖",
-        "answer": "She writes a book.",
+        "emojilang": "🏹🏹🏹",
+        "answer": "3 Arrows Capital",
         "level": 5
     },
     {
-        "emojilang": "👨 🍽️ 🍎",
-        "answer": "He eats an apple.",
+        "emojilang": "🐶💰",
+        "answer": "Dogecoin",
         "level": 5
     },
     {
-        "emojilang": "👥 🎧 🎵",
-        "answer": "We listen to music.",
+        "emojilang": "🌙 🚀",
+        "answer": "To the Moon",
         "level": 5
     },
     {
-        "emojilang": "👉 👀 🌞",
-        "answer": "You see the sun.",
+        "emojilang": "🧊 🔗 🧊 🔗 🧊",
+        "answer": "Blockchain",
         "level": 5
     },
     {
-        "emojilang": "👤 🚗 🏠",
-        "answer": "I drive home.",
+        "emojilang": "🪙 2️⃣0️⃣",
+        "answer": "ERC20",
         "level": 5
     },
     {
-        "emojilang": "🧑 🏃 🏞️",
-        "answer": "They run in the park.",
+        "emojilang": "🦄 🔃",
+        "answer": "Uniswap",
         "level": 5
     },
     {
-        "emojilang": "👨 🗣️ 👩",
-        "answer": "He speaks to her.",
+        "emojilang": "💡 🔒 📝",
+        "answer": "Smart Contract",
         "level": 5
     },
     {
-        "emojilang": "👩 🎤 🎶",
-        "answer": "She sings songs.",
+        "emojilang": "🐂 🏃",
+        "answer": "Bull Run",
         "level": 5
     },
     {
-        "emojilang": "👥 🛒 🍞",
-        "answer": "We buy bread.",
+        "emojilang": "🐻 📉",
+        "answer": "Bear Market",
         "level": 5
     },
     {
-        "emojilang": "👤 🏊 🌊",
-        "answer": "I swim in the sea.",
+        "emojilang": "💎 🙌",
+        "answer": "Diamond Hands",
         "level": 5
     },
     {
-        "emojilang": "👉 🎮 🎲",
-        "answer": "You play games.",
+        "emojilang": "🧻 🙌",
+        "answer": "Paper Hands",
         "level": 5
     },
     {
-        "emojilang": "👥 📝 📄",
-        "answer": "We write documents.",
+        "emojilang": "🔥",
+        "answer": "Burn",
         "level": 5
     },
     {
-        "emojilang": "🧑 👀 📺",
-        "answer": "They watch TV.",
+        "emojilang": "🐳",
+        "answer": "Whale",
         "level": 5
     },
     {
-        "emojilang": "👤 💭 💡",
-        "answer": "I think of an idea.",
-        "level": 5
-    },
-    {
-        "emojilang": "👨 🎨 🖼️",
-        "answer": "He draws a picture.",
-        "level": 5
-    },
-    {
-        "emojilang": "👩 🍽️ 🍰",
-        "answer": "She eats cake.",
-        "level": 5
-    },
-    {
-        "emojilang": "👥 ❤️ 🐈",
-        "answer": "We love cats.",
-        "level": 5
-    },
-    {
-        "emojilang": "👉 📖 📚",
-        "answer": "You read books.",
-        "level": 5
-    },
-    {
-        "emojilang": "👤 🗣️ 🧑",
-        "answer": "I speak to them.",
+        "emojilang": "🍣 🔃",
+        "answer": "Sushi Swap",
         "level": 5
     },
 
     // Level 6: Sentences with Modifiers (Adjectives, Adverbs)
     {
-        "emojilang": "👤 🚶 🔜",
-        "answer": "I am going to walk.",
+        "emojilang": "💧 💰 🏊",
+        "answer": "Liquidity Pool",
         "level": 6
     },
     {
-        "emojilang": "👩 📝 📖 📅",
-        "answer": "She will write a book.",
+        "emojilang": "🌾 💰",
+        "answer": "Yield Farming",
         "level": 6
     },
     {
-        "emojilang": "👨 🍽️ 🍎 😋",
-        "answer": "He eats a delicious apple.",
+        "emojilang": "🌐🔗🔀 💱",
+        "answer": "Decentralized Exchange (DEX)",
         "level": 6
     },
     {
-        "emojilang": "👥 🎧 🎵 🔁",
-        "answer": "We listen to music often.",
+        "emojilang": "🌐🔗🔀 💰",
+        "answer": "Decentralized Finance (DeFi)",
         "level": 6
     },
     {
-        "emojilang": "👉 👀 🌞",
-        "answer": "You see the sun.",
+        "emojilang": "🌐🔗🔀 🏦",
+        "answer": "Decentralized Autonomous Organization (DAO)",
         "level": 6
     },
     {
-        "emojilang": "👤 🚗 🏠 🏃",
-        "answer": "I drive home quickly.",
+        "emojilang": "🌐🔗🔀 👨‍👩‍👧‍👦 🆔",
+        "answer": "Decentralized Identity",
         "level": 6
     },
     {
-        "emojilang": "🧑 🏃 ⬆️ 🏞️",
-        "answer": "They run in the big park.",
+        "emojilang": "🌐🔗🔀 🖥️ 💾",
+        "answer": "Distributed Storage",
         "level": 6
     },
     {
-        "emojilang": "👨 🗣️ 👩 😊",
-        "answer": "He speaks happily to her.",
+        "emojilang": "🌐🔗🔀 🔐 💱",
+        "answer": "Decentralized Exchange (DEX)",
         "level": 6
     },
     {
-        "emojilang": "👩 🎤 🎶 🎙️",
-        "answer": "She sings songs loudly.",
+        "emojilang": "🌐🔗🔀 🏛️ 💰",
+        "answer": "Decentralized Finance (DeFi)",
         "level": 6
     },
     {
-        "emojilang": "👥 🛒 🍞 🍞",
-        "answer": "We buy fresh bread.",
+        "emojilang": "🌳🔗🔐",
+        "answer": "Merkle Tree",
         "level": 6
     },
     {
-        "emojilang": "👤 🏊 🌊 🆒",
-        "answer": "I swim in the cool sea.",
+        "emojilang": "🌳🔗🔐🚀",
+        "answer": "Verkle Tree",
         "level": 6
     },
     {
-        "emojilang": "👉 🎮 🎲 🎯",
-        "answer": "You play games skillfully.",
+        "emojilang": "🔑👥🔐",
+        "answer": "Multi-signature Wallet",
         "level": 6
     },
     {
-        "emojilang": "👥 📝 📄 📅",
-        "answer": "We will write documents.",
+        "emojilang": "0️⃣ 💡 🧾",
+        "answer": "Zero Knowledge Proof",
         "level": 6
     },
     {
-        "emojilang": "🧑 👀 📺 😂",
-        "answer": "They watch funny TV.",
-        "level": 6
-    },
-    {
-        "emojilang": "👤 💭 💡 💡",
-        "answer": "I think of a bright idea.",
+        "emojilang": "🧾 #️⃣",
+        "answer": "Transaction Hash",
         "level": 6
     },
     {
