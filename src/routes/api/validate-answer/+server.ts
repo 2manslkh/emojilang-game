@@ -1,7 +1,7 @@
 // src/routes/api/validate-answer/+server.ts
 
 import { error, json, type RequestHandler } from "@sveltejs/kit";
-import { questions } from "$lib/emojilang";
+import { questions } from "$lib/EmojiGame";
 
 export const POST: RequestHandler = async ({ request }) => {
     const { emojilang, userAnswer } = await request.json();

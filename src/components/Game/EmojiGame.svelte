@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { EmojilangGame } from '$lib/emojilang/game';
+	import { EmojilangGame } from '$lib/EmojiGame/game';
 	import { fade } from 'svelte/transition';
 
 	let game: EmojilangGame;

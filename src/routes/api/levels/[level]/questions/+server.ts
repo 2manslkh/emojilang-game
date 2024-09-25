@@ -1,7 +1,7 @@
 // src/routes/api/levels/[level]/questions/+server.ts
 
 import { error, json, type RequestHandler } from "@sveltejs/kit";
-import { questions } from "$lib/emojilang";
+import { questions } from "$lib/EmojiGame";
 
 export const GET: RequestHandler = async ({ params }) => {
 

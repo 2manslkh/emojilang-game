@@ -1,4 +1,4 @@
-import type { Level } from "$lib/emojilang/types";
+import type { Level } from "$lib/EmojiGame/types";
 import { writable } from "svelte/store";
 
 export const currentLevel = writable<Level | null>(null);
