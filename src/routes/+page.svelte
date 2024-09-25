@@ -25,12 +25,16 @@
 	<meta name="twitter:card" content="summary_large_image" />
 </svelte:head>
 
-<main class="container mx-auto px-4 py-10 flex flex-col items-center justify-center min-h-screen">
-	<div class="flex flex-col items-center justify-center w-full max-w-md">
-		<div class="w-full bg-white rounded-lg shadow-md overflow-hidden mb-4">
+<main class="container mx-auto px-4 py-10 flex flex-col min-h-screen items-center">
+	<div class="flex flex-col w-full max-w-md mt-20">
+		<div
+			class="w-full bg-white rounded-lg shadow-md overflow-hidden mb-4 self-center place-self-center"
+		>
 			<EmojiGame />
 		</div>
-		<div class="w-full bg-white rounded-lg mb-4">
+	</div>
+	<div class="flex flex-col w-full max-w-md">
+		<div class="w-full mb-4">
 			<Socials />
 		</div>
 
@@ -44,7 +48,7 @@
 
 			{#if showRules}
 				<div
-					class="absolute w-full max-w-md bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 ease-in-out mt-4"
+					class="max-w-md bg-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 ease-in-out mt-4"
 				>
 					<Rules />
 				</div>
@@ -52,5 +56,3 @@
 		</div>
 	</div>
 </main>
-
-<footer class="w-full text-center py-4 bg-gray-100"></footer>

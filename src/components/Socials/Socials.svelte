@@ -17,7 +17,7 @@
 		rel="noopener noreferrer"
 		class="text-blue-600 hover:text-blue-800"
 	>
-		Submit Feedback / Report Bugs
+		Feedback
 	</a>
-	<span class="absolute right-0">v1.1.0</span>
+	<span class="absolute right-0">v1.1.1</span>
 </div>
