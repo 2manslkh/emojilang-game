@@ -143,10 +143,7 @@ export class EmojilangRushGame extends EmojilangGame {
         this.startTime = Date.now();
         this.gameActive.set(true);
         this.startTimer();
-        this.fetchCryptoLevels().then(() => {
-            this.nextQuestion();
-        });
-        return this.getCurrentQuestion();
+        return this.nextQuestion();
     }
 
     getTimeLimit(): number {
