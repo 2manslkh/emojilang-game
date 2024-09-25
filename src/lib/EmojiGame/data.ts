@@ -811,7 +811,7 @@ export const cryptoQuestions: Record<string, Question[]> = {
             level: 1
         },
         {
-            emojilang: "🏦🔗",
+            emojilang: "🌐🔀🏦",
             answer: "DeFi",
             level: 1
         },
@@ -821,7 +821,7 @@ export const cryptoQuestions: Record<string, Question[]> = {
             level: 1
         },
         {
-            emojilang: "👥🏛️",
+            emojilang: "🌐🔀👥🏛️",
             answer: "DAO",
             level: 1
         },

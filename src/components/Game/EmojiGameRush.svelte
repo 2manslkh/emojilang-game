@@ -4,6 +4,8 @@
 	import { fade } from 'svelte/transition';
 	import { TimerBar } from '$components/Timer';
 
+	export let gameStarted: boolean = false;
+
 	let game: EmojilangRushGame;
 	let userTranslation: string = '';
 	let feedback: string = '';
@@ -20,10 +22,12 @@
 	// New variables for rush mode
 	$: timeRemaining = 0;
 	$: gameActive = false;
-
-	onMount(() => {
-		correctAudio = new Audio('/correct.mp3');
+	$: if (gameStarted) {
 		startGame();
+	}
+
+	onMount(async () => {
+		correctAudio = new Audio('/correct.mp3');
 	});
 
 	onDestroy(() => {
