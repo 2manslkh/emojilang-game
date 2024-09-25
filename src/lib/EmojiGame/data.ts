@@ -684,7 +684,7 @@ export const questions: Record<string, Question[]> = {
             "level": 9
         },
         {
-            "emojilang": "👩 ❤️ 🎨 🖼️ ��️",
+            "emojilang": "👩 ❤️ 🎨 🖼️ ️",
             "answer": "She loves artistic painting.",
             "level": 9
         },
@@ -806,232 +806,384 @@ export const cryptoQuestions: Record<string, Question[]> = {
             level: 1
         },
         {
-            emojilang: "₿",
-            answer: "Bitcoin",
+            emojilang: "🧠📜",
+            answer: "Smart Contract",
             level: 1
-        },
-        {
-            emojilang: "💎⛽️",
-            answer: "Ethereum",
-            level: 1
-        },
-        {
-            emojilang: "🧾",
-            answer: "Transaction",
-            level: 1
-        }
-    ],
-    "2": [
-        {
-            emojilang: "☀️⚡",
-            answer: "Solana",
-            level: 2
-        },
-        {
-            emojilang: "🔷🔗",
-            answer: "Polygon",
-            level: 2
-        },
-        {
-            emojilang: "💧💱",
-            answer: "XRP",
-            level: 2
-        },
-        {
-            emojilang: "🐕💰",
-            answer: "Dogecoin",
-            level: 2
-        }
-    ],
-    "3": [
-        {
-            emojilang: "🅰️1️⃣6️⃣💤",
-            answer: "a16z",
-            level: 3
-        },
-        {
-            emojilang: "🌲🔗",
-            answer: "Sequoia",
-            level: 3
-        },
-        {
-            emojilang: "🔗🔗🔗",
-            answer: "Polychain",
-            level: 3
-        }
-    ],
-    "4": [
-        {
-            emojilang: "👨‍💻🧪",
-            answer: "Andre Cronje",
-            level: 4
-        },
-        {
-            emojilang: "🕵️‍♂️₿",
-            answer: "Satoshi Nakamoto",
-            level: 4
-        },
-        {
-            emojilang: "👽💎",
-            answer: "Vitalik Buterin",
-            level: 4
-        }
-    ],
-    "5": [
-        {
-            emojilang: "👨‍💻🦄",
-            answer: "Devcon",
-            level: 5
-        },
-        {
-            emojilang: "🖼️🗽",
-            answer: "NFT.NYC",
-            level: 5
-        },
-        {
-            emojilang: "₿🎤",
-            answer: "Bitcoin Conference",
-            level: 5
-        }
-    ],
-    "6": [
-        {
-            emojilang: "🪙",
-            answer: "Token",
-            level: 6
-        },
-        {
-            emojilang: "🖼️🔗",
-            answer: "NFT",
-            level: 6
         },
         {
             emojilang: "🏦🔗",
             answer: "DeFi",
-            level: 6
+            level: 1
+        },
+        {
+            emojilang: "🖼️🔒",
+            answer: "NFT",
+            level: 1
         },
         {
             emojilang: "👥🏛️",
             answer: "DAO",
+            level: 1
+        },
+    ],
+    "2": [
+        {
+            emojilang: "💧💰🏊",
+            answer: "Liquidity Pool",
+            level: 2
+        },
+        {
+            emojilang: "⛽️💰",
+            answer: "Gas Fee",
+            level: 2
+        },
+        {
+            emojilang: "⚖️🪙",
+            answer: "Stablecoin",
+            level: 2
+        },
+        {
+            emojilang: "🔗🔄🔗",
+            answer: "Cross-chain",
+            level: 2
+        },
+        {
+            emojilang: "🪙📊",
+            answer: "Tokenomics",
+            level: 2
+        },
+    ],
+    "3": [
+        {
+            emojilang: "🔒💎",
+            answer: "Staking",
+            level: 3
+        },
+        {
+            emojilang: "🧑‍🌾🌾🪙",
+            answer: "Yield Farming",
+            level: 3
+        },
+        {
+            emojilang: "🎁🪙",
+            answer: "Wrapped Token",
+            level: 3
+        },
+        {
+            emojilang: "0️⃣📖🧾",
+            answer: "Zero-Knowledge Proof",
+            level: 3
+        },
+        {
+            emojilang: "🪙🔥",
+            answer: "Token Burn",
+            level: 3
+        },
+    ],
+    "4": [
+        {
+            emojilang: "🔥👝",
+            answer: "Hot Wallet",
+            level: 4
+        },
+        {
+            emojilang: "❄️👝",
+            answer: "Cold Wallet",
+            level: 4
+        },
+        {
+            emojilang: "🔌💨",
+            answer: "Rug Pull",
+            level: 4
+        },
+        {
+            emojilang: "⛽️🛑",
+            answer: "Gas Limit",
+            level: 4
+        },
+        {
+            emojilang: "⚡️💰",
+            answer: "Flash Loan",
+            level: 4
+        },
+    ],
+    "5": [
+        {
+            emojilang: "🪂🪙",
+            answer: "Airdrop",
+            level: 5
+        },
+        {
+            emojilang: "✍️➕👝",
+            answer: "Multisig Wallet",
+            level: 5
+        },
+        {
+            emojilang: "🔮",
+            answer: "Oracles",
+            level: 5
+        },
+        {
+            emojilang: "🌳🔗🍃🍃",
+            answer: "Merkle Tree",
+            level: 5
+        },
+    ],
+    "6": [
+        {
+            emojilang: "💧💸",
+            answer: "Impermanent Loss",
             level: 6
-        }
+        },
+        {
+            emojilang: "½🪙",
+            answer: "Halving",
+            level: 6
+        },
+        {
+            emojilang: "🗿🧢",
+            answer: "Hard Cap",
+            level: 6
+        },
+        {
+            emojilang: "🍦🧢",
+            answer: "Soft Cap",
+            level: 6
+        },
+
     ],
     "7": [
         {
-            emojilang: "🖨️🪙",
-            answer: "Mint",
+            emojilang: "⚡️🤖",
+            answer: "Flashbots",
             level: 7
         },
         {
-            emojilang: "🚀📈",
-            answer: "Launch",
+            emojilang: "🪙🌉",
+            answer: "Token Bridge",
             level: 7
         },
         {
-            emojilang: "💰➡️",
-            answer: "Buy",
+            emojilang: "0️⃣📖🧻⬆️",
+            answer: "zk-Rollups",
             level: 7
         },
         {
-            emojilang: "💰⬅️",
-            answer: "Sell",
+            emojilang: "👷⛏️🔝",
+            answer: "MEV",
             level: 7
-        }
+        },
+        {
+            emojilang: "💧⛏️",
+            answer: "Liquidity Mining",
+            level: 7
+        },
     ],
     "8": [
         {
-            emojilang: "🔗🧱",
-            answer: "Blockchain",
+            emojilang: "🔁⚔️",
+            answer: "Reentrancy Attack",
             level: 8
         },
         {
-            emojilang: "🧠📜",
-            answer: "Smart Contract",
+            emojilang: "🧪🥅",
+            answer: "Testnet",
             level: 8
         },
         {
-            emojilang: "🌐🔗🔀",
-            answer: "Decentralized",
+            emojilang: "🌐🥅",
+            answer: "Mainnet",
             level: 8
         },
         {
-            emojilang: "📜🔗",
-            answer: "Protocol",
+            emojilang: "2️⃣💰",
+            answer: "Double-Spending",
             level: 8
-        }
+        },
+        {
+            emojilang: "🏛️🛡️",
+            answer: "Byzantine Fault Tolerance",
+            level: 8
+        },
     ],
     "9": [
         {
-            emojilang: "🤝🔧",
-            answer: "Consensus Mechanism",
+            emojilang: "🚰",
+            answer: "Faucet",
             level: 9
         },
         {
-            emojilang: "🔒🥩",
-            answer: "Proof of Stake",
+            emojilang: "🏛️🪙",
+            answer: "Governance Token",
             level: 9
         },
         {
-            emojilang: "⛏️💻",
+            emojilang: "🔒🪙🔗",
+            answer: "Hard Peg",
+            level: 9
+        },
+        {
+            emojilang: "🔗↔️🔗",
+            answer: "Cross Chain Swap",
+            level: 9
+        },
+        {
+            emojilang: "🔒💼",
             answer: "Proof of Work",
             level: 9
         },
         {
-            emojilang: "🌳🔗🔐",
-            answer: "Merkle Tree",
+            emojilang: "🥩💼",
+            answer: "Proof of Stake",
             level: 9
-        }
+        },
+        {
+            emojilang: "1️⃣🔗",
+            answer: "Layer 1",
+            level: 9
+        },
+        {
+            emojilang: "2️⃣🔗",
+            answer: "Layer 2",
+            level: 9
+        },
+        {
+            emojilang: "🍴🔗",
+            answer: "Fork",
+            level: 9
+        },
+        {
+            emojilang: "📱",
+            answer: "dApps",
+            level: 9
+        },
     ],
     "10": [
         {
-            emojilang: "📈🔜",
-            answer: "Long",
-            level: 10
-        },
-        {
-            emojilang: "📉🔜",
-            answer: "Short",
-            level: 10
-        },
-        {
-            emojilang: "💰➡️",
-            answer: "Buy",
-            level: 10
-        },
-        {
-            emojilang: "💰⬅️",
-            answer: "Sell",
-            level: 10
-        },
-        {
-            emojilang: "🛡️💱",
-            answer: "Hedge",
-            level: 10
-        },
-        {
-            emojilang: "⚖️💹",
-            answer: "Arbitrage",
-            level: 10
-        },
-        {
-            emojilang: "💪📈",
-            answer: "Pump",
-            level: 10
-        },
-        {
-            emojilang: "📉💨",
-            answer: "Dump",
-            level: 10
-        },
-        {
-            emojilang: "🐂🏃",
-            answer: "Bull Run",
+            emojilang: "🐂📈",
+            answer: "Bull Market",
             level: 10
         },
         {
             emojilang: "🐻📉",
             answer: "Bear Market",
             level: 10
-        }
-    ]
+        },
+        {
+            emojilang: "🕯️📊",
+            answer: "Candlestick Chart",
+            level: 10
+        },
+        {
+            emojilang: "📊🔍",
+            answer: "Technical Analysis",
+            level: 10
+        },
+        {
+            emojilang: "🆙⚖️📈",
+            answer: "Leverage",
+            level: 10
+        },
+        {
+            emojilang: "🛑📉",
+            answer: "Stop Loss",
+            level: 10
+        },
+        {
+            emojilang: "🎯💰",
+            answer: "Take Profit",
+            level: 10
+        },
+    ],
+    "11": [
+        {
+            emojilang: "🅰️1️⃣6️⃣🇿",
+            answer: "Andreessen Horowitz",
+            level: 11
+        },
+        {
+            emojilang: "🪙🏦🏢",
+            answer: "Coinbase Ventures",
+            level: 11
+        },
+        {
+            emojilang: "⛓️⛓️⛓️💰",
+            answer: "Polychain Capital",
+            level: 11
+        },
+        {
+            emojilang: "🌲💰",
+            answer: "Sequoia Capital",
+            level: 11
+        },
+        {
+            emojilang: "🏹🏹🏹💰",
+            answer: "Three Arrows Capital",
+            level: 11
+        },
+    ],
+    "12": [
+        {
+            emojilang: "🦘💰",
+            answer: "Jump Crypto",
+            level: 12
+        },
+        {
+            emojilang: "👬💰",
+            answer: "Winklevoss Capital",
+            level: 12
+        },
+        {
+            emojilang: "⚡️💰",
+            answer: "Electric Capital",
+            level: 12
+        },
+        {
+            emojilang: "🅱️🧪",
+            answer: "Binance Labs",
+            level: 12
+        },
+    ],
+    "13": [
+        {
+            emojilang: "🎭👤🪙",
+            answer: "Satoshi Nakamoto",
+            level: 13
+        },
+        {
+            emojilang: "👦🇷🇺🦄",
+            answer: "Vitalik Buterin",
+            level: 13
+        },
+        {
+            emojilang: "🇨🇳🇿🅱️",
+            answer: "Changpeng Zhao",
+            level: 13
+        },
+        {
+            emojilang: "🏦🪙🏢👨‍💼",
+            answer: "Brian Armstrong",
+            level: 13
+        },
+        {
+            emojilang: "👬🏛️🪙",
+            answer: "Tyler and Cameron Winklevoss",
+            level: 13
+        },
+        {
+            emojilang: "🧔‍♂️🪵",
+            answer: "Gavin Wood",
+            level: 13
+        },
+        {
+            emojilang: "💁‍♀️🪵",
+            answer: "Cathie Wood",
+            level: 13
+        },
+        {
+            emojilang: "🧔‍♂️☀️",
+            answer: "Gavin Wood",
+            level: 13
+        },
+    ],
 }

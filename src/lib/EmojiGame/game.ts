@@ -124,7 +124,7 @@ export class EmojilangGame {
 import { writable } from 'svelte/store';
 
 export class EmojilangRushGame extends EmojilangGame {
-    private timeLimit: number = 5;
+    timeLimit: number = 180;
     private timer: NodeJS.Timeout | null = null;
     private startTime: number | null = null;
 
@@ -143,6 +143,10 @@ export class EmojilangRushGame extends EmojilangGame {
         this.gameActive.set(true);
         this.startTimer();
         return this.nextQuestion();
+    }
+
+    getTimeLimit(): number {
+        return this.timeLimit;
     }
 
     private startTimer() {

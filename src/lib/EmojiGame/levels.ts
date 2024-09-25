@@ -56,19 +56,19 @@ export const levels: Record<number, Level> = {
 
 export const cryptoLevels: Record<number, Level> = {
     1: {
-        name: "Basic",
+        name: "Basic Terms",
         description: "Identify basic cryptocurrency terms and concepts.",
         questions: cryptoQuestions["1"],
     },
     2: {
-        name: "Crypto Projects",
-        description: "Guess popular cryptocurrency projects and platforms.",
+        name: "Blockchain Terms",
+        description: "Identify blockchain terms and concepts.",
         questions: cryptoQuestions["2"],
     },
     3: {
         name: "Crypto VCs",
         description: "Identify well-known venture capital firms in the crypto space.",
-        questions: questions["3"],
+        questions: cryptoQuestions["3"],
     },
     4: {
         name: "Famous People",
@@ -105,4 +105,20 @@ export const cryptoLevels: Record<number, Level> = {
         description: "Understand common trading terms and strategies in the crypto market.",
         questions: cryptoQuestions["10"],
     },
+    11: {
+        name: "Crypto VC Firms",
+        description: "Identify well-known venture capital firms in the crypto space.",
+        questions: cryptoQuestions["11"],
+    },
+    12: {
+        name: "Crypto VC Firms (Part 2)",
+        description: "Identify well-known venture capital firms in the crypto space.",
+        questions: cryptoQuestions["12"],
+    },
+    13: {
+        name: "Famous People",
+        description: "Recognize influential figures in the cryptocurrency world.",
+        questions: cryptoQuestions["13"],
+    },
+
 };

@@ -2,7 +2,7 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { EmojilangRushGame } from '$lib/EmojiGame/game';
 	import { fade } from 'svelte/transition';
-	import type { Question } from '$lib/EmojiGame/types';
+	import { TimerBar } from '$components/Timer';
 
 	let game: EmojilangRushGame;
 	let userTranslation: string = '';
@@ -34,8 +34,9 @@
 
 	async function startGame() {
 		game = new EmojilangRushGame();
-		await game.fetchLevels();
+		await game.fetchCryptoLevels();
 		currentQuestion = game.startGame();
+		currentLevel = game.getCurrentLevel();
 		levelName = game.getCurrentLevelName();
 
 		// Subscribe to the game's stores
@@ -109,7 +110,8 @@
 		<div class="flex-grow flex flex-col justify-between">
 			{#if gameActive}
 				<div>
-					<div class="text-xl font-bold text-center mb-2">Time: {timeRemaining}s</div>
+					<TimerBar {timeRemaining} totalTime={game.getTimeLimit()} />
+
 					<div class="text-4xl text-center mb-4">{currentQuestion?.emojilang}</div>
 
 					<input
@@ -155,7 +157,7 @@
 				<div class="text-center">
 					<p class="text-xl mb-4">Game Over!</p>
 					<p class="text-lg mb-4">Your final score: {score}</p>
-					<button on:click={startGame} class="bg-green-500 text-white py-2 px-4 rounded-md">
+					<button on:click={startGame} class="w-full bg-black text-white py-2 rounded-md">
 						Play Again
 					</button>
 				</div>
