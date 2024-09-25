@@ -208,7 +208,7 @@ export const questions: Question[] = [
 
     // Level 3: Noun Phrases (Nouns with Modifiers)
     {
-        "emojilang": "🐕 🔝",
+        "emojilang": "🔝 🐕",
         "answer": "big dog",
         "level": 3
     },
@@ -218,7 +218,7 @@ export const questions: Question[] = [
         "level": 3
     },
     {
-        "emojilang": "🚗 🆕",
+        "emojilang": "🆕 🚗",
         "answer": "new car",
         "level": 3
     },
@@ -238,47 +238,47 @@ export const questions: Question[] = [
         "level": 3
     },
     {
-        "emojilang": "☕ 🔥",
+        "emojilang": "🔥 ☕",
         "answer": "hot coffee",
         "level": 3
     },
     {
-        "emojilang": "🌞 ☀️",
+        "emojilang": "☀️ 🌞",
         "answer": "bright sun",
         "level": 3
     },
     {
-        "emojilang": "🍞 🥖",
+        "emojilang": "🥖 🍞",
         "answer": "bread loaf",
         "level": 3
     },
     {
-        "emojilang": "👓 🕶️",
+        "emojilang": "🕶️ 👓",
         "answer": "dark glasses",
         "level": 3
     },
     {
-        "emojilang": "🕰️ ⏰",
+        "emojilang": "⏰ 🕰️",
         "answer": "alarm clock",
         "level": 3
     },
     {
-        "emojilang": "✈️ 🛫",
+        "emojilang": "🛫 ✈️",
         "answer": "departing airplane",
         "level": 3
     },
     {
-        "emojilang": "🌊 🌊",
+        "emojilang": "🔝 🌊",
         "answer": "big ocean",
         "level": 3
     },
     {
-        "emojilang": "🎂 🎉",
+        "emojilang": "🎉 🎂",
         "answer": "birthday cake",
         "level": 3
     },
     {
-        "emojilang": "🚲 🆕",
+        "emojilang": "🆕 🚲",
         "answer": "new bicycle",
         "level": 3
     },
@@ -831,7 +831,7 @@ export const questions: Question[] = [
         "level": 9
     },
     {
-        "emojilang": "👩 ❤️ 🎨 🖼️ 🖌️",
+        "emojilang": "👩 ❤️ 🎨 🖼️ ��️",
         "answer": "She loves artistic painting.",
         "level": 9
     },
