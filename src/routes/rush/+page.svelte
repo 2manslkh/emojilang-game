@@ -1,5 +1,6 @@
 <script lang="ts">
 	import EmojiGame from '$components/Game/EmojiGame.svelte';
+	import EmojiGameRush from '$components/Game/EmojiGameRush.svelte';
 	import Rules from '$components/Rules/Rules.svelte';
 	import { Socials } from '$components/Socials';
 
@@ -30,7 +31,7 @@
 		<div
 			class="w-full bg-white rounded-lg shadow-md overflow-hidden mb-4 self-center place-self-center"
 		>
-			<EmojiGame />
+			<EmojiGameRush />
 		</div>
 	</div>
 	<div class="flex flex-col w-full max-w-md">
