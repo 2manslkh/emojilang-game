@@ -1,6 +1,7 @@
 <script lang="ts">
-	import EmojiGame from '../components/Game/EmojiGame.svelte';
-	import Rules from '../components/Rules/Rules.svelte';
+	import EmojiGame from '$components/Game/EmojiGame.svelte';
+	import Rules from '$components/Rules/Rules.svelte';
+	import { Socials } from '$components/Socials';
 
 	let showRules = false;
 
@@ -29,6 +30,10 @@
 		<div class="w-full bg-white rounded-lg shadow-md overflow-hidden mb-4">
 			<EmojiGame />
 		</div>
+		<div class="w-full bg-white rounded-lg mb-4">
+			<Socials />
+		</div>
+
 		<div class="w-full max-w-md">
 			<button
 				on:click={toggleRules}
@@ -48,23 +53,4 @@
 	</div>
 </main>
 
-<footer class="w-full text-center py-4 bg-gray-100">
-	<div class="container mx-auto px-4">
-		<a
-			href="https://github.com/2manslkh/emojilang-game"
-			target="_blank"
-			rel="noopener noreferrer"
-			class="text-blue-600 hover:text-blue-800 mr-4"
-		>
-			GitHub
-		</a>
-		<a
-			href="https://t.me/emojilanggame"
-			target="_blank"
-			rel="noopener noreferrer"
-			class="text-blue-600 hover:text-blue-800"
-		>
-			Submit Feedback / Report Bugs
-		</a>
-	</div>
-</footer>
+<footer class="w-full text-center py-4 bg-gray-100"></footer>
