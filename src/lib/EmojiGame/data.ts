@@ -801,7 +801,7 @@ export const questions: Record<string, Question[]> = {
 export const cryptoQuestions: Record<string, Question[]> = {
     "1": [
         {
-            emojilang: "🧱🔗",
+            emojilang: "🧱⛓️",
             answer: "Blockchain",
             level: 1
         },
@@ -843,7 +843,7 @@ export const cryptoQuestions: Record<string, Question[]> = {
             level: 2
         },
         {
-            emojilang: "🔗🔄🔗",
+            emojilang: "⛓️🔄⛓️",
             answer: "Cross-chain",
             level: 2
         },
@@ -1023,7 +1023,7 @@ export const cryptoQuestions: Record<string, Question[]> = {
             level: 9
         },
         {
-            emojilang: "🔗↔️🔗",
+            emojilang: "⛓️↔️⛓️",
             answer: "Cross Chain Swap",
             level: 9
         },
@@ -1038,17 +1038,17 @@ export const cryptoQuestions: Record<string, Question[]> = {
             level: 9
         },
         {
-            emojilang: "1️⃣🔗",
+            emojilang: "1️⃣⛓️",
             answer: "Layer 1",
             level: 9
         },
         {
-            emojilang: "2️⃣🔗",
+            emojilang: "2️⃣⛓️",
             answer: "Layer 2",
             level: 9
         },
         {
-            emojilang: "🍴🔗",
+            emojilang: "🍴",
             answer: "Fork",
             level: 9
         },
