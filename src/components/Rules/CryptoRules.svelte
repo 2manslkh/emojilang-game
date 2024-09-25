@@ -21,7 +21,7 @@
 				'💧 = liquidity',
 				'🏦 = bank / finance',
 				'🔗 = link / connection',
-				'🌐🔀 = Decentralized'
+				'🌐🔀 = decentralized'
 			]
 		},
 		{
@@ -46,7 +46,7 @@
 		{
 			title: 'Example Questions',
 			rules: [
-				'🧱🔗 = Blockchain',
+				'🧱⛓️ = Blockchain',
 				'🖼️🔒 = NFT (Non-Fungible Token)',
 				'👥🏛️ = DAO (Decentralized Autonomous Organization)',
 				'💧💰🏊 = Liquidity Pool',
