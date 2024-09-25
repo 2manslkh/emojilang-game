@@ -18,18 +18,18 @@ export const levels: Record<number, Level> = {
         questions: questions.filter(q => q.level === 3),
     },
     4: {
-        name: "Simple Sentences",
-        description: "Translate simple sentences with subject and verb.",
+        name: "Movies",
+        description: "Guess the movie title from the emojis.",
         questions: questions.filter(q => q.level === 4),
     },
     5: {
-        name: "Sentences with Objects",
-        description: "Translate sentences with subject, verb, and object.",
+        name: "Crypto",
+        description: "Guess the crypto words from the emojis.",
         questions: questions.filter(q => q.level === 5),
     },
     6: {
-        name: "Sentences with Modifiers",
-        description: "Translate sentences with adjectives and adverbs.",
+        name: "Crypto Part 2",
+        description: "Guess the crypto words from the emojis.",
         questions: questions.filter(q => q.level === 6),
     },
     7: {
