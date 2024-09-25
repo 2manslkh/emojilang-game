@@ -19,5 +19,5 @@
 	>
 		Submit Feedback / Report Bugs
 	</a>
-	<span class="absolute right-0">v1.0.0</span>
+	<span class="absolute right-0">v1.1.0</span>
 </div>
