@@ -100,7 +100,7 @@
 </script>
 
 <div
-	class="max-w-md mx-auto bg-white rounded-lg shadow-md overflow-hidden {shakeComponent
+	class="max-w-md w-full mx-auto bg-white rounded-lg shadow-md overflow-hidden {shakeComponent
 		? 'shake'
 		: ''}"
 	transition:fade

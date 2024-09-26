@@ -36,7 +36,9 @@
 			</button>
 		</div>
 	{:else if gameStarted}
-		<EmojiGameRush {gameStarted} />
+		<div class="flex flex-col w-full max-w-md mt-16">
+			<EmojiGameRush {gameStarted} />
+		</div>
 	{/if}
 	<div class="flex flex-col w-full max-w-2xl mt-8">
 		<Socials />
