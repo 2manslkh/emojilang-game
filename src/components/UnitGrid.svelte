@@ -21,14 +21,14 @@
 </script>
 
 <div
-	class="w-full grid grid-cols-6 gap-2 mb-4 h-48 overflow-y-auto pr-2 border border-gray-200 rounded-lg p-2"
+	class="grid grid-cols-6 gap-2 mb-4 h-48 overflow-y-auto bg-gray-100 rounded-lg p-3 border border-gray-300 shadow-inner"
 	use:dndzone={{ items: army, flipDurationMs: 300, dropTargetStyle: {}, type: gridId }}
 	on:consider={handleDndConsider}
 	on:finalize={handleDndFinalize}
 >
 	{#each army as unit (unit.id)}
-		<div animate:flip={{ duration: 300 }}>
-			<UnitCard {unit} {isDraggable} />
+		<div animate:flip={{ duration: 300 }} class="flex items-center justify-center">
+			<UnitCard {unit} {isDraggable} isClickable={false} />
 		</div>
 	{/each}
 </div>

@@ -9,6 +9,7 @@ const createLogger = (namespace: string) => {
             const structuredData = JSON.stringify(data, null, 2);
             log(`${label}:\n${structuredData}`);
         }
+
     };
 };
 

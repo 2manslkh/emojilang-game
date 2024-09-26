@@ -2,8 +2,10 @@
 	import { Game, Player } from '$lib/EmojiBattle/client';
 	import { onMount } from 'svelte';
 	import type { Unit } from '$lib/EmojiBattle/types';
+	import UnitCard from '$components/Card/UnitCard.svelte';
 	import { get } from 'svelte/store';
-
+	import { flip } from 'svelte/animate';
+	import { dndzone } from 'svelte-dnd-action';
 	import PlayerInfo from '$components/PlayerInfo.svelte';
 	import UnitGrid from '$components/UnitGrid.svelte';
 	import TurnInfo from '$components/TurnInfo.svelte';
@@ -22,6 +24,9 @@
 	let playerState: { health: number; wheat: number; army: Unit[] };
 	let opponentState: { health: number; wheat: number; army: Unit[] };
 
+	// Add this reactive variable
+	$: canBuyUnits = currentPhase === 'preparation';
+
 	onMount(() => {
 		player = new Player();
 		opponent = new Player();
@@ -37,14 +42,9 @@
 		opponent.state.subscribe((state) => (opponentState = state));
 	});
 
-	let playerGridId = 'player-grid';
-	let opponentGridId = 'opponent-grid';
-
-	let mockGridId = 'mock-grid';
-
 	function buyUnit(unitName: string) {
 		console.log('Buying unit:', unitName);
-		player.summonUnit(unitName);
+		player.summonUnit(unitName, game);
 	}
 
 	function nextTurn() {
@@ -79,13 +79,13 @@
 		</div>
 
 		<h2 class="text-lg font-semibold mb-2">Enemy Army</h2>
-		<UnitGrid army={opponentState.army} gridId={opponentGridId} />
+		<UnitGrid army={opponentState.army} gridId={'opponent-grid'} />
 
 		<h2 class="text-lg font-semibold mt-6 mb-2">Your Army</h2>
 		<UnitGrid
 			army={playerState.army}
 			isDraggable={true}
-			gridId={playerGridId}
+			gridId={'player-grid'}
 			on:consider={handleDndConsider}
 			on:finalize={handleDndFinalize}
 		/>
@@ -94,15 +94,7 @@
 			<PlayerInfo name="Player" health={playerState.health} wheat={playerState.wheat} />
 		</div>
 
-		<h2 class="text-lg font-semibold mt-6 mb-2">Shop</h2>
-		<Shop {units} onBuyUnit={buyUnit} />
-
-		<h2 class="text-xl font-semibold mt-8 mb-4">Mock Drag and Drop Grid</h2>
-		<MockDndGrid
-			gridId={mockGridId}
-			on:consider={handleMockDndConsider}
-			on:finalize={handleMockDndFinalize}
-		/>
+		<Shop {units} onBuyUnit={buyUnit} {canBuyUnits} />
 
 		{#if gameOver}
 			<div class="mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">

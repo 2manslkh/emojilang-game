@@ -22,9 +22,9 @@ export interface UnitData {
     emoji: string;
     name: string;
     cost: number;
-    level_1?: UnitLevelData;
-    level_2?: UnitLevelData;
-    level_3?: UnitLevelData;
+    level_1: UnitLevelData;
+    level_2: UnitLevelData;
+    level_3: UnitLevelData;
 }
 
 export interface UnitLevelData {

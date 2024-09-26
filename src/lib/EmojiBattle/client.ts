@@ -29,7 +29,6 @@ export class Game {
         this.units = Object.entries(unitData).map(([name, data]) => ({
             id: nanoid(),
             emoji: data.emoji,
-            name: name,
             ...data.level_1,
             cost: data.cost,
             level: 1
@@ -110,6 +109,10 @@ export class Game {
         gameLogger.log('Game ended');
         this.gameOver.set(true);
     }
+
+    canBuyUnits(): boolean {
+        return get(this.currentPhase) === 'preparation';
+    }
 }
 
 export class Player {
@@ -138,18 +141,22 @@ export class Player {
         }));
     }
 
-    summonUnit(unitName: string): void {
+    summonUnit(unitName: string, game: Game): void {
         playerLogger.logData('Attempting to summon unit', { unitName });
+        if (!game.canBuyUnits()) {
+            playerLogger.log('Cannot buy units during battle phase');
+            return;
+        }
         const unitInfo = unitData[unitName];
         playerLogger.logData('Unit info', { unitInfo });
         if (!unitInfo || !unitInfo.level_1) return;
 
         this.state.update(s => {
             if (s.wheat >= unitInfo.cost) {
+                playerLogger.logData('Summoning unit', { unitName });
                 const newUnit: Unit = {
                     id: nanoid(),
                     emoji: unitInfo.emoji,
-                    name: unitName,
                     ...unitInfo.level_1,
                     cost: unitInfo.cost,
                     level: 1
@@ -159,6 +166,8 @@ export class Player {
                     wheat: s.wheat - unitInfo.cost,
                     army: [...s.army, newUnit]
                 };
+            } else {
+                playerLogger.log('Not enough wheat to summon unit');
             }
             return s;
         });
