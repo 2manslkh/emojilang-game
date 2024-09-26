@@ -75,7 +75,7 @@ export const unitData: Record<string, UnitData> = {
     },
     FireElemental: {
         emoji: '🔥',
-        name: 'Fire Elemental',
+        name: 'FireElemental',
         attack: 2,
         health: 1,
         cost: 2,
@@ -85,7 +85,7 @@ export const unitData: Record<string, UnitData> = {
     },
     IceElemental: {
         emoji: '❄️',
-        name: 'Ice Elemental',
+        name: 'IceElemental',
         attack: 1,
         health: 2,
         cost: 2,
