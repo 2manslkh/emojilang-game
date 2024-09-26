@@ -63,15 +63,21 @@ export class Game {
     }
 
     nextPhase(): void {
-        this.currentPhase.update(phase => {
-            if (phase === 'preparation') {
-                this.battlePhase();
-                return 'battle';
-            } else {
-                this.preparationPhase();
-                return 'preparation';
-            }
-        });
+        gameLogger.log('Moving to next phase');
+        const currentPhase = get(this.currentPhase);
+        gameLogger.logData('Current phase before transition', { currentPhase });
+
+        if (currentPhase === 'preparation') {
+            this.currentPhase.set('battle');
+            this.battlePhase();
+        } else {
+            this.currentPhase.set('preparation');
+            this.preparationPhase();
+        }
+
+        const newPhase = get(this.currentPhase);
+        gameLogger.logData('New phase after transition', { newPhase });
+
         this.phaseTimer.set(this.PHASE_DURATION);
         this.startPhaseTimer();
     }
@@ -84,10 +90,11 @@ export class Game {
     preparationPhase(): void {
         gameLogger.log('Entering preparation phase');
         this.currentTurn.update(t => t + 1);
+        gameLogger.logData('Updated turn', { turn: get(this.currentTurn) });
 
         this.players.forEach((player, index) => {
             player.generateWheat();
-            if (index === 1) { // AI player (opponent)
+            if (player.isAI) { // AI player (opponent)
                 aiLogger.log('AI player turn');
                 player.randomSummon(this);
             }
@@ -121,11 +128,14 @@ export class Game {
     }
 
     canBuyUnits(): boolean {
-        return get(this.currentPhase) === 'preparation';
+        const currentPhase = get(this.currentPhase);
+        gameLogger.logData('Checking if units can be bought', { currentPhase });
+        return currentPhase === 'preparation';
     }
 }
 
 export class Player {
+    isAI: boolean;
     state: Writable<{
         health: number;
         wheat: number;
@@ -134,7 +144,8 @@ export class Player {
         army: Unit[];
     }>;
 
-    constructor(name?: string) {
+    constructor(name: string, isAI: boolean = false) {
+        this.isAI = isAI;
         this.state = writable({
             health: 100,
             wheat: 10,
@@ -220,8 +231,12 @@ export class Player {
         });
     }
 
+    // AI ONLY
     randomSummon(game: Game): void {
         aiLogger.log('AI attempting to summon a random unit');
+        const currentPhase = get(game.currentPhase);
+        aiLogger.logData('Current game phase', { phase: currentPhase });
+
         if (!game.canBuyUnits()) {
             aiLogger.log('Cannot summon random unit during battle phase');
             return;
@@ -330,19 +345,3 @@ class Battle {
     }
 }
 
-export function simulateGame(maxTurns: number = 100): { winner: Player | null, turns: number } {
-    gameLogger.logData('Simulating game', { maxTurns });
-    const player1 = new Player();
-    const player2 = new Player();
-    const game = new Game(player1, player2);
-    let turns = 0;
-
-    game.startGame();
-
-    while (!get(game.gameOver) && turns < maxTurns) {
-        game.nextPhase();
-        turns++;
-    }
-
-    return { winner: game.getWinner(), turns };
-}

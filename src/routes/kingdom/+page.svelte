@@ -30,7 +30,7 @@
 
 	onMount(() => {
 		player = new Player('Player');
-		opponent = new Player('Opponent');
+		opponent = new Player('Opponent', true); // AI player
 		game = new Game(player, opponent);
 		game.startGame();
 
