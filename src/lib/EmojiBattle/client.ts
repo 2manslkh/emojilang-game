@@ -1,152 +1,206 @@
 import type { Writable } from 'svelte/store';
-import { writable } from 'svelte/store';
-import type { Player, Unit } from './types';
+import { get, writable } from 'svelte/store';
+import type { Unit, UnitData } from './types';
+import { unitData } from './unitData';
+import { nanoid } from 'nanoid';
 
-export class EmojiKingdom {
-    player: Writable<Player>;
-    opponent: Writable<Player>;
-    turn: Writable<number>;
+export class Game {
+    players: [Player, Player];
+    currentTurn: Writable<number>;
+    gameOver: Writable<boolean>;
     units: Unit[];
+    currentPhase: Writable<'preparation' | 'battle'>;
+    phaseTimer: Writable<number>;
+    readonly PHASE_DURATION = 10; // 10 seconds per phase
 
-    constructor() {
-        this.player = writable({
-            castle: { health: 100 },
-            wheat: 10,
-            farmers: 2,
-            army: [],
-        });
+    constructor(player1: Player, player2: Player) {
+        this.players = [player1, player2];
+        this.currentTurn = writable(1);
+        this.gameOver = writable(false);
+        this.currentPhase = writable('preparation');
+        this.phaseTimer = writable(this.PHASE_DURATION);
 
-        this.opponent = writable({
-            castle: { health: 100 },
-            wheat: 10,
-            farmers: 2,
-            army: [],
-        });
-
-        this.turn = writable(1);
-
-        this.units = [
-            { emoji: '👨‍🌾', name: 'Farmer', attack: 1, health: 2, cost: 5 },
-            { emoji: '⚔️', name: 'Swordsman', attack: 3, health: 5, cost: 10 },
-            { emoji: '🏹', name: 'Archer', attack: 2, health: 3, cost: 8 },
-            { emoji: '🐎', name: 'Knight', attack: 4, health: 6, cost: 15 },
-            { emoji: '🧙‍♂️', name: 'Wizard', attack: 5, health: 4, cost: 20, ability: 'AOE Damage' },
-        ];
+        this.units = Object.values(unitData).map(unit => ({
+            id: nanoid(),
+            emoji: unit.emoji,
+            name: unit.name,
+            attack: unit.attack,
+            health: unit.health,
+            cost: unit.cost,
+            level: unit.level,
+            abilities: unit.abilities
+        }));
     }
 
-    buyUnit(unitName: string) {
-        const unit = this.units.find(u => u.name === unitName);
-        if (!unit) return;
-
-        this.player.update(p => {
-            if (p.wheat >= unit.cost) {
-                p.wheat -= unit.cost;
-                p.army.push({ ...unit });
-            }
-            return p;
-        });
+    startGame(): void {
+        this.currentTurn.set(1);
+        this.gameOver.set(false);
+        this.currentPhase.set('preparation');
+        this.phaseTimer.set(this.PHASE_DURATION);
+        this.startPhaseTimer();
     }
 
-    nextTurn() {
-        this.turn.update(t => t + 1);
-        this.generateWheat();
-        this.battle();
-    }
-
-    generateWheat() {
-        this.player.update(p => {
-            p.wheat += p.farmers * 2;
-            return p;
-        });
-        this.opponent.update(o => {
-            o.wheat += o.farmers * 2;
-            return o;
-        });
-    }
-
-    battle() {
-        // Implement battle logic here
-        // This is a simplified version, you may want to expand on this
-        this.player.update(p => {
-            const totalDamage = p.army.reduce((sum, unit) => sum + unit.attack, 0);
-            this.opponent.update(o => {
-                o.castle.health = Math.max(0, o.castle.health - totalDamage);
-                return o;
+    startPhaseTimer(): void {
+        const timer = setInterval(() => {
+            this.phaseTimer.update(t => {
+                if (t <= 0) {
+                    clearInterval(timer);
+                    this.nextPhase();
+                    return this.PHASE_DURATION;
+                }
+                return t - 1;
             });
-            return p;
-        });
-
-        // Opponent's turn (simplified AI)
-        this.opponent.update(o => {
-            const totalDamage = o.army.reduce((sum, unit) => sum + unit.attack, 0);
-            this.player.update(p => {
-                p.castle.health = Math.max(0, p.castle.health - totalDamage);
-                return p;
-            });
-            return o;
-        });
+        }, 1000);
     }
 
-    simulateOpponentTurn() {
-        this.opponent.update(o => {
-            // Simple AI: buy the most expensive unit it can afford
-            const affordableUnits = this.units.filter(unit => unit.cost <= o.wheat);
-            if (affordableUnits.length > 0) {
-                const mostExpensiveUnit = affordableUnits.reduce((prev, current) =>
-                    (prev.cost > current.cost) ? prev : current
-                );
-                o.wheat -= mostExpensiveUnit.cost;
-                o.army.push({ ...mostExpensiveUnit });
+    nextPhase(): void {
+        this.currentPhase.update(phase => {
+            if (phase === 'preparation') {
+                this.battlePhase();
+                return 'battle';
+            } else {
+                this.preparationPhase();
+                this.currentTurn.update(t => t + 1);
+                return 'preparation';
             }
-            return o;
         });
+        this.startPhaseTimer();
     }
 
-    isGameOver(): boolean {
-        let playerHealth: number = 0;
-        let opponentHealth: number = 0;
-
-        this.player.subscribe(p => playerHealth = p.castle.health);
-        this.opponent.subscribe(o => opponentHealth = o.castle.health);
-
-        return playerHealth <= 0 || opponentHealth <= 0;
+    getCurrentPhase(): 'preparation' | 'battle' {
+        return get(this.currentPhase);
     }
 
-    getWinner(): 'player' | 'opponent' | null {
-        if (!this.isGameOver()) return null;
-
-        let playerHealth: number = 0;
-        let opponentHealth: number = 0;
-
-        this.player.subscribe(p => playerHealth = p.castle.health);
-        this.opponent.subscribe(o => opponentHealth = o.castle.health);
-
-        if (playerHealth <= 0) return 'opponent';
-        if (opponentHealth <= 0) return 'player';
-        return null;
+    preparationPhase(): void {
+        this.players.forEach(player => player.generateWheat());
+        // Players can summon or merge units during this phase
     }
 
-    getUnits(): Unit[] {
-        return this.units;
+    battlePhase(): void {
+        Battle.resolveCombat(this.players[0], this.players[1]);
+        if (this.checkVictoryCondition()) {
+            this.endGame();
+        }
+    }
+
+    checkVictoryCondition(): boolean {
+        return this.players.some(player => get(player.health) <= 0);
+    }
+
+    getWinner(): Player | null {
+        if (!get(this.gameOver)) return null;
+        return this.players.find(player => get(player.health) > 0) || null;
+    }
+
+    endGame(): void {
+        this.gameOver.set(true);
     }
 }
 
-export function simulateGame(maxTurns: number = 100): { winner: 'player' | 'opponent' | 'draw', turns: number } {
-    const game = new EmojiKingdom();
+export class Player {
+    health: Writable<number>;
+    wheat: Writable<number>;
+    farmers: Writable<number>;
+    army: Writable<Unit[]>;
+
+    constructor() {
+        this.health = writable(100);
+        this.wheat = writable(10);
+        this.farmers = writable(2);
+        this.army = writable([]);
+    }
+
+    generateWheat(): void {
+        this.wheat.update(w => w + get(this.farmers) * 2);
+    }
+
+    summonUnit(unitName: string): void {
+        const unitInfo = unitData[unitName];
+        if (!unitInfo) return;
+
+        this.wheat.update(w => {
+            if (w >= unitInfo.cost) {
+                w -= unitInfo.cost;
+                this.army.update(army => [...army, { ...unitInfo, level: 1, id: nanoid() }]);
+            }
+            return w;
+        });
+    }
+
+    rearrangeArmy(newArmy: Unit[]): void {
+        this.army.set(newArmy);
+    }
+
+    upgradeUnit(unit: Unit): void {
+        const unitInfo = unitData[unit.name];
+        if (!unitInfo || unit.level >= 3) return;
+
+        const nextLevel = unit.level + 1 as 2 | 3;
+        const upgradedUnit = {
+            ...unit,
+            ...unitInfo[`level${nextLevel}`],
+            level: nextLevel
+        };
+
+        this.army.update(army => army.map(u => u === unit ? upgradedUnit : u));
+    }
+
+    takeDamage(damage: number): void {
+        this.health.update(h => Math.max(0, h - damage));
+    }
+}
+
+class Battle {
+    static resolveCombat(player1: Player, player2: Player): void {
+        const attackOrder = [...get(player1.army), ...get(player2.army)].sort((a, b) => b.attack - a.attack);
+
+        for (const unit of attackOrder) {
+            const isPlayer1Unit = get(player1.army).includes(unit);
+            const target = Battle.findTarget(unit, isPlayer1Unit ? player2 : player1);
+            Battle.performAttack(unit, target);
+        }
+    }
+
+    static findTarget(unit: Unit, opponent: Player): Unit | Player {
+        const opponentArmy = get(opponent.army);
+        if (opponentArmy.length > 0) {
+            return Battle.findBestTarget(unit, opponentArmy);
+        } else {
+            return opponent;
+        }
+    }
+
+    static findBestTarget(attackingUnit: Unit, enemyUnits: Unit[]): Unit {
+        // Implement logic to find the best target based on class counters
+        // For now, just return the first unit
+        return enemyUnits[0];
+    }
+
+    static performAttack(attacker: Unit, target: Unit | Player): void {
+        if (target instanceof Player) {
+            target.takeDamage(attacker.attack);
+        } else {
+            target.health -= attacker.attack;
+            if (target.health <= 0) {
+                // Remove the defeated unit from the player's army
+                // This logic needs to be implemented
+            }
+        }
+    }
+}
+
+export function simulateGame(maxTurns: number = 100): { winner: Player | null, turns: number } {
+    const player1 = new Player();
+    const player2 = new Player();
+    const game = new Game(player1, player2);
     let turns = 0;
 
-    while (!game.isGameOver() && turns < maxTurns) {
-        // Player's turn
-        const playerUnit = game.units[Math.floor(Math.random() * game.units.length)];
-        game.buyUnit(playerUnit.name);
+    game.startGame();
 
-        // Opponent's turn
-        game.simulateOpponentTurn();
-
-        game.nextTurn();
+    while (!get(game.gameOver) && turns < maxTurns) {
+        game.nextPhase();
         turns++;
     }
 
-    const winner = game.getWinner();
-    return { winner: winner || 'draw', turns };
+    return { winner: game.getWinner(), turns };
 }
