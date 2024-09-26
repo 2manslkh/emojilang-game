@@ -1,9 +1,9 @@
 import type { Writable } from 'svelte/store';
 import { get, writable } from 'svelte/store';
-import type { Unit, UnitData, UnitLevelData } from './types';
+import type { Unit, UnitLevelData } from './types';
 import { unitData } from './unitData';
 import { nanoid } from 'nanoid';
-import { gameLogger, playerLogger, battleLogger } from '../logging';
+import { gameLogger, playerLogger, battleLogger, aiLogger } from '../logging';
 
 // Remove the UnitData import as it's not used
 // import type { Unit, UnitData } from './types';
@@ -43,6 +43,9 @@ export class Game {
         this.phaseTimer.set(this.PHASE_DURATION);
         this.startPhaseTimer();
         gameLogger.log('Game started');
+        this.players[1].randomSummon(this);
+        this.players[1].randomSummon(this);
+        this.players[1].randomSummon(this);
     }
 
     startPhaseTimer(): void {
@@ -60,17 +63,16 @@ export class Game {
     }
 
     nextPhase(): void {
-        gameLogger.log('Moving to next phase');
         this.currentPhase.update(phase => {
             if (phase === 'preparation') {
                 this.battlePhase();
                 return 'battle';
             } else {
                 this.preparationPhase();
-                this.currentTurn.update(t => t + 1);
                 return 'preparation';
             }
         });
+        this.phaseTimer.set(this.PHASE_DURATION);
         this.startPhaseTimer();
     }
 
@@ -81,8 +83,16 @@ export class Game {
 
     preparationPhase(): void {
         gameLogger.log('Entering preparation phase');
-        this.players.forEach(player => player.generateWheat());
-        // Players can summon or merge units during this phase
+        this.currentTurn.update(t => t + 1);
+
+        this.players.forEach((player, index) => {
+            player.generateWheat();
+            if (index === 1) { // AI player (opponent)
+                aiLogger.log('AI player turn');
+                player.randomSummon(this);
+            }
+        });
+        gameLogger.log(`Turn ${get(this.currentTurn)} started`);
     }
 
     battlePhase(): void {
@@ -120,25 +130,62 @@ export class Player {
         health: number;
         wheat: number;
         farmers: number;
+        name: string;
         army: Unit[];
     }>;
 
-    constructor() {
+    constructor(name?: string) {
         this.state = writable({
             health: 100,
             wheat: 10,
             farmers: 2,
+            name: name || 'Player',
             army: []
         });
-        playerLogger.log('Player instance created');
+        if (name === 'Player') {
+            playerLogger.log('Player instance created');
+        } else {
+            aiLogger.log('AI instance created');
+        }
+    }
+
+    calculateWheatBoost(): number {
+        const state = get(this.state);
+        const baseWheatGeneration = state.farmers * 2; // Base wheat generation
+
+        // Calculate additional wheat from unit abilities
+        const abilityWheatBoost = state.army.reduce((total, unit) => {
+            const wheatGenerationAbility = unit.abilities?.find(ability => ability.name === 'wheatGeneration');
+            return total + (wheatGenerationAbility?.value || 0);
+        }, 0);
+
+        const totalWheatGeneration = baseWheatGeneration + abilityWheatBoost;
+
+        playerLogger.logData('Calculating wheat boost', {
+            baseWheatGeneration,
+            abilityWheatBoost,
+            totalWheatGeneration
+        });
+
+        return totalWheatGeneration;
     }
 
     generateWheat(): void {
         playerLogger.log('Generating wheat');
-        this.state.update(s => ({
-            ...s,
-            wheat: s.wheat + s.farmers * 2
-        }));
+        this.state.update(s => {
+            const wheatBoost = this.calculateWheatBoost();
+            const newWheat = s.wheat + wheatBoost;
+            playerLogger.logData('Generating wheat', {
+                oldWheat: s.wheat,
+                farmers: s.farmers,
+                wheatBoost,
+                newWheat
+            });
+            return {
+                ...s,
+                wheat: newWheat
+            };
+        });
     }
 
     summonUnit(unitName: string, game: Game): void {
@@ -171,6 +218,31 @@ export class Player {
             }
             return s;
         });
+    }
+
+    randomSummon(game: Game): void {
+        aiLogger.log('AI attempting to summon a random unit');
+        if (!game.canBuyUnits()) {
+            aiLogger.log('Cannot summon random unit during battle phase');
+            return;
+        }
+
+        const affordableUnits = Object.entries(unitData).filter(([, data]) => {
+            return get(this.state).wheat >= data.cost;
+        });
+
+        aiLogger.logData('Affordable units', { affordableUnits: affordableUnits.map(([name]) => name) });
+
+        if (affordableUnits.length === 0) {
+            aiLogger.log('No affordable units available for AI random summon');
+            return;
+        }
+
+        const randomIndex = Math.floor(Math.random() * affordableUnits.length);
+        const [unitName] = affordableUnits[randomIndex];
+
+        this.summonUnit(unitName, game);
+        aiLogger.logData('AI randomly summoned unit', { unitName });
     }
 
     rearrangeArmy(newArmy: Unit[]): void {
@@ -216,7 +288,7 @@ class Battle {
         for (const unit of attackOrder) {
             const isPlayer1Unit = get(player1.state).army.includes(unit);
             const target = Battle.findTarget(unit, isPlayer1Unit ? player2 : player1);
-            Battle.performAttack(unit, target);
+            Battle.performAttack(unit, target, isPlayer1Unit ? player2 : player1);
         }
     }
 
@@ -237,17 +309,24 @@ class Battle {
         return enemyUnits[0];
     }
 
-    static performAttack(attacker: Unit, target: Unit | Player): void {
-        battleLogger.log(`${attacker.name} attacking ${target instanceof Player ? 'Player' : target.name} `);
+    static performAttack(attacker: Unit, target: Unit | Player, targetPlayer: Player): void {
+        battleLogger.log(`${attacker.name} attacking ${target instanceof Player ? get(targetPlayer.state).name : target.name} for ${attacker.attack} damage`);
         if (target instanceof Player) {
             target.takeDamage(attacker.attack);
         } else {
             target.health -= attacker.attack;
             if (target.health <= 0) {
-                // Remove the defeated unit from the player's army
-                // This logic needs to be implemented
+                Battle.removeDefeatedUnit(targetPlayer, target);
             }
         }
+    }
+
+    static removeDefeatedUnit(player: Player, defeatedUnit: Unit): void {
+        battleLogger.log(`Removing defeated unit: ${defeatedUnit.name} from ${get(player.state).name}'s army`);
+        player.state.update(s => ({
+            ...s,
+            army: s.army.filter(unit => unit.id !== defeatedUnit.id)
+        }));
     }
 }
 

@@ -9,10 +9,10 @@ const createLogger = (namespace: string) => {
             const structuredData = JSON.stringify(data, null, 2);
             log(`${label}:\n${structuredData}`);
         }
-
     };
 };
 
 export const gameLogger = createLogger('Game');
 export const playerLogger = createLogger('Player');
 export const battleLogger = createLogger('Battle');
+export const aiLogger = createLogger('AI'); // New AI logger

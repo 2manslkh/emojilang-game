@@ -36,7 +36,7 @@
 		);
 		top: 50%;
 		left: 50%;
-		animation: rotate 2s linear infinite;
+		animation: rotate 1s linear infinite;
 	}
 
 	@keyframes rotate {

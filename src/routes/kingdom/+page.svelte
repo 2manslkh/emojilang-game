@@ -29,8 +29,8 @@
 	$: canBuyUnits = currentPhase === 'preparation';
 
 	onMount(() => {
-		player = new Player();
-		opponent = new Player();
+		player = new Player('Player');
+		opponent = new Player('Opponent');
 		game = new Game(player, opponent);
 		game.startGame();
 
@@ -111,8 +111,4 @@
 	{:else}
 		<p>Loading game...</p>
 	{/if}
-</div>
-
-<div class="flex justify-center items-center">
-	<ConnectWalletButton onClick={handleConnectWallet} />
 </div>
