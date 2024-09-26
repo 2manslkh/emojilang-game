@@ -12,6 +12,7 @@
 	import type { DndEvent } from 'svelte-dnd-action';
 	import MockDndGrid from '$components/MockDndGrid.svelte';
 	import Shop from '$components/Shop.svelte';
+	import ConnectWalletButton from '$components/ConnectWalletButton.svelte';
 
 	let game: Game;
 	let player: Player;
@@ -69,6 +70,11 @@
 	}
 
 	$: gameOver = get(game?.gameOver) ?? false;
+
+	function handleConnectWallet() {
+		console.log('Connecting wallet...');
+		// Implement wallet connection logic here
+	}
 </script>
 
 <div class="container mx-auto p-4 max-w-3xl">
@@ -105,4 +111,8 @@
 	{:else}
 		<p>Loading game...</p>
 	{/if}
+</div>
+
+<div class="flex justify-center items-center">
+	<ConnectWalletButton onClick={handleConnectWallet} />
 </div>

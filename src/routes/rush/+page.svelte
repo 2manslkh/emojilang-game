@@ -28,20 +28,16 @@
 </svelte:head>
 
 <main class="container mx-auto px-4 py-10 flex flex-col min-h-screen items-center">
-	<div class="flex flex-col w-full max-w-2xl mt-16">
-		{#if showRules}
+	{#if showRules}
+		<div class="flex flex-col w-full max-w-2xl mt-16">
 			<CryptoRules />
 			<button on:click={startGame} class="mt-6 bg-black text-white py-2 rounded-md mb-4">
 				Start Game
 			</button>
-		{:else if gameStarted}
-			<div
-				class="w-full bg-white rounded-lg shadow-md overflow-hidden mb-4 self-center place-self-center"
-			>
-				<EmojiGameRush {gameStarted} />
-			</div>
-		{/if}
-	</div>
+		</div>
+	{:else if gameStarted}
+		<EmojiGameRush {gameStarted} />
+	{/if}
 	<div class="flex flex-col w-full max-w-2xl mt-8">
 		<Socials />
 	</div>
