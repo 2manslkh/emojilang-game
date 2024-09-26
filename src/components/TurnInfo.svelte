@@ -16,15 +16,3 @@
 		<TimerBar timeRemaining={phaseTimer} totalTime={phaseDuration} />
 	</div>
 </div>
-
-<style>
-	.transition-all {
-		transition-property: all;
-	}
-	.duration-100 {
-		transition-duration: 100ms;
-	}
-	.ease-linear {
-		transition-timing-function: linear;
-	}
-</style>
