@@ -806,7 +806,7 @@ export const cryptoQuestions: Record<string, Question[]> = {
             level: 1
         },
         {
-            emojilang: "🧠📜",
+            emojilang: "🧠📑",
             answer: "Smart Contract",
             level: 1
         },
@@ -865,7 +865,7 @@ export const cryptoQuestions: Record<string, Question[]> = {
             level: 3
         },
         {
-            emojilang: "🎁🪙",
+            emojilang: "🎁🪙🎁",
             answer: "Wrapped Token",
             level: 3
         },
@@ -902,7 +902,7 @@ export const cryptoQuestions: Record<string, Question[]> = {
             level: 4
         },
         {
-            emojilang: "⚡️💰",
+            emojilang: "⚡️🫴💰",
             answer: "Flash Loan",
             level: 4
         },
@@ -914,7 +914,7 @@ export const cryptoQuestions: Record<string, Question[]> = {
             level: 5
         },
         {
-            emojilang: "✍️➕👝",
+            emojilang: "✍️✍️✍️👝",
             answer: "Multisig Wallet",
             level: 5
         },
@@ -1167,7 +1167,7 @@ export const cryptoQuestions: Record<string, Question[]> = {
         },
         {
             emojilang: "👬🏛️🪙",
-            answer: "Tyler and Cameron Winklevoss",
+            answer: "Winklevoss Twins",
             level: 13
         },
         {
