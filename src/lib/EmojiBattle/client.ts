@@ -1,6 +1,6 @@
 import type { Writable } from 'svelte/store';
 import { get, writable } from 'svelte/store';
-import type { Unit } from './types';
+import type { Unit, UnitData, UnitLevelData } from './types';
 import { unitData } from './unitData';
 import { nanoid } from 'nanoid';
 import { gameLogger, playerLogger, battleLogger } from '../logging';
@@ -26,15 +26,13 @@ export class Game {
         this.currentPhase = writable('preparation');
         this.phaseTimer = writable(this.PHASE_DURATION);
 
-        this.units = Object.values(unitData).map(unit => ({
+        this.units = Object.entries(unitData).map(([name, data]) => ({
             id: nanoid(),
-            emoji: unit.emoji,
-            name: unit.name,
-            attack: unit.attack,
-            health: unit.health,
-            cost: unit.cost,
-            level: unit.level,
-            abilities: unit.abilities
+            emoji: data.emoji,
+            name: name,
+            ...data.level_1,
+            cost: data.cost,
+            level: 1
         }));
         gameLogger.log('Game instance created');
     }
@@ -144,14 +142,22 @@ export class Player {
         playerLogger.logData('Attempting to summon unit', { unitName });
         const unitInfo = unitData[unitName];
         playerLogger.logData('Unit info', { unitInfo });
-        if (!unitInfo) return;
+        if (!unitInfo || !unitInfo.level_1) return;
 
         this.state.update(s => {
             if (s.wheat >= unitInfo.cost) {
+                const newUnit: Unit = {
+                    id: nanoid(),
+                    emoji: unitInfo.emoji,
+                    name: unitName,
+                    ...unitInfo.level_1,
+                    cost: unitInfo.cost,
+                    level: 1
+                };
                 return {
                     ...s,
                     wheat: s.wheat - unitInfo.cost,
-                    army: [...s.army, { ...unitInfo, level: 1, id: nanoid() }]
+                    army: [...s.army, newUnit]
                 };
             }
             return s;
@@ -169,15 +175,18 @@ export class Player {
         if (!unitInfo || unit.level >= 3) return;
 
         const nextLevel = unit.level + 1 as 2 | 3;
-        const upgradedUnit = {
+        const nextLevelData = unitInfo[`level_${nextLevel}`] as UnitLevelData | undefined;
+        if (!nextLevelData) return;
+
+        const upgradedUnit: Unit = {
             ...unit,
-            ...unitInfo[`level${nextLevel}`],
+            ...nextLevelData,
             level: nextLevel
         };
 
         this.state.update(s => ({
             ...s,
-            army: s.army.map(u => u === unit ? upgradedUnit : u)
+            army: s.army.map(u => u.id === unit.id ? upgradedUnit : u)
         }));
     }
 

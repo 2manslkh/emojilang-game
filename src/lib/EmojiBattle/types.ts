@@ -21,11 +21,15 @@ export interface Farmer extends Unit {
 export interface UnitData {
     emoji: string;
     name: string;
+    cost: number;
+    level_1?: UnitLevelData;
+    level_2?: UnitLevelData;
+    level_3?: UnitLevelData;
+}
+
+export interface UnitLevelData {
+    name: string;
     attack: number;
     health: number;
-    cost: number;
-    level: number;
     abilities?: Ability[];
-    level2?: Partial<UnitData>;
-    level3?: Partial<UnitData>;
 }
