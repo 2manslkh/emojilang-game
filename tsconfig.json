@@ -10,17 +10,8 @@
 		"sourceMap": true,
 		"strict": true,
 		"moduleResolution": "bundler",
-		"types": ["svelte", "svelte-dnd-action"],
-		"baseUrl": ".",
-		"paths": {
-			"$lib": ["src/lib"],
-			"$lib/*": ["src/lib/*"],
-			"$components": ["src/components"],
-			"$components/*": ["src/components/*"]
-		}
-	},
-	"include": ["src/**/*.d.ts", "src/**/*.ts", "src/**/*.js", "src/**/*.svelte"],
-	"exclude": ["node_modules/*", "__sapper__/*", "public/*"]
+		"types": ["svelte", "svelte-dnd-action"]
+	}
 	// Path aliases are handled by https://kit.svelte.dev/docs/configuration#alias
 	// except $lib which is handled by https://kit.svelte.dev/docs/configuration#files
 	//
