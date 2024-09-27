@@ -42,10 +42,21 @@
 		currentQuestion = game.startGame();
 		currentLevel = game.getCurrentLevel();
 		levelName = game.getCurrentLevelName();
+		userTranslation = ''; // Reset the input field
 
 		// Subscribe to the game's stores
 		game.timeRemaining.subscribe((value) => (timeRemaining = value));
 		game.gameActive.subscribe((value) => (gameActive = value));
+
+		// Ensure the input field is editable
+		submitDisabled = false;
+
+		// Focus on the input field after a short delay
+		setTimeout(() => {
+			if (inputElement) {
+				inputElement.focus();
+			}
+		}, 100);
 	}
 
 	function handleKeydown(event: KeyboardEvent) {
@@ -77,7 +88,7 @@
 				currentQuestion = game.getCurrentQuestion();
 				currentLevel = game.getCurrentLevel();
 				levelName = game.getCurrentLevelName();
-				userTranslation = '';
+				userTranslation = ''; // Reset the input field
 				submitDisabled = false;
 
 				if (result.correctAnswersInLevel === 3) {
