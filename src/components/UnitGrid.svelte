@@ -4,6 +4,7 @@
 	import { dndzone } from 'svelte-dnd-action';
 	import { createEventDispatcher } from 'svelte';
 	import { flip } from 'svelte/animate';
+	import { attackingUnits } from '$lib/EmojiBattle/client';
 
 	export let army: Unit[];
 	export let isDraggable = false;
@@ -18,6 +19,8 @@
 	function handleDndFinalize(e: CustomEvent<DndEvent<Unit>>) {
 		dispatch('finalize', e.detail);
 	}
+
+	$: attackingUnitIds = $attackingUnits.filter((u) => u !== null).map((u) => u!.id);
 </script>
 
 <div
@@ -28,7 +31,12 @@
 >
 	{#each army as unit (unit.id)}
 		<div animate:flip={{ duration: 300 }} class="flex items-center justify-center">
-			<UnitCard {unit} {isDraggable} isClickable={false} />
+			<UnitCard
+				{unit}
+				{isDraggable}
+				isClickable={false}
+				isAttacking={attackingUnitIds.includes(unit.id)}
+			/>
 		</div>
 	{/each}
 </div>

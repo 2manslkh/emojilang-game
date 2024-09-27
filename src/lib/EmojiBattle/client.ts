@@ -6,13 +6,8 @@ import { nanoid } from 'nanoid';
 import { gameLogger, playerLogger, battleLogger, aiLogger } from '../logging';
 import { gameSettings } from './gameSettings';
 
-// Remove the UnitData import as it's not used
-// import type { Unit, UnitData } from './types';
-
-// Create debug loggers
-
-// Remove this line:
-// export const BATTLE_DELAY = writable(1500);
+export const attackingUnit = writable<Unit | null>(null);
+export const attackingUnits = writable<[Unit | null, Unit | null]>([null, null]);
 
 export class Game {
     players: [Player, Player];
@@ -308,45 +303,67 @@ export class Player {
 class Battle {
     static async resolveCombat(player1: Player, player2: Player): Promise<void> {
         battleLogger.log('Resolving combat');
-        const attackOrder = [...get(player1.state).army, ...get(player2.state).army].sort((a, b) => b.attack - a.attack);
+        const player1Army = get(player1.state).army;
+        const player2Army = get(player2.state).army;
+        const maxBattles = Math.max(player1Army.length, player2Army.length);
 
-        for (const unit of attackOrder) {
-            const isPlayer1Unit = get(player1.state).army.includes(unit);
-            const target = Battle.findTarget(unit, isPlayer1Unit ? player2 : player1);
-            await Battle.performAttack(unit, target, isPlayer1Unit ? player2 : player1);
+        for (let i = 0; i < maxBattles; i++) {
+            const unit1 = player1Army[i];
+            const unit2 = player2Army[i];
 
-            // Wait for the specified delay
-            await new Promise(resolve => setTimeout(resolve, gameSettings.BATTLE_DELAY));
-        }
-    }
+            if (unit1 && unit2) {
+                await Battle.performSimultaneousBattle(unit1, unit2, player1, player2);
+            } else if (unit1) {
+                await Battle.performAttack(unit1, player2);
+            } else if (unit2) {
+                await Battle.performAttack(unit2, player1);
+            }
 
-    static findTarget(unit: Unit, opponent: Player): Unit | Player {
-        battleLogger.logData('Finding target for unit', { unitName: unit.name });
-        const opponentArmy = get(opponent.state).army;
-        if (opponentArmy.length > 0) {
-            return Battle.findBestTarget(unit, opponentArmy);
-        } else {
-            return opponent;
-        }
-    }
-
-    static findBestTarget(attackingUnit: Unit, enemyUnits: Unit[]): Unit {
-        battleLogger.log(`Finding best target for unit: ${attackingUnit.name} `);
-        // Implement logic to find the best target based on class counters
-        // For now, just return the first unit
-        return enemyUnits[0];
-    }
-
-    static async performAttack(attacker: Unit, target: Unit | Player, targetPlayer: Player): Promise<void> {
-        battleLogger.log(`${attacker.name} attacking ${target instanceof Player ? get(targetPlayer.state).name : target.name} for ${attacker.attack} damage`);
-        if (target instanceof Player) {
-            target.takeDamage(attacker.attack);
-        } else {
-            target.health -= attacker.attack;
-            if (target.health <= 0) {
-                await Battle.removeDefeatedUnit(targetPlayer, target);
+            // Check if the battle should end after each round
+            if (Battle.shouldEndBattle(player1, player2)) {
+                break;
             }
         }
+    }
+
+    static async performSimultaneousBattle(unit1: Unit, unit2: Unit, player1: Player, player2: Player): Promise<void> {
+        battleLogger.log(`${unit1.name} and ${unit2.name} clashing`);
+
+        attackingUnits.set([unit1, unit2]);
+        await new Promise(resolve => setTimeout(resolve, gameSettings.BATTLE_DELAY));
+
+        // Both units deal damage simultaneously
+        const damage1 = unit1.attack;
+        const damage2 = unit2.attack;
+
+        unit2.health -= damage1;
+        unit1.health -= damage2;
+
+        battleLogger.log(`${unit1.name} deals ${damage1} damage to ${unit2.name}`);
+        battleLogger.log(`${unit2.name} deals ${damage2} damage to ${unit1.name}`);
+
+        // Check if units are defeated
+        const promises = [];
+        if (unit1.health <= 0) {
+            promises.push(Battle.removeDefeatedUnit(player1, unit1));
+        }
+        if (unit2.health <= 0) {
+            promises.push(Battle.removeDefeatedUnit(player2, unit2));
+        }
+
+        await Promise.all(promises);
+
+        attackingUnits.set([null, null]);
+    }
+
+    static async performAttack(attacker: Unit, targetPlayer: Player): Promise<void> {
+        attackingUnits.set([attacker, null]);
+        await new Promise(resolve => setTimeout(resolve, gameSettings.BATTLE_DELAY));
+
+        battleLogger.log(`${attacker.name} attacking ${get(targetPlayer.state).name} directly for ${attacker.attack} damage`);
+        targetPlayer.takeDamage(attacker.attack);
+
+        attackingUnits.set([null, null]);
     }
 
     static async removeDefeatedUnit(player: Player, defeatedUnit: Unit): Promise<void> {
@@ -355,6 +372,10 @@ class Battle {
             ...s,
             army: s.army.filter(unit => unit.id !== defeatedUnit.id)
         }));
+    }
+
+    static shouldEndBattle(player1: Player, player2: Player): boolean {
+        return get(player1.state).health <= 0 || get(player2.state).health <= 0;
     }
 }
 

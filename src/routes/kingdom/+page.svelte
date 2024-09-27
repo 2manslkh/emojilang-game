@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Game, Player } from '$lib/EmojiBattle/client';
+	import { Game, Player, attackingUnits } from '$lib/EmojiBattle/client';
 	import { onMount } from 'svelte';
 	import type { Unit } from '$lib/EmojiBattle/types';
 	import { get } from 'svelte/store';
@@ -38,6 +38,9 @@
 		player.state.subscribe((state) => (playerState = state));
 		opponent.state.subscribe((state) => (opponentState = state));
 	});
+
+	let currentAttackingUnits: [Unit | null, Unit | null];
+	attackingUnits.subscribe((value) => (currentAttackingUnits = value));
 
 	function buyUnit(unitName: string) {
 		console.log('Buying unit:', unitName);
