@@ -142,6 +142,7 @@ export class Player {
         wheat: number;
         farmers: number;
         name: string;
+        lastWheatGenerated: number;
         army: Unit[];
     }>;
 
@@ -151,6 +152,7 @@ export class Player {
             health: 100,
             wheat: 10,
             farmers: 2,
+            lastWheatGenerated: 0,
             name: name || 'Player',
             army: []
         });
@@ -163,7 +165,7 @@ export class Player {
 
     calculateWheatBoost(): number {
         const state = get(this.state);
-        const baseWheatGeneration = state.farmers * 2; // Base wheat generation
+        const baseWheatGeneration = 2; // Base wheat generation
 
         // Calculate additional wheat from unit abilities
         const abilityWheatBoost = state.army.reduce((total, unit) => {
@@ -187,6 +189,7 @@ export class Player {
         this.state.update(s => {
             const wheatBoost = this.calculateWheatBoost();
             const newWheat = s.wheat + wheatBoost;
+            const lastWheatGenerated = wheatBoost;
             playerLogger.logData('Generating wheat', {
                 oldWheat: s.wheat,
                 farmers: s.farmers,
@@ -195,9 +198,14 @@ export class Player {
             });
             return {
                 ...s,
+                lastWheatGenerated,
                 wheat: newWheat
             };
         });
+    }
+
+    getLastWheatGenerated(): number {
+        return get(this.state).lastWheatGenerated;
     }
 
     summonUnit(unitName: string, game: Game): void {

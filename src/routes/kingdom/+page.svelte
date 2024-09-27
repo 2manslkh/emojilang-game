@@ -2,17 +2,12 @@
 	import { Game, Player } from '$lib/EmojiBattle/client';
 	import { onMount } from 'svelte';
 	import type { Unit } from '$lib/EmojiBattle/types';
-	import UnitCard from '$components/Card/UnitCard.svelte';
 	import { get } from 'svelte/store';
-	import { flip } from 'svelte/animate';
-	import { dndzone } from 'svelte-dnd-action';
 	import PlayerInfo from '$components/PlayerInfo.svelte';
 	import UnitGrid from '$components/UnitGrid.svelte';
-	import TurnInfo from '$components/TurnInfo.svelte';
 	import type { DndEvent } from 'svelte-dnd-action';
-	import MockDndGrid from '$components/MockDndGrid.svelte';
 	import Shop from '$components/Shop.svelte';
-	import ConnectWalletButton from '$components/ConnectWalletButton.svelte';
+	import TurnInfo from '$components/TurnInfo.svelte';
 
 	let game: Game;
 	let player: Player;
@@ -75,6 +70,20 @@
 		console.log('Connecting wallet...');
 		// Implement wallet connection logic here
 	}
+
+	// New variables to track wheat generated
+	let playerWheatGenerated = 0;
+	let opponentWheatGenerated = 0;
+
+	$: {
+		if (currentPhase === 'preparation') {
+			playerWheatGenerated = player.getLastWheatGenerated();
+			opponentWheatGenerated = opponent.getLastWheatGenerated();
+		} else {
+			playerWheatGenerated = 0;
+			opponentWheatGenerated = 0;
+		}
+	}
 </script>
 
 <div class="container mx-auto p-4 max-w-3xl">
@@ -97,7 +106,12 @@
 		/>
 
 		<div class="flex justify-between items-center my-4">
-			<PlayerInfo name="Player" health={playerState.health} wheat={playerState.wheat} />
+			<PlayerInfo
+				name="Player"
+				health={playerState.health}
+				wheat={playerState.wheat}
+				wheatGenerated={playerWheatGenerated}
+			/>
 		</div>
 
 		<Shop {units} onBuyUnit={buyUnit} {canBuyUnits} />
