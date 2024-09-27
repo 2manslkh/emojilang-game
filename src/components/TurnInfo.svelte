@@ -7,8 +7,8 @@
 	export let phaseTimer: number;
 
 	$: phaseEmoji = currentPhase === 'preparation' ? '🛠️' : '⚔️';
-	$: phaseDuration =
-		currentPhase === 'preparation'
+	const getPhaseDuration = (phase: 'preparation' | 'battle') =>
+		phase === 'preparation'
 			? gameSettings.PREPARATION_PHASE_DURATION
 			: gameSettings.BATTLE_PHASE_DURATION;
 </script>
@@ -17,6 +17,6 @@
 	<h2 class="text-xl font-semibold">Turn {turn}</h2>
 	<p class="text-lg">Phase: {currentPhase} {phaseEmoji}</p>
 	<div class="w-48 mt-2">
-		<TimerBar timeRemaining={phaseTimer} totalTime={phaseDuration} />
+		<TimerBar timeRemaining={phaseTimer} totalTime={getPhaseDuration(currentPhase)} />
 	</div>
 </div>
