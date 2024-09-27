@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { fade, fly } from 'svelte/transition';
+	import { gameSettings } from '$lib/EmojiBattle/gameSettings';
 
 	export let name: string;
 	export let health: number;
@@ -24,7 +25,7 @@
 			showWheatGenerated = true;
 			setTimeout(() => {
 				showWheatGenerated = false;
-			}, 2000); // Hide after 2 seconds
+			}, gameSettings.DAMAGE_ANIMATION_DURATION);
 		}
 	}
 
@@ -34,7 +35,7 @@
 			showHealthLoss = true;
 			setTimeout(() => {
 				showHealthLoss = false;
-			}, 2000); // Hide after 2 seconds
+			}, gameSettings.DAMAGE_ANIMATION_DURATION);
 		}
 		lastHealth = health;
 	}

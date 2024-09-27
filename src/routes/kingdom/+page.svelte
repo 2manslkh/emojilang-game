@@ -8,6 +8,7 @@
 	import type { DndEvent } from 'svelte-dnd-action';
 	import Shop from '$components/Shop.svelte';
 	import TurnInfo from '$components/TurnInfo.svelte';
+	import { gameSettings } from '$lib/EmojiBattle/gameSettings';
 
 	let game: Game;
 	let player: Player;
@@ -84,13 +85,17 @@
 			opponentWheatGenerated = 0;
 		}
 	}
+
+	function changeBattleDelay(newDelay: number) {
+		gameSettings.BATTLE_DELAY = newDelay;
+	}
 </script>
 
 <div class="container mx-auto p-4 max-w-3xl">
 	{#if game && playerState && opponentState}
 		<div class="flex justify-between items-center mb-4">
 			<PlayerInfo name="Enemy" health={opponentState.health} wheat={opponentState.wheat} />
-			<TurnInfo {turn} {currentPhase} {phaseTimer} phaseDuration={game.PHASE_DURATION} />
+			<TurnInfo {turn} {currentPhase} {phaseTimer} phaseDuration={gameSettings.PHASE_DURATION} />
 		</div>
 
 		<h2 class="text-lg font-semibold mb-2">Enemy Army</h2>
@@ -126,3 +131,5 @@
 		<p>Loading game...</p>
 	{/if}
 </div>
+
+<button on:click={() => changeBattleDelay(2000)}>Set 2 second delay</button>

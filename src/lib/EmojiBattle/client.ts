@@ -4,11 +4,15 @@ import type { Unit, UnitLevelData } from './types';
 import { unitData } from './unitData';
 import { nanoid } from 'nanoid';
 import { gameLogger, playerLogger, battleLogger, aiLogger } from '../logging';
+import { gameSettings } from './gameSettings';
 
 // Remove the UnitData import as it's not used
 // import type { Unit, UnitData } from './types';
 
 // Create debug loggers
+
+// Remove this line:
+// export const BATTLE_DELAY = writable(1500);
 
 export class Game {
     players: [Player, Player];
@@ -63,14 +67,14 @@ export class Game {
         }, 1000);
     }
 
-    nextPhase(): void {
+    async nextPhase(): Promise<void> {
         gameLogger.log('Moving to next phase');
         const currentPhase = get(this.currentPhase);
         gameLogger.logData('Current phase before transition', { currentPhase });
 
         if (currentPhase === 'preparation') {
             this.currentPhase.set('battle');
-            this.battlePhase();
+            await this.battlePhase();
         } else {
             this.currentPhase.set('preparation');
             this.preparationPhase();
@@ -103,9 +107,9 @@ export class Game {
         gameLogger.log(`Turn ${get(this.currentTurn)} started`);
     }
 
-    battlePhase(): void {
+    async battlePhase(): Promise<void> {
         gameLogger.log('Entering battle phase');
-        Battle.resolveCombat(this.players[0], this.players[1]);
+        await Battle.resolveCombat(this.players[0], this.players[1]);
         if (this.checkVictoryCondition()) {
             this.endGame();
         }
@@ -140,7 +144,6 @@ export class Player {
     state: Writable<{
         health: number;
         wheat: number;
-        farmers: number;
         name: string;
         lastWheatGenerated: number;
         army: Unit[];
@@ -149,9 +152,8 @@ export class Player {
     constructor(name: string, isAI: boolean = false) {
         this.isAI = isAI;
         this.state = writable({
-            health: 100,
-            wheat: 10,
-            farmers: 2,
+            health: gameSettings.INITIAL_PLAYER_HEALTH,
+            wheat: gameSettings.INITIAL_PLAYER_WHEAT,
             lastWheatGenerated: 0,
             name: name || 'Player',
             army: []
@@ -192,7 +194,6 @@ export class Player {
             const lastWheatGenerated = wheatBoost;
             playerLogger.logData('Generating wheat', {
                 oldWheat: s.wheat,
-                farmers: s.farmers,
                 wheatBoost,
                 newWheat
             });
@@ -305,14 +306,17 @@ export class Player {
 }
 
 class Battle {
-    static resolveCombat(player1: Player, player2: Player): void {
+    static async resolveCombat(player1: Player, player2: Player): Promise<void> {
         battleLogger.log('Resolving combat');
         const attackOrder = [...get(player1.state).army, ...get(player2.state).army].sort((a, b) => b.attack - a.attack);
 
         for (const unit of attackOrder) {
             const isPlayer1Unit = get(player1.state).army.includes(unit);
             const target = Battle.findTarget(unit, isPlayer1Unit ? player2 : player1);
-            Battle.performAttack(unit, target, isPlayer1Unit ? player2 : player1);
+            await Battle.performAttack(unit, target, isPlayer1Unit ? player2 : player1);
+
+            // Wait for the specified delay
+            await new Promise(resolve => setTimeout(resolve, gameSettings.BATTLE_DELAY));
         }
     }
 
@@ -333,19 +337,19 @@ class Battle {
         return enemyUnits[0];
     }
 
-    static performAttack(attacker: Unit, target: Unit | Player, targetPlayer: Player): void {
+    static async performAttack(attacker: Unit, target: Unit | Player, targetPlayer: Player): Promise<void> {
         battleLogger.log(`${attacker.name} attacking ${target instanceof Player ? get(targetPlayer.state).name : target.name} for ${attacker.attack} damage`);
         if (target instanceof Player) {
             target.takeDamage(attacker.attack);
         } else {
             target.health -= attacker.attack;
             if (target.health <= 0) {
-                Battle.removeDefeatedUnit(targetPlayer, target);
+                await Battle.removeDefeatedUnit(targetPlayer, target);
             }
         }
     }
 
-    static removeDefeatedUnit(player: Player, defeatedUnit: Unit): void {
+    static async removeDefeatedUnit(player: Player, defeatedUnit: Unit): Promise<void> {
         battleLogger.log(`Removing defeated unit: ${defeatedUnit.name} from ${get(player.state).name}'s army`);
         player.state.update(s => ({
             ...s,
