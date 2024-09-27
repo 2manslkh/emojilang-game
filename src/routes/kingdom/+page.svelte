@@ -94,6 +94,21 @@
 	}
 </script>
 
+<svelte:head>
+	<title>Emoji Battle</title>
+	<meta name="description" content="Play Emoji Battle: Build your army, crush your opponent!" />
+	<meta name="keywords" content="emoji, battle, strategy, game, kingdom, army" />
+	<meta name="author" content="Emoji Battle Team" />
+	<meta property="og:title" content="Emoji Battle Kingdom" />
+	<meta
+		property="og:description"
+		content="Build your emoji army and crush your opponent in this exciting strategy game!"
+	/>
+	<meta property="og:image" content="https://emojibattle.com/battle-og.png" />
+	<meta property="og:url" content="https://emojibattle.com" />
+	<meta name="twitter:card" content="summary_large_image" />
+</svelte:head>
+
 <div class="container mx-auto p-4 max-w-3xl">
 	{#if game && playerState && opponentState}
 		<div class="flex justify-between items-center mb-4">
