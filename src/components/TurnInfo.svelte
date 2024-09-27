@@ -1,12 +1,16 @@
 <script lang="ts">
 	import TimerBar from '$components/Timer/TimerBar.svelte';
+	import { gameSettings } from '$lib/EmojiBattle/gameSettings';
 
 	export let turn: number;
 	export let currentPhase: 'preparation' | 'battle';
 	export let phaseTimer: number;
-	export let phaseDuration: number;
 
 	$: phaseEmoji = currentPhase === 'preparation' ? '🛠️' : '⚔️';
+	$: phaseDuration =
+		currentPhase === 'preparation'
+			? gameSettings.PREPARATION_PHASE_DURATION
+			: gameSettings.BATTLE_PHASE_DURATION;
 </script>
 
 <div class="text-left">

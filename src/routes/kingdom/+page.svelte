@@ -98,7 +98,7 @@
 	{#if game && playerState && opponentState}
 		<div class="flex justify-between items-center mb-4">
 			<PlayerInfo name="Enemy" health={opponentState.health} wheat={opponentState.wheat} />
-			<TurnInfo {turn} {currentPhase} {phaseTimer} phaseDuration={gameSettings.PHASE_DURATION} />
+			<TurnInfo {turn} {currentPhase} {phaseTimer} />
 		</div>
 
 		<h2 class="text-lg font-semibold mb-2">Enemy Army</h2>

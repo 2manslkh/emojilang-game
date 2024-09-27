@@ -16,14 +16,13 @@ export class Game {
     units: Unit[];
     currentPhase: Writable<'preparation' | 'battle'>;
     phaseTimer: Writable<number>;
-    readonly PHASE_DURATION = 10; // 10 seconds per phase
 
     constructor(player1: Player, player2: Player) {
         this.players = [player1, player2];
         this.currentTurn = writable(1);
         this.gameOver = writable(false);
         this.currentPhase = writable('preparation');
-        this.phaseTimer = writable(this.PHASE_DURATION);
+        this.phaseTimer = writable(gameSettings.PREPARATION_PHASE_DURATION);
 
         this.units = Object.values(unitData).map((data) => ({
             id: nanoid(),
@@ -40,7 +39,7 @@ export class Game {
         this.currentTurn.set(1);
         this.gameOver.set(false);
         this.currentPhase.set('preparation');
-        this.phaseTimer.set(this.PHASE_DURATION);
+        this.phaseTimer.set(gameSettings.PREPARATION_PHASE_DURATION);
         this.startPhaseTimer();
         gameLogger.log('Game started');
         this.players[1].randomSummon(this);
@@ -55,7 +54,7 @@ export class Game {
                 if (t <= 0) {
                     clearInterval(timer);
                     this.nextPhase();
-                    return this.PHASE_DURATION;
+                    return this.getCurrentPhaseDuration();
                 }
                 return t - 1;
             });
@@ -78,13 +77,19 @@ export class Game {
         const newPhase = get(this.currentPhase);
         gameLogger.logData('New phase after transition', { newPhase });
 
-        this.phaseTimer.set(this.PHASE_DURATION);
+        this.phaseTimer.set(this.getCurrentPhaseDuration());
         this.startPhaseTimer();
     }
 
     getCurrentPhase(): 'preparation' | 'battle' {
         gameLogger.log(`Current phase: ${get(this.currentPhase)}`);
         return get(this.currentPhase);
+    }
+
+    getCurrentPhaseDuration(): number {
+        return get(this.currentPhase) === 'preparation'
+            ? gameSettings.PREPARATION_PHASE_DURATION
+            : gameSettings.BATTLE_PHASE_DURATION;
     }
 
     preparationPhase(): void {
@@ -94,6 +99,8 @@ export class Game {
 
         this.players.forEach((player) => {
             player.generateWheat();
+            // Reset hasBattled for all units
+            player.resetUnits();
             if (player.isAI) { // AI player (opponent)
                 aiLogger.log('AI player turn');
                 player.randomSummon(this);
@@ -162,7 +169,7 @@ export class Player {
 
     calculateWheatBoost(): number {
         const state = get(this.state);
-        const baseWheatGeneration = 2; // Base wheat generation
+        const baseWheatGeneration = gameSettings.BASE_WHEAT_GENERATION;
 
         // Calculate additional wheat from unit abilities
         const abilityWheatBoost = state.army.reduce((total, unit) => {
@@ -296,6 +303,14 @@ export class Player {
         this.state.update(s => ({
             ...s,
             health: Math.max(0, s.health - damage)
+        }));
+    }
+
+    resetUnits(): void {
+        playerLogger.log('Resetting units to original state');
+        this.state.update(s => ({
+            ...s,
+            army: s.army.map(unit => ({ ...unit, hasBattled: false }))
         }));
     }
 }

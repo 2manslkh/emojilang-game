@@ -7,7 +7,8 @@ export const gameSettings = {
     INITIAL_FARMER_COUNT: 0,
 
     // Game phase settings
-    PHASE_DURATION: 10, // 10 seconds per phase
+    PREPARATION_PHASE_DURATION: 10, // 10 seconds for preparation phase
+    BATTLE_PHASE_DURATION: 2, // 2 seconds for battle phase
     BATTLE_DELAY: 1500, // 1.5 seconds delay between attacks
 
     // Wheat generation settings
