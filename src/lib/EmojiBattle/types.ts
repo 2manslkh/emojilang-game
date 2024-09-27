@@ -12,6 +12,7 @@ export interface Unit {
     cost: number;
     level: number;
     abilities?: Ability[];
+    hasBattled?: boolean; // Add this new property
 }
 
 export interface Farmer extends Unit {

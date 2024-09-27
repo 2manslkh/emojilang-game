@@ -28,7 +28,7 @@
 <div
 	class="relative w-20 h-[106px] transition-transform duration-300 ease-in-out {isAttacking
 		? 'scale-110'
-		: ''}"
+		: ''} {unit.hasBattled ? 'opacity-50' : ''}"
 	style="transform: translate({$position.x}px, {$position.y}px);"
 >
 	{#if isClickable}
@@ -39,6 +39,7 @@
 					: 'cursor-default'
 				: 'cursor-default'}"
 			on:click={isClickable ? onClick : null}
+			disabled={unit.hasBattled}
 		>
 			<UnitCardContent {unit} {showCost} {isDraggable} />
 		</button>

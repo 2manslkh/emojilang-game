@@ -339,6 +339,10 @@ class Battle {
         unit2.health -= damage1;
         unit1.health -= damage2;
 
+        // Mark units as battled
+        unit1.hasBattled = true;
+        unit2.hasBattled = true;
+
         battleLogger.log(`${unit1.name} deals ${damage1} damage to ${unit2.name}`);
         battleLogger.log(`${unit2.name} deals ${damage2} damage to ${unit1.name}`);
 
@@ -362,6 +366,9 @@ class Battle {
 
         battleLogger.log(`${attacker.name} attacking ${get(targetPlayer.state).name} directly for ${attacker.attack} damage`);
         targetPlayer.takeDamage(attacker.attack);
+
+        // Mark unit as battled
+        attacker.hasBattled = true;
 
         attackingUnits.set([null, null]);
     }
