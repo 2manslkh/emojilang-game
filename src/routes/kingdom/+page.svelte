@@ -149,5 +149,3 @@
 		<p>Loading game...</p>
 	{/if}
 </div>
-
-<button on:click={() => changeBattleDelay(2000)}>Set 2 second delay</button>
