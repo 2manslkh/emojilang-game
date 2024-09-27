@@ -26,13 +26,14 @@ export class Game {
         this.currentPhase = writable('preparation');
         this.phaseTimer = writable(this.PHASE_DURATION);
 
-        this.units = Object.entries(unitData).map(([name, data]) => ({
+        this.units = Object.values(unitData).map((data) => ({
             id: nanoid(),
             emoji: data.emoji,
             ...data.level_1,
             cost: data.cost,
             level: 1
         }));
+
         gameLogger.log('Game instance created');
     }
 
@@ -92,7 +93,7 @@ export class Game {
         this.currentTurn.update(t => t + 1);
         gameLogger.logData('Updated turn', { turn: get(this.currentTurn) });
 
-        this.players.forEach((player, index) => {
+        this.players.forEach((player) => {
             player.generateWheat();
             if (player.isAI) { // AI player (opponent)
                 aiLogger.log('AI player turn');

@@ -10,10 +10,36 @@
 
    - Players spend Wheat to summon or merge units.
    - Summoning requires Wheat, which is generated each turn.
+   - Players can:
+     - Summon new units
+     - Upgrade existing units by merging
+     - Rearrange their army
+     - Plan their strategy for the upcoming battle
 
 2. **Battle Phase (10 seconds):**
-   - Units automatically attack the opponent’s units based on counters.
+   - Units automatically attack the opponent's units based on counters.
    - Units will attack the player only if there are no opponent units on the field.
+   - Units will battle each other from left to right.
+   - Players cannot take any actions during this phase.
+   - Combat is resolved automatically based on unit stats and abilities.
+
+## **Actions in Each Phase:**
+
+### Preparation Phase
+
+- **Summoning Units:** Spend Wheat to add new units to your army.
+- **Upgrading Units:** Merge two identical units of the same level to create a stronger unit.
+- **Rearranging Army:** Drag and drop units to optimize their positioning.
+- **Strategizing:** Analyze the opponent's army and plan your unit composition.
+
+### Battle Phase
+
+- **Observation:** Watch as the battle unfolds automatically.
+- **Learning:** Study the effectiveness of different unit combinations and counters.
+- **Planning:** Consider adjustments for the next Preparation Phase based on battle results.
+- **Unit Order:** Pay attention to how units engage from left to right, as this affects combat resolution.
+
+Remember: All active decisions and army management must be done during the Preparation Phase. The Battle Phase is hands-off, allowing you to see the results of your strategy in action. The left-to-right combat order makes unit positioning crucial during the Preparation Phase.
 
 ---
 
@@ -37,7 +63,6 @@
 
 ## **Unit Counters:**
 
-- **Melee > Magic > Ranged > Melee**
 - **Assassins** target **Farmers** directly.
 
 ---
