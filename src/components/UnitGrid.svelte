@@ -28,26 +28,42 @@
 	$: attackingUnitIds = $attackingUnits.filter((u) => u !== null).map((u) => u!.id);
 </script>
 
-<div
-	class="grid grid-cols-6 gap-2 h-[130px] overflow-y-auto bg-gray-100 rounded-lg p-3 border border-gray-300 shadow-inner"
-	use:dndzone={{
-		items: army,
-		flipDurationMs: 300,
-		dropTargetStyle: {},
-		type: gridId,
-		dragDisabled: isOpponent || !isDraggable
-	}}
-	on:consider={handleDndConsider}
-	on:finalize={handleDndFinalize}
->
-	{#each army as unit (unit.id)}
-		<div animate:flip={{ duration: 300 }} class="flex items-center justify-center">
-			<UnitCard
-				{unit}
-				isDraggable={isDraggable && !isOpponent}
-				isClickable={false}
-				isAttacking={attackingUnitIds.includes(unit.id)}
-			/>
-		</div>
-	{/each}
+<div class="overflow-x-auto">
+	<div
+		class="flex gap-2 p-3 bg-gray-100 rounded-lg border border-gray-300 shadow-inner min-w-full h-[132px]"
+		style="width: max-content;"
+		use:dndzone={{
+			items: army,
+			flipDurationMs: 300,
+			dropTargetStyle: {},
+			type: gridId,
+			dragDisabled: isOpponent || !isDraggable
+		}}
+		on:consider={handleDndConsider}
+		on:finalize={handleDndFinalize}
+	>
+		{#each army as unit (unit.id)}
+			<div animate:flip={{ duration: 300 }}>
+				<UnitCard
+					{unit}
+					isDraggable={isDraggable && !isOpponent}
+					isClickable={false}
+					isAttacking={attackingUnitIds.includes(unit.id)}
+				/>
+			</div>
+		{/each}
+	</div>
 </div>
+
+<style>
+	/* Hide scrollbar for Chrome, Safari and Opera */
+	.overflow-x-auto::-webkit-scrollbar {
+		display: none;
+	}
+
+	/* Hide scrollbar for IE, Edge and Firefox */
+	.overflow-x-auto {
+		-ms-overflow-style: none; /* IE and Edge */
+		scrollbar-width: none; /* Firefox */
+	}
+</style>
