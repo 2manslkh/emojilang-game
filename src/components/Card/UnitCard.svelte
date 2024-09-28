@@ -26,7 +26,7 @@
 </script>
 
 <div
-	class="relative w-20 h-[106px] transition-transform duration-300 ease-in-out {isAttacking
+	class="unit-card relative w-20 h-[106px] transition-transform duration-300 ease-in-out {isAttacking
 		? 'scale-110'
 		: ''} {unit.hasBattled ? 'opacity-50' : ''}"
 	style="transform: translate({$position.x}px, {$position.y}px);"

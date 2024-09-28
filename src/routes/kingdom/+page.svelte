@@ -75,10 +75,6 @@
 
 <svelte:head>
 	<title>Emoji Battle</title>
-	<meta
-		name="viewport"
-		content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-	/>
 	<meta name="description" content="Play Emoji Battle: Build your army, crush your opponent!" />
 	<meta name="keywords" content="emoji, battle, strategy, game, kingdom, army" />
 	<meta name="author" content="Emoji Battle Team" />
