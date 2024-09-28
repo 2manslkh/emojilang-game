@@ -48,6 +48,7 @@
 				isDraggable={isDraggable && !isOpponent}
 				isClickable={false}
 				isAttacking={attackingUnitIds.includes(unit.id)}
+				{isOpponent}
 			/>
 		</div>
 	{/each}

@@ -1,7 +1,6 @@
 <script lang="ts">
 	import type { Unit } from '$lib/EmojiBattle/types';
 	import UnitCardContent from './UnitCardContent.svelte';
-	import { spring } from 'svelte/motion';
 	import { fade } from 'svelte/transition';
 
 	export let unit: Unit;
@@ -10,26 +9,15 @@
 	export let isDraggable: boolean = false;
 	export let isClickable: boolean = true;
 	export let isAttacking: boolean = false;
+	export let isOpponent: boolean = false;
 
-	const position = spring(
-		{ x: 0, y: 0 },
-		{
-			stiffness: 0.1,
-			damping: 0.25
-		}
-	);
-
-	$: if (isAttacking) {
-		position.set({ x: 10, y: -10 });
-		setTimeout(() => position.set({ x: 0, y: 0 }), 300);
-	}
+	$: attackClass = isAttacking ? (isOpponent ? 'attacking-down' : 'attacking-up') : '';
 </script>
 
 <div
-	class="unit-card relative w-20 h-[106px] transition-transform duration-300 ease-in-out {isAttacking
-		? 'scale-110'
-		: ''} {unit.hasBattled ? 'opacity-50' : ''}"
-	style="transform: translate({$position.x}px, {$position.y}px);"
+	class="unit-card relative w-20 h-[106px] transition-transform duration-300 ease-in-out {attackClass} {unit.hasBattled
+		? 'opacity-50'
+		: ''}"
 >
 	{#if isClickable}
 		<button
@@ -58,3 +46,37 @@
 		></div>
 	{/if}
 </div>
+
+<style>
+	.attacking-up {
+		animation: attack-up 0.3s ease-in-out;
+	}
+
+	.attacking-down {
+		animation: attack-down 0.3s ease-in-out;
+	}
+
+	@keyframes attack-up {
+		0% {
+			transform: translate(0, 0) scale(1);
+		}
+		50% {
+			transform: translate(0px, -30px) scale(1.1);
+		}
+		100% {
+			transform: translate(0, 0) scale(1);
+		}
+	}
+
+	@keyframes attack-down {
+		0% {
+			transform: translate(0, 0) scale(1);
+		}
+		50% {
+			transform: translate(0px, 30px) scale(1.1);
+		}
+		100% {
+			transform: translate(0, 0) scale(1);
+		}
+	}
+</style>

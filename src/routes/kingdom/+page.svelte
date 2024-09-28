@@ -102,6 +102,7 @@
 			army={playerState.army}
 			isDraggable={true}
 			gridId={'player-grid'}
+			isOpponent={false}
 			on:consider={handleDndConsider}
 			on:finalize={handleDndFinalize}
 		/>
