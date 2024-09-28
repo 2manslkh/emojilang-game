@@ -24,7 +24,7 @@
 </script>
 
 <div
-	class="grid grid-cols-6 gap-2 mb-4 h-48 overflow-y-auto bg-gray-100 rounded-lg p-3 border border-gray-300 shadow-inner"
+	class="grid grid-cols-6 gap-2 h-[130px] overflow-y-auto bg-gray-100 rounded-lg p-3 border border-gray-300 shadow-inner"
 	use:dndzone={{ items: army, flipDurationMs: 300, dropTargetStyle: {}, type: gridId }}
 	on:consider={handleDndConsider}
 	on:finalize={handleDndFinalize}

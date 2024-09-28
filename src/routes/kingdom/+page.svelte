@@ -47,10 +47,6 @@
 		player.summonUnit(unitName, game);
 	}
 
-	function nextTurn() {
-		game?.nextPhase();
-	}
-
 	function handleDndConsider(e: CustomEvent<DndEvent<Unit>>) {
 		playerState.army = e.detail.items;
 	}
@@ -60,20 +56,7 @@
 		player.rearrangeArmy(playerState.army);
 	}
 
-	function handleMockDndConsider(e: CustomEvent<DndEvent<{ id: number; name: string }>>) {
-		console.log('Mock DnD Consider:', e.detail.items);
-	}
-
-	function handleMockDndFinalize(e: CustomEvent<DndEvent<{ id: number; name: string }>>) {
-		console.log('Mock DnD Finalize:', e.detail.items);
-	}
-
 	$: gameOver = get(game?.gameOver) ?? false;
-
-	function handleConnectWallet() {
-		console.log('Connecting wallet...');
-		// Implement wallet connection logic here
-	}
 
 	// New variables to track wheat generated
 	let playerWheatGenerated = 0;
@@ -87,10 +70,6 @@
 			playerWheatGenerated = 0;
 			opponentWheatGenerated = 0;
 		}
-	}
-
-	function changeBattleDelay(newDelay: number) {
-		gameSettings.BATTLE_DELAY = newDelay;
 	}
 </script>
 
@@ -113,13 +92,12 @@
 	{#if game && playerState && opponentState}
 		<div class="flex justify-between items-center mb-4">
 			<PlayerInfo name="Enemy" health={opponentState.health} wheat={opponentState.wheat} />
-			<TurnInfo {turn} {currentPhase} {phaseTimer} />
 		</div>
 
-		<h2 class="text-lg font-semibold mb-2">Enemy Army</h2>
 		<UnitGrid army={opponentState.army} gridId={'opponent-grid'} />
 
-		<h2 class="text-lg font-semibold mt-6 mb-2">Your Army</h2>
+		<TurnInfo {turn} {currentPhase} {phaseTimer} />
+
 		<UnitGrid
 			army={playerState.army}
 			isDraggable={true}

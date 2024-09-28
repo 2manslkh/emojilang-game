@@ -8,12 +8,8 @@
 </script>
 
 <div class="bg-gray-100 p-4 rounded-lg relative">
-	<h2 class="text-xl font-semibold mb-2">Shop</h2>
-	{#if !canBuyUnits}
-		<p class="text-red-500 mb-2">Cannot buy units during battle phase</p>
-	{/if}
 	<div class="overflow-x-auto relative">
-		<div class="flex space-x-2 pb-2">
+		<div class="flex space-x-2">
 			{#each units as unit}
 				<div class="flex-shrink-0">
 					<UnitCard
@@ -25,12 +21,15 @@
 				</div>
 			{/each}
 		</div>
-		{#if !canBuyUnits}
-			<div class="absolute inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center">
-				<p class="text-white font-bold text-lg">Buying Disabled</p>
-			</div>
-		{/if}
 	</div>
+
+	{#if !canBuyUnits}
+		<div
+			class="absolute inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-10 rounded-lg"
+		>
+			<p class="text-white font-bold text-lg">Buying Disabled</p>
+		</div>
+	{/if}
 </div>
 
 <style>

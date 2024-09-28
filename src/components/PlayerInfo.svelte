@@ -41,7 +41,7 @@
 	}
 </script>
 
-<div class="relative">
+<div class="flex gap-4 relative items-center">
 	<h2 class="text-xl font-semibold">{name}</h2>
 	<p>
 		🏰❤️: {health}
