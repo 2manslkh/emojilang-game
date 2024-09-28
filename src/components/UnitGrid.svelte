@@ -9,15 +9,20 @@
 	export let army: Unit[];
 	export let isDraggable = false;
 	export let gridId: string;
+	export let isOpponent = false; // New prop to identify if this is the opponent's grid
 
 	const dispatch = createEventDispatcher();
 
 	function handleDndConsider(e: CustomEvent<DndEvent<Unit>>) {
-		dispatch('consider', e.detail);
+		if (!isOpponent) {
+			dispatch('consider', e.detail);
+		}
 	}
 
 	function handleDndFinalize(e: CustomEvent<DndEvent<Unit>>) {
-		dispatch('finalize', e.detail);
+		if (!isOpponent) {
+			dispatch('finalize', e.detail);
+		}
 	}
 
 	$: attackingUnitIds = $attackingUnits.filter((u) => u !== null).map((u) => u!.id);
@@ -25,7 +30,13 @@
 
 <div
 	class="grid grid-cols-6 gap-2 h-[130px] overflow-y-auto bg-gray-100 rounded-lg p-3 border border-gray-300 shadow-inner"
-	use:dndzone={{ items: army, flipDurationMs: 300, dropTargetStyle: {}, type: gridId }}
+	use:dndzone={{
+		items: army,
+		flipDurationMs: 300,
+		dropTargetStyle: {},
+		type: gridId,
+		dragDisabled: isOpponent || !isDraggable
+	}}
 	on:consider={handleDndConsider}
 	on:finalize={handleDndFinalize}
 >
@@ -33,7 +44,7 @@
 		<div animate:flip={{ duration: 300 }} class="flex items-center justify-center">
 			<UnitCard
 				{unit}
-				{isDraggable}
+				isDraggable={isDraggable && !isOpponent}
 				isClickable={false}
 				isAttacking={attackingUnitIds.includes(unit.id)}
 			/>

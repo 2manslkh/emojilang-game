@@ -94,7 +94,7 @@
 			<PlayerInfo name="Enemy" health={opponentState.health} wheat={opponentState.wheat} />
 		</div>
 
-		<UnitGrid army={opponentState.army} gridId={'opponent-grid'} />
+		<UnitGrid army={opponentState.army} gridId={'opponent-grid'} isOpponent={true} />
 
 		<TurnInfo {turn} {currentPhase} {phaseTimer} />
 
