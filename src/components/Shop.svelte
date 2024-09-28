@@ -7,9 +7,13 @@
 	export let canBuyUnits: boolean;
 </script>
 
-<div class="bg-gray-100 p-4 rounded-lg relative">
-	<div class="overflow-x-auto relative">
-		<div class="flex space-x-2">
+<div class=" relative h-[132px]">
+	<!-- Increased height to accommodate shadows -->
+	<div
+		class="flex gap-2 p-3 bg-gray-100 rounded-lg min-w-full max-w-full h-[132px] overflow-x-auto"
+	>
+		<div class="flex space-x-2 pr-3">
+			<!-- Added padding to bottom and right -->
 			{#each units as unit}
 				<div class="flex-shrink-0">
 					<UnitCard
