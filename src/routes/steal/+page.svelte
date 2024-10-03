@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
 	import {
 		players,
 		joinGame,
@@ -12,7 +12,9 @@
 		watchGameSessions,
 		type GameSession,
 		supabase,
-		getFinalGameState
+		getFinalGameState,
+		endRoundAndKickInactivePlayer,
+		getRoundHistory // Add this import
 	} from '$lib/EmojiSteal/client';
 	import { TimerBar } from '$components/Timer';
 	import type { Player } from '$lib/EmojiSteal/client';
@@ -31,7 +33,13 @@
 
 	let totalTime = 15; // Change to 15 seconds
 
-	let timer: ReturnType<typeof setInterval> | null = null;
+	let startTime: number;
+	let animationFrameId: number;
+
+	let gameSubscription: any;
+
+	let playerRoundHistory: any[] = [];
+	let opponentRoundHistory: any[] = [];
 
 	onMount(() => {
 		const unsubscribe = watchPlayers();
@@ -45,7 +53,14 @@
 			if (currentPlayer) {
 				leaveGame(currentPlayer.id);
 			}
+			endTimer(); // Make sure to cancel the animation frame when component is destroyed
 		};
+	});
+
+	onDestroy(() => {
+		if (gameSubscription) {
+			gameSubscription.unsubscribe();
+		}
 	});
 
 	async function handleJoin() {
@@ -112,72 +127,99 @@
 		timeLeft = totalTime;
 		playerChoice = null;
 		opponentChoice = null;
-		timer = setInterval(() => {
-			timeLeft = Math.max(0, timeLeft - 0.1);
-			if (timeLeft <= 0) {
-				endTimer();
-				if (!playerChoice) {
-					handleChoice(Math.random() < 0.5 ? 'cooperate' : 'betray');
-				} else {
-					endRound();
-				}
-			}
-		}, 100);
+		roundResult = '';
+		startTime = performance.now();
+		if (animationFrameId) {
+			cancelAnimationFrame(animationFrameId);
+		}
+		updateTimer();
+		subscribeToGameUpdates();
 	}
 
-	function endTimer() {
-		if (timer !== null) {
-			clearInterval(timer);
-			timer = null;
-		}
-	}
+	function updateTimer() {
+		const currentTime = performance.now();
+		const elapsedTime = (currentTime - startTime) / 1000; // Convert to seconds
+		timeLeft = Math.max(0, totalTime - elapsedTime);
 
-	async function handleChoice(choice: 'cooperate' | 'betray') {
-		if (!gameSession) {
-			console.error('No active game session');
-			return;
-		}
-
-		playerChoice = choice;
-		await makeChoice(gameSession.id, currentPlayer!.id, choice);
-
-		// Only end the round if the timer has run out
-		if (timeLeft <= 0) {
+		if (timeLeft > 0) {
+			animationFrameId = requestAnimationFrame(updateTimer);
+		} else {
 			endTimer();
 			endRound();
 		}
 	}
 
+	function endTimer() {
+		if (animationFrameId) {
+			cancelAnimationFrame(animationFrameId);
+			animationFrameId = 0;
+		}
+	}
+
 	async function endRound() {
-		if (!gameSession) {
-			console.error('No active game session');
+		if (!gameSession || gameState !== 'playing') {
+			console.error('No active game session or round already ended');
 			return;
 		}
 
-		const finalGameState = await getFinalGameState(gameSession.id);
-		if (!finalGameState) {
-			console.error('Failed to fetch final game state');
-			return;
-		}
-
+		// Set gameState to 'result' immediately to prevent multiple calls
 		gameState = 'result';
-		opponentChoice =
-			finalGameState.player1_id === currentPlayer!.id
-				? finalGameState.player2_choice
-				: finalGameState.player1_choice;
 
-		if (playerChoice === null || opponentChoice === null) {
-			console.error('Missing player choices');
+		const updatedGame = await endRoundAndKickInactivePlayer(gameSession.id);
+		if (!updatedGame) {
+			console.error('Failed to end round and kick inactive player');
 			return;
 		}
 
-		const result = calculateResult(playerChoice, opponentChoice);
+		// Check if the current player was kicked
+		if (
+			updatedGame.player1_id !== currentPlayer!.id &&
+			updatedGame.player2_id !== currentPlayer!.id
+		) {
+			// Player was kicked
+			currentPlayer = null;
+			opponent = null;
+			gameState = 'waiting';
+			alert('You were removed from the game due to inactivity.');
+			return;
+		}
+
+		// Determine which choice belongs to the current player
+		playerChoice =
+			updatedGame.player1_id === currentPlayer!.id
+				? updatedGame.player1_choice
+				: updatedGame.player2_choice;
+		opponentChoice =
+			updatedGame.player1_id === currentPlayer!.id
+				? updatedGame.player2_choice
+				: updatedGame.player1_choice;
+
+		if (playerChoice === null) {
+			console.error('Current player choice is missing');
+			return;
+		}
+
+		let result;
+		if (opponentChoice === null) {
+			result = {
+				message: 'Your opponent did not make a choice. You gain 1 point.',
+				playerPoints: 1,
+				opponentPoints: 0
+			};
+		} else {
+			result = calculateResult(playerChoice, opponentChoice);
+		}
+
 		roundResult = result.message;
-		updateRoundHistory();
+
+		// Update round history only once
+		if (roundHistory[0] !== playerChoice) {
+			updateRoundHistory();
+		}
 
 		// Update the gameSession with the round result
 		gameSession = {
-			...finalGameState,
+			...updatedGame,
 			round_result: roundResult
 		};
 
@@ -209,11 +251,17 @@
 				playerPoints: 0,
 				opponentPoints: 3
 			};
-		} else {
+		} else if (playerChoice === 'betray' && opponentChoice === 'betray') {
 			return {
 				message: 'Both betrayed! You each lose 1 point.',
 				playerPoints: -1,
 				opponentPoints: -1
+			};
+		} else {
+			return {
+				message: 'Invalid choice',
+				playerPoints: 0,
+				opponentPoints: 0
 			};
 		}
 	}
@@ -240,6 +288,7 @@
 					startRound();
 				}
 			});
+		fetchRoundHistory();
 	}
 
 	$: if ($currentGame) {
@@ -260,8 +309,63 @@
 						startRound();
 					}
 				});
+			fetchRoundHistory();
 		} else if ($currentGame.status === 'finished' && gameState !== 'result') {
 			endRound();
+			fetchRoundHistory();
+		}
+	}
+
+	async function handleChoice(choice: 'cooperate' | 'betray') {
+		if (!gameSession || playerChoice !== null || gameState !== 'playing') {
+			console.error('Invalid game state or choice already made');
+			return;
+		}
+
+		playerChoice = choice;
+		updateRoundHistory(); // Update history immediately after making a choice
+
+		const updatedGame = await makeChoice(gameSession.id, currentPlayer!.id, choice);
+
+		if (!updatedGame) {
+			console.error('Failed to make choice');
+			return;
+		}
+
+		// We don't need to end the round here anymore, as it will be handled by the subscription
+	}
+
+	function subscribeToGameUpdates() {
+		if (gameSubscription) {
+			gameSubscription.unsubscribe();
+		}
+
+		if (!gameSession) return;
+
+		gameSubscription = supabase
+			.channel(`game_${gameSession.id}`)
+			.on(
+				'postgres_changes',
+				{
+					event: 'UPDATE',
+					schema: 'public',
+					table: 'game_sessions',
+					filter: `id=eq.${gameSession.id}`
+				},
+				(payload) => {
+					const updatedGame = payload.new as GameSession;
+					if (updatedGame.player1_choice !== null && updatedGame.player2_choice !== null) {
+						endRound();
+					}
+				}
+			)
+			.subscribe();
+	}
+
+	async function fetchRoundHistory() {
+		if (currentPlayer && opponent) {
+			playerRoundHistory = await getRoundHistory(currentPlayer.id);
+			opponentRoundHistory = await getRoundHistory(opponent.id);
 		}
 	}
 </script>
@@ -326,7 +430,11 @@
 				<p class="text-sm text-gray-500 mb-2">Game ID: {gameSession.id}</p>
 			{/if}
 			<p class="text-lg mb-2">You chose: {playerChoice === 'cooperate' ? '🤝' : '🔪'}</p>
-			<p class="text-lg mb-4">Opponent chose: {opponentChoice === 'cooperate' ? '🤝' : '🔪'}</p>
+			{#if opponentChoice !== null}
+				<p class="text-lg mb-4">Opponent chose: {opponentChoice === 'cooperate' ? '🤝' : '🔪'}</p>
+			{:else}
+				<p class="text-lg mb-4">Opponent did not make a choice ⏳</p>
+			{/if}
 			<p class="text-xl font-bold mb-4">{roundResult}</p>
 			<p class="text-lg">Next round starting soon...</p>
 		</div>
@@ -339,6 +447,30 @@
 				{#each roundHistory as choice}
 					<span class="text-2xl">{choice === 'cooperate' ? '🤝' : '🔪'}</span>
 				{/each}
+			</div>
+		</div>
+	{/if}
+
+	{#if currentPlayer && opponent}
+		<div class="mt-8">
+			<h3 class="text-lg font-semibold mb-2">Round History:</h3>
+			<div class="flex justify-between">
+				<div class="w-1/2 pr-2">
+					<h4 class="text-md font-semibold">{currentPlayer.name}'s History:</h4>
+					<div class="flex space-x-2">
+						{#each playerRoundHistory as choice}
+							<span class="text-2xl">{choice.choice === 'cooperate' ? '🤝' : '🔪'}</span>
+						{/each}
+					</div>
+				</div>
+				<div class="w-1/2 pl-2">
+					<h4 class="text-md font-semibold">{opponent.name}'s History:</h4>
+					<div class="flex space-x-2">
+						{#each opponentRoundHistory as choice}
+							<span class="text-2xl">{choice.choice === 'cooperate' ? '🤝' : '🔪'}</span>
+						{/each}
+					</div>
+				</div>
 			</div>
 		</div>
 	{/if}

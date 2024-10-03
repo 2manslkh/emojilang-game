@@ -8,7 +8,7 @@ EmojiSteal is an exciting multiplayer game that challenges players to make quick
 
 1. **Game Start**: You'll be matched with a random opponent from the player pool for each round.
 
-2. **Decision Time**: You have only 7 seconds to choose your action:
+2. **Decision Time**: You have only 15 seconds to choose your action:
 
    - 🤝 Cooperate
    - 🔪 Betray

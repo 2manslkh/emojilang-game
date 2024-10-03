@@ -117,3 +117,49 @@ $$ LANGUAGE plpgsql;
 
 -- Grant execute permission on the function
 GRANT EXECUTE ON FUNCTION make_choice_and_record_history(UUID, UUID, TEXT, BOOLEAN) TO authenticated, anon;
+
+-- Create a function to end the round and kick inactive players
+CREATE OR REPLACE FUNCTION end_round_and_kick_inactive_player(p_game_id UUID)
+RETURNS TABLE (LIKE game_sessions) AS $$
+DECLARE
+    v_game game_sessions;
+    v_inactive_player_id UUID;
+BEGIN
+    -- Fetch the current game state
+    SELECT * INTO v_game FROM game_sessions WHERE id = p_game_id;
+
+    -- Determine if there's an inactive player
+    IF v_game.player1_choice IS NULL AND v_game.player2_choice IS NOT NULL THEN
+        v_inactive_player_id := v_game.player1_id;
+    ELSIF v_game.player2_choice IS NULL AND v_game.player1_choice IS NOT NULL THEN
+        v_inactive_player_id := v_game.player2_id;
+    END IF;
+
+    -- If there's an inactive player, remove them from the game
+    IF v_inactive_player_id IS NOT NULL THEN
+        -- Update the game session
+        UPDATE game_sessions
+        SET 
+            player1_id = CASE WHEN player1_id = v_inactive_player_id THEN player2_id ELSE player1_id END,
+            player2_id = CASE WHEN player1_id = v_inactive_player_id THEN NULL ELSE player2_id END,
+            player1_choice = CASE WHEN player1_id = v_inactive_player_id THEN player2_choice ELSE player1_choice END,
+            player2_choice = CASE WHEN player1_id = v_inactive_player_id THEN NULL ELSE player2_choice END,
+            status = CASE WHEN player2_id = v_inactive_player_id THEN 'waiting' ELSE 'finished' END
+        WHERE id = p_game_id;
+
+        -- Update the player's status
+        UPDATE players SET in_game = false WHERE id = v_inactive_player_id;
+    ELSE
+        -- If both players made a choice or both were inactive, just end the round
+        UPDATE game_sessions
+        SET status = 'finished'
+        WHERE id = p_game_id;
+    END IF;
+
+    -- Return the updated game session
+    RETURN QUERY SELECT * FROM game_sessions WHERE id = p_game_id;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Grant execute permission on the function
+GRANT EXECUTE ON FUNCTION end_round_and_kick_inactive_player(UUID) TO authenticated, anon;

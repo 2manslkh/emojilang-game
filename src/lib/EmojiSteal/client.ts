@@ -155,6 +155,22 @@ export async function makeChoice(gameId: string, playerId: string, choice: 'coop
     return updatedGame;
 }
 
+export async function endRoundAndKickInactivePlayer(gameId: string) {
+    const { data, error } = await supabase.rpc('end_round_and_kick_inactive_player', {
+        p_game_id: gameId
+    });
+
+    if (error) {
+        console.error('Error ending round and kicking inactive player:', error);
+        return null;
+    }
+
+    const updatedGame = data[0] as GameSession;
+    currentGame.set(updatedGame);
+    console.log('Updated game after ending round:', updatedGame);
+    return updatedGame;
+}
+
 export async function waitForOpponentChoice(gameId: string) {
     const { data: currentGame, error } = await supabase
         .from('game_sessions')
@@ -456,4 +472,20 @@ export async function getFinalGameState(gameId: string): Promise<GameSession | n
     }
 
     return data as GameSession;
+}
+
+export async function getRoundHistory(playerId: string, limit: number = 5) {
+    const { data, error } = await supabase
+        .from('round_history')
+        .select('*')
+        .eq('player_id', playerId)
+        .order('created_at', { ascending: false })
+        .limit(limit);
+
+    if (error) {
+        console.error('Error fetching round history:', error);
+        return [];
+    }
+
+    return data;
 }
