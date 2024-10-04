@@ -1,6 +1,8 @@
 import { PUBLIC_SUPABASE_ANON_KEY, PUBLIC_SUPABASE_URL } from '$env/static/public';
 import { createClient } from '@supabase/supabase-js';
 import { writable } from 'svelte/store';
+import type { Player, GameSession, RoundHistory } from './types';
+import { playerLogger, gameLogger, matchmakingLogger, roundLogger, dbLogger } from '$lib/logging';
 
 const supabaseUrl = PUBLIC_SUPABASE_URL;
 const supabaseKey = PUBLIC_SUPABASE_ANON_KEY;
@@ -13,14 +15,16 @@ const supabase = createClient(supabaseUrl, supabaseKey, {
 
 export { supabase };
 
-export const players = writable<Player[]>([]);
+export const onlinePlayers = writable<Player[]>([]);
 export const currentGame = writable<GameSession | null>(null);
+export const opponent = writable<Player | null>(null);
 
 export interface Player {
     id: string;
     name: string;
     emoji: string;
     in_game: boolean;
+    created_at: string;
 }
 
 export interface GameSession {
@@ -35,8 +39,8 @@ export interface GameSession {
     updated_at: string;
 }
 
-export function watchPlayers() {
-    updatePlayers(); // Initial fetch
+export function watchOnlinePlayers() {
+    updateOnlinePlayers(); // Initial fetch
 
     const channel = supabase
         .channel('public:players')
@@ -44,7 +48,7 @@ export function watchPlayers() {
             { event: '*', schema: 'public', table: 'players' },
             (payload) => {
                 console.log('Change received!', payload);
-                updatePlayers();
+                updateOnlinePlayers();
             }
         )
         .subscribe();
@@ -54,23 +58,23 @@ export function watchPlayers() {
     };
 }
 
-async function updatePlayers() {
+async function updateOnlinePlayers() {
     const { data, error } = await supabase
         .from('players')
-        .select('*');
+        .select('*')
+        .eq('in_game', true);
 
     if (error) {
-        console.error('Error fetching players:', error);
+        console.error('Error fetching online players:', error);
     } else {
-        players.set(data);
+        onlinePlayers.set(data);
     }
 }
 
-export async function joinGame(name: string) {
-    console.log(`Attempting to join game with name: ${name}`);
+export async function joinGame(name: string): Promise<Player | null> {
+    playerLogger.info(`Attempting to join game with name: ${name}`);
 
     try {
-        // Check if the player already exists
         const { data: existingPlayer, error: checkError } = await supabase
             .from('players')
             .select('*')
@@ -78,13 +82,12 @@ export async function joinGame(name: string) {
             .single();
 
         if (checkError && checkError.code !== 'PGRST116') {
-            console.error('Error checking existing player:', checkError);
+            dbLogger.error(`Error checking existing player: ${checkError.message}`);
             return null;
         }
 
         if (existingPlayer) {
-            console.log(`Player '${name}' already exists, updating status`);
-            // Player exists, update their status
+            playerLogger.info(`Player '${name}' already exists, updating status`);
             const { data: updatedPlayer, error: updateError } = await supabase
                 .from('players')
                 .update({ in_game: true })
@@ -93,15 +96,15 @@ export async function joinGame(name: string) {
                 .single();
 
             if (updateError) {
-                console.error('Error updating player status:', updateError);
+                dbLogger.error(`Error updating player status: ${updateError.message}`);
                 return null;
             }
 
-            console.log(`Player '${name}' rejoined game successfully:`, updatedPlayer);
-            return updatedPlayer;
+            playerLogger.info(`Player '${name}' rejoined game successfully`);
+            playerLogger.data('Updated player', updatedPlayer);
+            return updatedPlayer as Player;
         } else {
-            console.log(`Creating new player '${name}'`);
-            // Player doesn't exist, create a new one
+            playerLogger.info(`Creating new player '${name}'`);
             const { data: newPlayer, error: insertError } = await supabase
                 .from('players')
                 .insert({ name, emoji: '😀', in_game: true })
@@ -109,20 +112,23 @@ export async function joinGame(name: string) {
                 .single();
 
             if (insertError) {
-                console.error('Error creating new player:', insertError);
+                dbLogger.error(`Error creating new player: ${insertError.message}`);
                 return null;
             }
 
-            console.log(`Player '${name}' joined game successfully:`, newPlayer);
-            return newPlayer;
+            playerLogger.info(`Player '${name}' joined game successfully`);
+            playerLogger.data('New player', newPlayer);
+            return newPlayer as Player;
         }
     } catch (error) {
-        console.error('Unexpected error during join game:', error);
+        playerLogger.error(`Unexpected error during join game: ${error}`);
         return null;
     }
 }
 
 export async function makeChoice(gameId: string, playerId: string, choice: 'cooperate' | 'betray') {
+    gameLogger.info(`Player ${playerId} making choice ${choice} in game ${gameId}`);
+
     const { data: game, error: fetchError } = await supabase
         .from('game_sessions')
         .select('*')
@@ -130,14 +136,13 @@ export async function makeChoice(gameId: string, playerId: string, choice: 'coop
         .single();
 
     if (fetchError) {
-        console.error('Error fetching game session:', fetchError);
-        return null;
+        dbLogger.error(`Error fetching game session: ${fetchError.message}`);
+        return;
     }
 
     const isPlayer1 = game.player1_id === playerId;
 
-    // Start a transaction
-    const { data, error } = await supabase.rpc('make_choice_and_record_history', {
+    const { error } = await supabase.rpc('make_choice_and_record_history', {
         p_game_id: gameId,
         p_player_id: playerId,
         p_choice: choice,
@@ -145,14 +150,10 @@ export async function makeChoice(gameId: string, playerId: string, choice: 'coop
     });
 
     if (error) {
-        console.error('Error making choice and recording history:', error);
-        return null;
+        dbLogger.error(`Error making choice and recording history: ${error.message}`);
+    } else {
+        gameLogger.info(`Choice ${choice} recorded for player ${playerId} in game ${gameId}`);
     }
-
-    const updatedGame = data[0] as GameSession;
-    currentGame.set(updatedGame);
-    console.log('Updated game after choice:', updatedGame);
-    return updatedGame;
 }
 
 export async function endRoundAndKickInactivePlayer(gameId: string) {
@@ -167,32 +168,32 @@ export async function endRoundAndKickInactivePlayer(gameId: string) {
 
     const updatedGame = data[0] as GameSession;
     currentGame.set(updatedGame);
-    console.log('Updated game after ending round:', updatedGame);
+
+    // If a player was kicked (didn't make a choice), remove them from matchmaking
+    if (updatedGame.player1_choice === null && updatedGame.player1_id) {
+        await removeFromMatchmaking(updatedGame.player1_id);
+    }
+    if (updatedGame.player2_choice === null && updatedGame.player2_id) {
+        await removeFromMatchmaking(updatedGame.player2_id);
+    }
+
     return updatedGame;
 }
 
-export async function waitForOpponentChoice(gameId: string) {
-    const { data: currentGame, error } = await supabase
-        .from('game_sessions')
-        .select('*')
-        .eq('id', gameId)
-        .single();
+export async function waitForOpponentChoice(gameId: string): Promise<GameSession | null> {
+    return new Promise((resolve) => {
+        const timeout = setTimeout(() => {
+            console.log('Timeout waiting for opponent choice');
+            supabase.removeChannel(channel);
+            resolve(null);
+        }, 30000); // 30 seconds timeout
 
-    if (error) {
-        console.error('Error fetching current game state:', error);
-        return null;
-    }
-
-    if (currentGame.player1_choice !== null && currentGame.player2_choice !== null) {
-        return currentGame as GameSession;
-    }
-
-    return new Promise<GameSession>((resolve) => {
         const channel = supabase
             .channel(`game_${gameId}`)
             .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'game_sessions', filter: `id=eq.${gameId}` }, (payload) => {
                 const updatedGame = payload.new as GameSession;
                 if (updatedGame.player1_choice !== null && updatedGame.player2_choice !== null) {
+                    clearTimeout(timeout);
                     supabase.removeChannel(channel);
                     resolve(updatedGame);
                 }
@@ -201,129 +202,50 @@ export async function waitForOpponentChoice(gameId: string) {
     });
 }
 
-export async function findOpponent(playerId: string): Promise<{ opponent: Player | null; unsubscribe: () => void } | null> {
-    // First, check if there's an existing game session where this player can join as player2
-    const { data: existingGames, error: existingGameError } = await supabase
-        .from('game_sessions')
-        .select('*')
-        .is('player2_id', null)
-        .eq('status', 'waiting')
-        .neq('player1_id', playerId);
+export async function findOpponent(playerId: string): Promise<{ gameId: string; opponent: Player | null } | null> {
+    matchmakingLogger.info(`Finding opponent for player ${playerId}`);
 
-    if (existingGameError) {
-        console.error('Error checking existing games:', existingGameError);
-        return null;
-    }
+    try {
+        const { data, error } = await supabase.rpc('find_or_create_game', { p_player_id: playerId });
 
-    if (existingGames && existingGames.length > 0) {
-        const existingGame = existingGames[0];
-        // If there's an existing game, join as player2 and update the game status
-        const { data: updatedGame, error: updateError } = await supabase
-            .rpc('update_game_session', {
-                game_session_id: existingGame.id,
-                new_player2_id: playerId
-            })
-            .single();
-
-        if (updateError) {
-            console.error('Error updating game session:', updateError);
+        if (error) {
+            dbLogger.error(`Error finding or creating game: ${error.message}`);
             return null;
         }
 
-        if (!updatedGame) {
-            console.error('Failed to update game session');
-            return null;
+        const game = data[0] as GameSession;
+        matchmakingLogger.data('RPC result', game);
+
+        let opponent: Player | null = null;
+        if (game.player2_id && game.player2_id !== playerId) {
+            const { data: opponentData } = await supabase
+                .from('players')
+                .select('*')
+                .eq('id', game.player2_id)
+                .single();
+            opponent = opponentData as Player;
+        } else if (game.player1_id !== playerId) {
+            const { data: opponentData } = await supabase
+                .from('players')
+                .select('*')
+                .eq('id', game.player1_id)
+                .single();
+            opponent = opponentData as Player;
         }
 
-        // Type assertion for updatedGame
-        const typedUpdatedGame = updatedGame as GameSession;
+        if (opponent) {
+            matchmakingLogger.info(`Opponent found for player ${playerId}: ${opponent.id}`);
+        } else {
+            matchmakingLogger.info(`No immediate opponent found for player ${playerId}. Waiting in game ${game.id}`);
+        }
 
-        // Update both players' in_game status
-        await supabase
-            .from('players')
-            .update({ in_game: true })
-            .in('id', [playerId, typedUpdatedGame.player1_id]);
-
-        const { data: opponent } = await supabase
-            .from('players')
-            .select('*')
-            .eq('id', typedUpdatedGame.player1_id)
-            .single();
-
-        currentGame.set(typedUpdatedGame);
-        return { opponent: opponent as Player, unsubscribe: () => { } };
-    }
-
-    // If no existing game to join, create a new waiting game session
-    const { data: gameSession, error: gameError } = await supabase
-        .from('game_sessions')
-        .insert({
-            player1_id: playerId,
-            player2_id: null,
-            status: 'waiting',
-            player1_choice: null,
-            player2_choice: null
-        })
-        .select()
-        .single();
-
-    if (gameError) {
-        console.error('Error creating waiting game session:', gameError);
+        return { gameId: game.id, opponent };
+    } catch (error) {
+        matchmakingLogger.error(`Unexpected error in findOpponent: ${error}`);
         return null;
     }
-
-    // Update player's in_game status
-    await supabase
-        .from('players')
-        .update({ in_game: true })
-        .eq('id', playerId);
-
-    currentGame.set(gameSession);
-
-    // Watch for updates on this specific game session
-    const unsubscribe = watchSpecificGameSession(gameSession.id, playerId);
-
-    // Return an object with the unsubscribe function and null for the opponent
-    return { opponent: null, unsubscribe };
 }
 
-function watchSpecificGameSession(gameSessionId: string, playerId: string) {
-    const channel = supabase
-        .channel(`public:game_sessions:${gameSessionId}`)
-        .on(
-            'postgres_changes',
-            {
-                event: 'UPDATE',
-                schema: 'public',
-                table: 'game_sessions',
-                filter: `id=eq.${gameSessionId}`
-            },
-            async (payload) => {
-                console.log('Specific game session updated:', payload);
-                const updatedGame = payload.new as GameSession;
-                if (updatedGame.status === 'playing' && updatedGame.player2_id) {
-                    currentGame.set(updatedGame);
-                    const opponentId = updatedGame.player1_id === playerId ? updatedGame.player2_id : updatedGame.player1_id;
-                    const { data: opponent } = await supabase
-                        .from('players')
-                        .select('*')
-                        .eq('id', opponentId)
-                        .single();
-
-                    if (opponent) {
-                        // Notify the application that an opponent has joined
-                        // You might want to use a custom event or a store for this
-                        console.log('Opponent joined:', opponent);
-                    }
-                }
-            }
-        )
-        .subscribe();
-
-    return () => {
-        supabase.removeChannel(channel);
-    };
-}
 
 export async function endGame(gameId: string) {
     const { error } = await supabase
@@ -405,7 +327,7 @@ export async function leaveGame(playerId: string) {
 }
 
 // Initial fetch of players
-updatePlayers();
+updateOnlinePlayers();
 
 export function watchGameSessions(playerId: string) {
     console.log(`Starting to watch game sessions for player ${playerId}`);
@@ -474,12 +396,12 @@ export async function getFinalGameState(gameId: string): Promise<GameSession | n
     return data as GameSession;
 }
 
-export async function getRoundHistory(playerId: string, limit: number = 5) {
+export async function getRoundHistory(playerId: string, limit: number = 10) {
     const { data, error } = await supabase
         .from('round_history')
         .select('*')
         .eq('player_id', playerId)
-        .order('created_at', { ascending: false })
+        .order('created_at', { ascending: false }) // Change to descending order
         .limit(limit);
 
     if (error) {
@@ -487,5 +409,17 @@ export async function getRoundHistory(playerId: string, limit: number = 5) {
         return [];
     }
 
-    return data;
+    return data.reverse(); // Reverse the array to get oldest to newest
+}
+
+// Add this new function
+export async function removeFromMatchmaking(playerId: string) {
+    const { error } = await supabase
+        .from('players')
+        .update({ in_game: false })
+        .eq('id', playerId);
+
+    if (error) {
+        console.error('Error removing player from matchmaking:', error);
+    }
 }

@@ -111,6 +111,15 @@ BEGIN
     INSERT INTO round_history (player_id, choice)
     VALUES (p_player_id, p_choice);
 
+    -- Check if both players have made their choices
+    IF v_updated_game.player1_choice IS NOT NULL AND v_updated_game.player2_choice IS NOT NULL THEN
+        -- Both players have made their choices, set the status to 'finished'
+        UPDATE game_sessions
+        SET status = 'finished'
+        WHERE id = p_game_id
+        RETURNING * INTO v_updated_game;
+    END IF;
+
     RETURN NEXT v_updated_game;
 END;
 $$ LANGUAGE plpgsql;
@@ -163,3 +172,59 @@ $$ LANGUAGE plpgsql;
 
 -- Grant execute permission on the function
 GRANT EXECUTE ON FUNCTION end_round_and_kick_inactive_player(UUID) TO authenticated, anon;
+
+-- Create a function to find or create a game
+CREATE OR REPLACE FUNCTION find_or_create_game(p_player_id UUID)
+RETURNS TABLE (LIKE game_sessions) AS $$
+DECLARE
+    v_game game_sessions;
+    v_other_player_id UUID;
+BEGIN
+    -- Try to find an existing game waiting for a player
+    SELECT * INTO v_game
+    FROM game_sessions
+    WHERE status = 'waiting'
+      AND player2_id IS NULL
+      AND player1_id != p_player_id
+    ORDER BY created_at ASC
+    LIMIT 1
+    FOR UPDATE SKIP LOCKED;
+
+    IF FOUND THEN
+        -- Join existing game
+        UPDATE game_sessions
+        SET player2_id = p_player_id,
+            status = 'playing'
+        WHERE id = v_game.id
+        RETURNING * INTO v_game;
+    ELSE
+        -- Check if there's another player waiting to create a game
+        SELECT id INTO v_other_player_id
+        FROM players
+        WHERE in_game = true
+          AND id != p_player_id
+          AND id NOT IN (SELECT player1_id FROM game_sessions WHERE status IN ('waiting', 'playing'))
+          AND id NOT IN (SELECT player2_id FROM game_sessions WHERE status IN ('waiting', 'playing') AND player2_id IS NOT NULL)
+        ORDER BY RANDOM()
+        LIMIT 1
+        FOR UPDATE SKIP LOCKED;
+
+        IF FOUND THEN
+            -- Create new game with both players
+            INSERT INTO game_sessions (player1_id, player2_id, status)
+            VALUES (p_player_id, v_other_player_id, 'playing')
+            RETURNING * INTO v_game;
+        ELSE
+            -- Create new game with only the current player
+            INSERT INTO game_sessions (player1_id, status)
+            VALUES (p_player_id, 'waiting')
+            RETURNING * INTO v_game;
+        END IF;
+    END IF;
+
+    RETURN QUERY SELECT * FROM game_sessions WHERE id = v_game.id;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Grant execute permission on the function
+GRANT EXECUTE ON FUNCTION find_or_create_game(UUID) TO authenticated, anon;

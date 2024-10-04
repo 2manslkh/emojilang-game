@@ -1,139 +1,199 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
 	import {
-		players,
 		joinGame,
-		watchPlayers,
 		leaveGame,
 		findOpponent,
 		makeChoice,
-		waitForOpponentChoice,
-		currentGame,
-		watchGameSessions,
-		type GameSession,
-		supabase,
-		getFinalGameState,
-		endRoundAndKickInactivePlayer,
-		getRoundHistory // Add this import
+		getRoundHistory,
+		removeFromMatchmaking
 	} from '$lib/EmojiSteal/client';
 	import { TimerBar } from '$components/Timer';
-	import type { Player } from '$lib/EmojiSteal/client';
+	import { fade, fly } from 'svelte/transition';
+	import { cubicOut } from 'svelte/easing';
+	import JoinGameForm from './JoinGameForm.svelte';
+	import WaitingForOpponent from './WaitingForOpponent.svelte';
+	import GamePlay from './GamePlay.svelte';
+	import RoundResult from './RoundResult.svelte';
+	import PlayerHistory from './PlayerHistory.svelte';
+	import OpponentHistory from './OpponentHistory.svelte';
+	import Header from './Header.svelte';
+	import WaitingForOpponentChoice from './WaitingForOpponentChoice.svelte';
+
+	import {
+		initializeWatchers,
+		unsubscribeAll,
+		subscribeToSpecificGameSession,
+		onlinePlayers,
+		currentGameSession,
+		roundHistory as watcherRoundHistory
+	} from '$lib/EmojiSteal/watcher';
+	import type { Player, GameSession, RoundHistory } from '$lib/EmojiSteal/types';
+	import { playerLogger, gameLogger, matchmakingLogger, roundLogger } from '$lib/logging';
 
 	let playerName = '';
-	let currentPlayer: { id: string; name: string; emoji: string } | null = null;
+	let currentPlayer: Player | null = null;
 	let joinError = '';
-	let opponent: { id: string; name: string; emoji: string } | null = null;
-	let roundHistory: string[] = [];
+	let opponent: Player | null = null;
 	let timeLeft = 15;
-	let gameState: 'waiting' | 'playing' | 'result' = 'waiting';
-	let playerChoice: 'cooperate' | 'betray' | null = null;
-	let opponentChoice: 'cooperate' | 'betray' | null = null;
 	let roundResult = '';
-	let gameSession: GameSession | null = null;
 
-	let totalTime = 15; // Change to 15 seconds
+	let totalTime = 15;
 
 	let startTime: number;
 	let animationFrameId: number;
 
-	let gameSubscription: any;
+	let unsubscribeFromSpecificGame: (() => void) | null = null;
 
-	let playerRoundHistory: any[] = [];
-	let opponentRoundHistory: any[] = [];
+	let playerRoundHistory: RoundHistory[] = [];
+	let opponentRoundHistory: RoundHistory[] = [];
+
+	$: onlinePlayerCount = $onlinePlayers.length;
+
+	// Make gameState reactive based on currentGameSession
+	$: gameState = getGameState($currentGameSession, currentPlayer?.id);
+
+	// Derive playerChoice and opponentChoice from currentGameSession
+	$: playerChoice = getPlayerChoice($currentGameSession, currentPlayer?.id);
+	$: opponentChoice = getOpponentChoice($currentGameSession, currentPlayer?.id);
+
+	function getGameState(
+		session: GameSession | null,
+		playerId: string | undefined
+	): 'waiting' | 'playing' | 'choosing' | 'result' {
+		if (!session || !playerId) return 'waiting';
+
+		if (session.status === 'waiting') return 'waiting';
+		if (session.status === 'finished') return 'result';
+
+		const playerChoice = getPlayerChoice(session, playerId);
+		const opponentChoice = getOpponentChoice(session, playerId);
+
+		if (playerChoice === null) return 'playing';
+		if (opponentChoice === null) return 'choosing';
+
+		return 'result';
+	}
+
+	function getPlayerChoice(
+		session: GameSession | null,
+		playerId: string | undefined
+	): 'cooperate' | 'betray' | null {
+		if (!session || !playerId) return null;
+		return session.player1_id === playerId ? session.player1_choice : session.player2_choice;
+	}
+
+	function getOpponentChoice(
+		session: GameSession | null,
+		playerId: string | undefined
+	): 'cooperate' | 'betray' | null {
+		if (!session || !playerId) return null;
+		return session.player1_id === playerId ? session.player2_choice : session.player1_choice;
+	}
 
 	onMount(() => {
-		const unsubscribe = watchPlayers();
-		const unsubscribeGame = currentGame.subscribe((value) => {
-			gameSession = value;
-		});
-
+		initializeWatchers();
 		return () => {
-			unsubscribe();
-			unsubscribeGame();
+			unsubscribeAll();
 			if (currentPlayer) {
 				leaveGame(currentPlayer.id);
 			}
-			endTimer(); // Make sure to cancel the animation frame when component is destroyed
+			endTimer();
 		};
 	});
 
 	onDestroy(() => {
-		if (gameSubscription) {
-			gameSubscription.unsubscribe();
+		if (unsubscribeFromSpecificGame) {
+			unsubscribeFromSpecificGame();
 		}
 	});
+
+	$: if ($currentGameSession) {
+		handleGameSessionChange($currentGameSession);
+	}
 
 	async function handleJoin() {
 		if (playerName.trim()) {
 			const joinedPlayer = await joinGame(playerName.trim());
 			if (joinedPlayer) {
-				console.log(`Player ${joinedPlayer.name} (ID: ${joinedPlayer.id}) has joined the game`);
+				playerLogger.info(
+					`Player ${joinedPlayer.name} (ID: ${joinedPlayer.id}) has joined the game`
+				);
 				currentPlayer = joinedPlayer;
 				joinError = '';
 				startMatchmaking();
 			} else {
+				playerLogger.warn('Failed to join game');
 				joinError = 'Username already exists or an error occurred. Please try again.';
 			}
 		}
 	}
 
 	async function startMatchmaking() {
-		const result = await findOpponent(currentPlayer!.id);
-		if (result && result.opponent) {
-			gameState = 'playing';
+		if (!currentPlayer) {
+			matchmakingLogger.error('No current player');
+			return;
+		}
+
+		// Close the previous game subscription before starting a new game
+		if (unsubscribeFromSpecificGame) {
+			unsubscribeFromSpecificGame();
+			unsubscribeFromSpecificGame = null;
+		}
+
+		const result = await findOpponent(currentPlayer.id);
+		if (!result) {
+			matchmakingLogger.error('Failed to find or create a game');
+			return;
+		}
+
+		matchmakingLogger.data('Matchmaking result', result);
+
+		if (result.opponent) {
+			matchmakingLogger.info(`Opponent found immediately: ${result.opponent.id}`);
 			opponent = result.opponent;
+			await fetchRoundHistory();
 			startRound();
-		} else if (result) {
-			gameState = 'waiting';
-			// The unsubscribe function is now returned from findOpponent
-			const unsubscribe = result.unsubscribe;
+		} else {
+			matchmakingLogger.info(`Waiting for opponent. Game ID: ${result.gameId}`);
+		}
 
-			// Set up a store subscription to handle game updates
-			const unsubscribeGame = currentGame.subscribe((game) => {
-				if (game && game.status === 'playing' && game.player1_id && game.player2_id) {
-					const opponentId =
-						game.player1_id === currentPlayer!.id ? game.player2_id : game.player1_id;
-					supabase
-						.from('players')
-						.select('*')
-						.eq('id', opponentId)
-						.single()
-						.then(({ data }) => {
-							if (data) {
-								opponent = data as { id: string; name: string; emoji: string };
-								gameState = 'playing';
-								startRound();
-								unsubscribe(); // Unsubscribe from game session changes
-								unsubscribeGame(); // Unsubscribe from currentGame store
-							}
-						});
-				}
-			});
+		unsubscribeFromSpecificGame = subscribeToSpecificGameSession(result.gameId);
+	}
 
-			// Optionally, set up a timeout
-			setTimeout(() => {
-				if (gameState === 'waiting') {
-					console.log('Matchmaking timed out');
-					unsubscribe(); // Unsubscribe from game session changes
-					unsubscribeGame(); // Unsubscribe from currentGame store
-					// Handle timeout (e.g., show a message to the user)
-				}
-			}, 30000); // 30 seconds timeout
+	function handleGameSessionChange(session: GameSession | null) {
+		if (!session) return;
+
+		gameLogger.data('Game session updated', session);
+
+		if (session.status === 'playing' && session.player1_id && session.player2_id) {
+			if (!opponent) {
+				opponent = {
+					id: session.player1_id === currentPlayer?.id ? session.player2_id : session.player1_id,
+					name: 'Opponent',
+					emoji: '😊',
+					in_game: true,
+					created_at: new Date().toISOString()
+				};
+				playerLogger.info(`Opponent set: ${opponent.id}`);
+			}
+			startRound();
+		}
+
+		if (session.status === 'finished') {
+			endRound();
 		}
 	}
 
-	function startRound() {
-		gameState = 'playing';
+	async function startRound() {
 		timeLeft = totalTime;
-		playerChoice = null;
-		opponentChoice = null;
 		roundResult = '';
 		startTime = performance.now();
 		if (animationFrameId) {
 			cancelAnimationFrame(animationFrameId);
 		}
 		updateTimer();
-		subscribeToGameUpdates();
+		await fetchRoundHistory();
 	}
 
 	function updateTimer() {
@@ -157,83 +217,49 @@
 	}
 
 	async function endRound() {
-		if (!gameSession || gameState !== 'playing') {
-			console.error('No active game session or round already ended');
+		if (!$currentGameSession) {
+			console.error('No active game session');
 			return;
 		}
 
-		// Set gameState to 'result' immediately to prevent multiple calls
-		gameState = 'result';
+		try {
+			let result = calculateResult(playerChoice, opponentChoice);
 
-		const updatedGame = await endRoundAndKickInactivePlayer(gameSession.id);
-		if (!updatedGame) {
-			console.error('Failed to end round and kick inactive player');
-			return;
+			roundResult = result.message;
+
+			await fetchRoundHistory();
+
+			setTimeout(() => {
+				startMatchmaking();
+			}, 5000);
+		} catch (error) {
+			console.error('Error in endRound:', error);
 		}
+	}
 
-		// Check if the current player was kicked
-		if (
-			updatedGame.player1_id !== currentPlayer!.id &&
-			updatedGame.player2_id !== currentPlayer!.id
-		) {
-			// Player was kicked
-			currentPlayer = null;
-			opponent = null;
-			gameState = 'waiting';
-			alert('You were removed from the game due to inactivity.');
-			return;
-		}
-
-		// Determine which choice belongs to the current player
-		playerChoice =
-			updatedGame.player1_id === currentPlayer!.id
-				? updatedGame.player1_choice
-				: updatedGame.player2_choice;
-		opponentChoice =
-			updatedGame.player1_id === currentPlayer!.id
-				? updatedGame.player2_choice
-				: updatedGame.player1_choice;
-
-		if (playerChoice === null) {
-			console.error('Current player choice is missing');
-			return;
-		}
-
-		let result;
-		if (opponentChoice === null) {
-			result = {
+	function calculateResult(
+		playerChoice: 'cooperate' | 'betray' | null,
+		opponentChoice: 'cooperate' | 'betray' | null
+	) {
+		if (playerChoice === null && opponentChoice === null) {
+			return {
+				message: 'Both players did not make a choice. No points awarded.',
+				playerPoints: 0,
+				opponentPoints: 0
+			};
+		} else if (playerChoice === null) {
+			return {
+				message: 'You did not make a choice. Opponent gains 1 point.',
+				playerPoints: 0,
+				opponentPoints: 1
+			};
+		} else if (opponentChoice === null) {
+			return {
 				message: 'Your opponent did not make a choice. You gain 1 point.',
 				playerPoints: 1,
 				opponentPoints: 0
 			};
-		} else {
-			result = calculateResult(playerChoice, opponentChoice);
-		}
-
-		roundResult = result.message;
-
-		// Update round history only once
-		if (roundHistory[0] !== playerChoice) {
-			updateRoundHistory();
-		}
-
-		// Update the gameSession with the round result
-		gameSession = {
-			...updatedGame,
-			round_result: roundResult
-		};
-
-		// Set a timeout to start the next round
-		setTimeout(() => {
-			startMatchmaking();
-		}, 5000); // Show results for 5 seconds
-	}
-
-	function calculateResult(
-		playerChoice: 'cooperate' | 'betray',
-		opponentChoice: 'cooperate' | 'betray'
-	) {
-		if (playerChoice === 'cooperate' && opponentChoice === 'cooperate') {
+		} else if (playerChoice === 'cooperate' && opponentChoice === 'cooperate') {
 			return {
 				message: 'Both cooperated! You each gain 2 points.',
 				playerPoints: 2,
@@ -266,212 +292,123 @@
 		}
 	}
 
-	function updateRoundHistory() {
-		roundHistory = [playerChoice!, ...roundHistory].slice(0, 6);
-	}
-
-	$: playerCount = $players.length;
-
-	$: if ($currentGame && $currentGame.status === 'playing' && !opponent) {
-		const opponentId =
-			$currentGame.player1_id === currentPlayer!.id
-				? $currentGame.player2_id
-				: $currentGame.player1_id;
-		supabase
-			.from('players')
-			.select('*')
-			.eq('id', opponentId)
-			.single()
-			.then(({ data }) => {
-				if (data) {
-					opponent = data as { id: string; name: string; emoji: string };
-					startRound();
-				}
-			});
-		fetchRoundHistory();
-	}
-
-	$: if ($currentGame) {
-		if ($currentGame.status === 'playing' && gameState !== 'playing') {
-			gameState = 'playing';
-			const opponentId =
-				$currentGame.player1_id === currentPlayer!.id
-					? $currentGame.player2_id
-					: $currentGame.player1_id;
-			supabase
-				.from('players')
-				.select('*')
-				.eq('id', opponentId)
-				.single()
-				.then(({ data }) => {
-					if (data) {
-						opponent = data as { id: string; name: string; emoji: string };
-						startRound();
-					}
-				});
-			fetchRoundHistory();
-		} else if ($currentGame.status === 'finished' && gameState !== 'result') {
-			endRound();
-			fetchRoundHistory();
-		}
-	}
-
 	async function handleChoice(choice: 'cooperate' | 'betray') {
-		if (!gameSession || playerChoice !== null || gameState !== 'playing') {
-			console.error('Invalid game state or choice already made');
+		if (!$currentGameSession || playerChoice !== null || gameState !== 'playing') {
+			gameLogger.error('Invalid game state or choice already made');
 			return;
 		}
 
-		playerChoice = choice;
-		updateRoundHistory(); // Update history immediately after making a choice
-
-		const updatedGame = await makeChoice(gameSession.id, currentPlayer!.id, choice);
-
-		if (!updatedGame) {
-			console.error('Failed to make choice');
-			return;
+		try {
+			await makeChoice($currentGameSession.id, currentPlayer!.id, choice);
+			gameLogger.info(`Choice made: ${choice}, waiting for opponent...`);
+		} catch (error) {
+			gameLogger.error(`Error in handleChoice: ${error}`);
 		}
-
-		// We don't need to end the round here anymore, as it will be handled by the subscription
-	}
-
-	function subscribeToGameUpdates() {
-		if (gameSubscription) {
-			gameSubscription.unsubscribe();
-		}
-
-		if (!gameSession) return;
-
-		gameSubscription = supabase
-			.channel(`game_${gameSession.id}`)
-			.on(
-				'postgres_changes',
-				{
-					event: 'UPDATE',
-					schema: 'public',
-					table: 'game_sessions',
-					filter: `id=eq.${gameSession.id}`
-				},
-				(payload) => {
-					const updatedGame = payload.new as GameSession;
-					if (updatedGame.player1_choice !== null && updatedGame.player2_choice !== null) {
-						endRound();
-					}
-				}
-			)
-			.subscribe();
 	}
 
 	async function fetchRoundHistory() {
-		if (currentPlayer && opponent) {
-			playerRoundHistory = await getRoundHistory(currentPlayer.id);
-			opponentRoundHistory = await getRoundHistory(opponent.id);
+		if (currentPlayer) {
+			playerRoundHistory = await getRoundHistory(currentPlayer.id, 10);
+		}
+		if (opponent) {
+			opponentRoundHistory = await getRoundHistory(opponent.id, 10);
+		}
+	}
+
+	async function handleLeaveGame() {
+		if (currentPlayer) {
+			await leaveGame(currentPlayer.id);
+			currentPlayer = null;
+			opponent = null;
+			roundResult = '';
+			if (unsubscribeFromSpecificGame) {
+				unsubscribeFromSpecificGame();
+				unsubscribeFromSpecificGame = null;
+			}
 		}
 	}
 </script>
 
-<div class="container mx-auto p-4">
-	<h1 class="text-2xl font-bold mb-4">EmojiSteal Game</h1>
-	<p class="mb-4 text-gray-600">
-		{playerCount}
-		{playerCount === 1 ? 'player' : 'players'} connected
-	</p>
+<div class="min-h-screen bg-white text-black p-4">
+	<div class="container mx-auto max-w-3xl">
+		<Header {onlinePlayerCount} />
 
-	{#if !currentPlayer}
-		<div class="flex flex-col items-center justify-center">
-			<input
-				type="text"
-				bind:value={playerName}
-				placeholder="Enter your name"
-				class="mb-4 p-2 border rounded"
-			/>
-			<button on:click={handleJoin} class="bg-blue-500 text-white px-4 py-2 rounded">
-				Join Game
+		{#if currentPlayer && opponent}
+			<OpponentHistory history={opponentRoundHistory} />
+		{/if}
+
+		<main>
+			{#if !currentPlayer}
+				<JoinGameForm bind:playerName {handleJoin} {joinError} />
+			{:else if gameState === 'waiting'}
+				<WaitingForOpponent />
+			{:else if gameState === 'playing'}
+				<GamePlay
+					{opponent}
+					gameSession={$currentGameSession}
+					{timeLeft}
+					{totalTime}
+					{playerChoice}
+					{handleChoice}
+				/>
+			{:else if gameState === 'result'}
+				<RoundResult
+					gameSession={$currentGameSession}
+					{playerChoice}
+					{opponentChoice}
+					{roundResult}
+				/>
+			{:else if gameState === 'choosing'}
+				<WaitingForOpponentChoice {playerChoice} />
+			{/if}
+		</main>
+
+		{#if currentPlayer && opponent}
+			<PlayerHistory history={playerRoundHistory} />
+		{/if}
+
+		{#if currentPlayer}
+			<button
+				on:click={handleLeaveGame}
+				class="mt-4 bg-gray-500 text-white px-4 py-2 rounded font-semibold hover:bg-gray-600 transition duration-300"
+			>
+				Leave Game
 			</button>
-			{#if joinError}
-				<p class="text-red-500 mt-2">{joinError}</p>
-			{/if}
-		</div>
-	{:else if gameState === 'waiting'}
-		<p>Waiting for an opponent...</p>
-	{:else if gameState === 'playing'}
-		<div class="text-center">
-			<h2 class="text-xl mb-4">Playing against {opponent?.name}</h2>
-			{#if gameSession}
-				<p class="text-sm text-gray-500 mb-2">Game ID: {gameSession.id}</p>
-			{/if}
-			<TimerBar timeRemaining={timeLeft} {totalTime} class="mb-4" />
-			{#if playerChoice === null}
-				<div class="flex justify-center space-x-4">
-					<button
-						on:click={() => handleChoice('cooperate')}
-						class="bg-green-500 text-white px-6 py-3 rounded text-xl"
-					>
-						🤝 Cooperate
-					</button>
-					<button
-						on:click={() => handleChoice('betray')}
-						class="bg-red-500 text-white px-6 py-3 rounded text-xl"
-					>
-						🔪 Betray
-					</button>
-				</div>
-			{:else}
-				<p class="text-2xl mb-4">
-					Your choice: {playerChoice === 'cooperate' ? '🤝 Cooperate' : '🔪 Betray'}
-				</p>
-				<p class="text-xl mb-4">Waiting for opponent's choice...</p>
-			{/if}
-		</div>
-	{:else if gameState === 'result'}
-		<div class="text-center">
-			<h2 class="text-xl mb-4">Round Result</h2>
-			{#if gameSession}
-				<p class="text-sm text-gray-500 mb-2">Game ID: {gameSession.id}</p>
-			{/if}
-			<p class="text-lg mb-2">You chose: {playerChoice === 'cooperate' ? '🤝' : '🔪'}</p>
-			{#if opponentChoice !== null}
-				<p class="text-lg mb-4">Opponent chose: {opponentChoice === 'cooperate' ? '🤝' : '🔪'}</p>
-			{:else}
-				<p class="text-lg mb-4">Opponent did not make a choice ⏳</p>
-			{/if}
-			<p class="text-xl font-bold mb-4">{roundResult}</p>
-			<p class="text-lg">Next round starting soon...</p>
-		</div>
-	{/if}
-
-	{#if currentPlayer && roundHistory.length > 0}
-		<div class="mt-8">
-			<h3 class="text-lg font-semibold mb-2">Your Round History:</h3>
-			<div class="flex space-x-2">
-				{#each roundHistory as choice}
-					<span class="text-2xl">{choice === 'cooperate' ? '🤝' : '🔪'}</span>
-				{/each}
-			</div>
-		</div>
-	{/if}
-
-	{#if currentPlayer && opponent}
-		<div class="mt-8">
-			<h3 class="text-lg font-semibold mb-2">Round History:</h3>
-			<div class="flex justify-between">
-				<div class="w-1/2 pr-2">
-					<h4 class="text-md font-semibold">{currentPlayer.name}'s History:</h4>
-					<div class="flex space-x-2">
-						{#each playerRoundHistory as choice}
-							<span class="text-2xl">{choice.choice === 'cooperate' ? '🤝' : '🔪'}</span>
-						{/each}
-					</div>
-				</div>
-				<div class="w-1/2 pl-2">
-					<h4 class="text-md font-semibold">{opponent.name}'s History:</h4>
-					<div class="flex space-x-2">
-						{#each opponentRoundHistory as choice}
-							<span class="text-2xl">{choice.choice === 'cooperate' ? '🤝' : '🔪'}</span>
-						{/each}
-					</div>
-				</div>
-			</div>
-		</div>
-	{/if}
+		{/if}
+	</div>
 </div>
+
+<style>
+	.loader {
+		border: 5px solid #e5e5e5;
+		border-top: 5px solid #333;
+		border-radius: 50%;
+		width: 50px;
+		height: 50px;
+		animation: spin 1s linear infinite;
+		margin: 0 auto;
+	}
+
+	@keyframes spin {
+		0% {
+			transform: rotate(0deg);
+		}
+		100% {
+			transform: rotate(360deg);
+		}
+	}
+
+	:global(.animate-pulse) {
+		animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+	}
+
+	@keyframes pulse {
+		0%,
+		100% {
+			opacity: 1;
+		}
+		50% {
+			opacity: 0.5;
+		}
+	}
+</style>
