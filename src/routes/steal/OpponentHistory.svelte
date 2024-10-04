@@ -1,16 +1,21 @@
 <script lang="ts">
-	import { fade, fly } from 'svelte/transition';
+	import type { RoundHistory } from '$lib/EmojiSteal/types';
 
-	export let history: any[];
+	export let history: RoundHistory[] = [];
 </script>
 
-<div class="mb-8 bg-gray-100 rounded-lg p-4 shadow-md" in:fade={{ delay: 200 }}>
-	<h3 class="text-xl font-semibold mb-2">Opponent's History</h3>
-	<div class="flex space-x-2">
-		{#each [...history].reverse() as choice}
-			<span class="text-3xl" in:fly={{ y: 20, duration: 300 }}
-				>{choice.choice === 'cooperate' ? '🤝' : '🔪'}</span
-			>
-		{/each}
-	</div>
+<div class="mt-4">
+	<h3 class="text-lg font-semibold mb-2">Opponent's History</h3>
+	{#if history.length > 0}
+		<ul class="space-y-1">
+			{#each history as round}
+				<li>
+					{round.choice === 'cooperate' ? '🤝' : '🔪'}
+					{new Date(round.created_at).toLocaleString()}
+				</li>
+			{/each}
+		</ul>
+	{:else}
+		<p>No history available</p>
+	{/if}
 </div>

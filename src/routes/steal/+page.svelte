@@ -3,11 +3,12 @@
 	import {
 		joinGame,
 		leaveGame,
-		findOpponent,
 		makeChoice,
 		getRoundHistory,
-		removeFromMatchmaking
+		currentPlayer,
+		opponent
 	} from '$lib/EmojiSteal/client';
+	import { findOpponent, removeFromMatchmaking } from '$lib/EmojiSteal/matchmaking';
 	import { TimerBar } from '$components/Timer';
 	import { fade, fly } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
@@ -24,17 +25,16 @@
 		initializeWatchers,
 		unsubscribeAll,
 		subscribeToSpecificGameSession,
+		subscribeToUserRoundHistory,
 		onlinePlayers,
 		currentGameSession,
-		roundHistory as watcherRoundHistory
+		roundHistory
 	} from '$lib/EmojiSteal/watcher';
 	import type { Player, GameSession, RoundHistory } from '$lib/EmojiSteal/types';
 	import { playerLogger, gameLogger, matchmakingLogger, roundLogger } from '$lib/logging';
 
 	let playerName = '';
-	let currentPlayer: Player | null = null;
 	let joinError = '';
-	let opponent: Player | null = null;
 	let timeLeft = 15;
 	let roundResult = '';
 
@@ -44,18 +44,19 @@
 	let animationFrameId: number;
 
 	let unsubscribeFromSpecificGame: (() => void) | null = null;
+	let unsubscribeFromUserRoundHistory: (() => void) | null = null;
 
-	let playerRoundHistory: RoundHistory[] = [];
-	let opponentRoundHistory: RoundHistory[] = [];
+	$: playerRoundHistory = $currentPlayer?.roundHistory || [];
+	$: opponentRoundHistory = $opponent?.roundHistory || [];
 
 	$: onlinePlayerCount = $onlinePlayers.length;
 
-	// Make gameState reactive based on currentGameSession
-	$: gameState = getGameState($currentGameSession, currentPlayer?.id);
+	// Make gameState reactive based on currentGameSession and currentPlayer
+	$: gameState = getGameState($currentGameSession, $currentPlayer?.id);
 
-	// Derive playerChoice and opponentChoice from currentGameSession
-	$: playerChoice = getPlayerChoice($currentGameSession, currentPlayer?.id);
-	$: opponentChoice = getOpponentChoice($currentGameSession, currentPlayer?.id);
+	// Derive playerChoice and opponentChoice from currentGameSession and currentPlayer
+	$: playerChoice = getPlayerChoice($currentGameSession, $currentPlayer?.id);
+	$: opponentChoice = getOpponentChoice($currentGameSession, $currentPlayer?.id);
 
 	function getGameState(
 		session: GameSession | null,
@@ -92,11 +93,13 @@
 	}
 
 	onMount(() => {
-		initializeWatchers();
+		if ($currentPlayer) {
+			initializeWatchers($currentPlayer.id);
+		}
 		return () => {
 			unsubscribeAll();
-			if (currentPlayer) {
-				leaveGame(currentPlayer.id);
+			if ($currentPlayer) {
+				leaveGame($currentPlayer.id);
 			}
 			endTimer();
 		};
@@ -105,6 +108,9 @@
 	onDestroy(() => {
 		if (unsubscribeFromSpecificGame) {
 			unsubscribeFromSpecificGame();
+		}
+		if (unsubscribeFromUserRoundHistory) {
+			unsubscribeFromUserRoundHistory();
 		}
 	});
 
@@ -119,8 +125,9 @@
 				playerLogger.info(
 					`Player ${joinedPlayer.name} (ID: ${joinedPlayer.id}) has joined the game`
 				);
-				currentPlayer = joinedPlayer;
+				currentPlayer.set(joinedPlayer);
 				joinError = '';
+				unsubscribeFromUserRoundHistory = subscribeToUserRoundHistory(joinedPlayer.id);
 				startMatchmaking();
 			} else {
 				playerLogger.warn('Failed to join game');
@@ -130,10 +137,12 @@
 	}
 
 	async function startMatchmaking() {
-		if (!currentPlayer) {
+		if (!$currentPlayer) {
 			matchmakingLogger.error('No current player');
 			return;
 		}
+
+		matchmakingLogger.info(`Starting matchmaking for player ${$currentPlayer.id}`);
 
 		// Close the previous game subscription before starting a new game
 		if (unsubscribeFromSpecificGame) {
@@ -141,7 +150,7 @@
 			unsubscribeFromSpecificGame = null;
 		}
 
-		const result = await findOpponent(currentPlayer.id);
+		const result = await findOpponent($currentPlayer.id);
 		if (!result) {
 			matchmakingLogger.error('Failed to find or create a game');
 			return;
@@ -151,14 +160,18 @@
 
 		if (result.opponent) {
 			matchmakingLogger.info(`Opponent found immediately: ${result.opponent.id}`);
-			opponent = result.opponent;
+			opponent.set(result.opponent);
 			await fetchRoundHistory();
 			startRound();
 		} else {
 			matchmakingLogger.info(`Waiting for opponent. Game ID: ${result.gameId}`);
 		}
 
+		if (unsubscribeFromSpecificGame) {
+			unsubscribeFromSpecificGame();
+		}
 		unsubscribeFromSpecificGame = subscribeToSpecificGameSession(result.gameId);
+		matchmakingLogger.info(`Subscribed to game session: ${result.gameId}`);
 	}
 
 	function handleGameSessionChange(session: GameSession | null) {
@@ -167,20 +180,29 @@
 		gameLogger.data('Game session updated', session);
 
 		if (session.status === 'playing' && session.player1_id && session.player2_id) {
-			if (!opponent) {
-				opponent = {
-					id: session.player1_id === currentPlayer?.id ? session.player2_id : session.player1_id,
-					name: 'Opponent',
-					emoji: '😊',
-					in_game: true,
-					created_at: new Date().toISOString()
-				};
-				playerLogger.info(`Opponent set: ${opponent.id}`);
+			if (!$opponent) {
+				const opponentId =
+					session.player1_id === $currentPlayer?.id ? session.player2_id : session.player1_id;
+				if (opponentId) {
+					opponent.set({
+						id: opponentId,
+						name: 'Opponent',
+						in_game: true,
+						created_at: new Date().toISOString(),
+						roundHistory: [],
+						current_game_id: session.id
+					});
+					playerLogger.info(`Opponent set: ${opponentId}`);
+				} else {
+					playerLogger.error('Unable to set opponent: invalid opponent ID');
+				}
 			}
+			gameLogger.info('Starting round');
 			startRound();
 		}
 
 		if (session.status === 'finished') {
+			gameLogger.info('Game finished, ending round');
 			endRound();
 		}
 	}
@@ -293,13 +315,18 @@
 	}
 
 	async function handleChoice(choice: 'cooperate' | 'betray') {
-		if (!$currentGameSession || playerChoice !== null || gameState !== 'playing') {
+		if (
+			!$currentGameSession ||
+			playerChoice !== null ||
+			gameState !== 'playing' ||
+			!$currentPlayer
+		) {
 			gameLogger.error('Invalid game state or choice already made');
 			return;
 		}
 
 		try {
-			await makeChoice($currentGameSession.id, currentPlayer!.id, choice);
+			await makeChoice($currentGameSession.id, $currentPlayer.id, choice);
 			gameLogger.info(`Choice made: ${choice}, waiting for opponent...`);
 		} catch (error) {
 			gameLogger.error(`Error in handleChoice: ${error}`);
@@ -307,23 +334,35 @@
 	}
 
 	async function fetchRoundHistory() {
-		if (currentPlayer) {
-			playerRoundHistory = await getRoundHistory(currentPlayer.id, 10);
+		if ($currentPlayer && $currentPlayer.id) {
+			await getRoundHistory($currentPlayer.id, 10);
+			// The currentPlayer store will be automatically updated with the new round history
+		} else {
+			console.warn(
+				'Unable to fetch player round history: currentPlayer or currentPlayer.id is undefined'
+			);
 		}
-		if (opponent) {
-			opponentRoundHistory = await getRoundHistory(opponent.id, 10);
+		if ($opponent && $opponent.id) {
+			const opponentHistory = await getRoundHistory($opponent.id, 10);
+			opponent.update((opp) => (opp ? { ...opp, roundHistory: opponentHistory } : null));
+		} else {
+			console.warn('Unable to fetch opponent round history: opponent or opponent.id is undefined');
 		}
 	}
 
 	async function handleLeaveGame() {
-		if (currentPlayer) {
-			await leaveGame(currentPlayer.id);
-			currentPlayer = null;
-			opponent = null;
+		if ($currentPlayer) {
+			await leaveGame($currentPlayer.id);
+			currentPlayer.set(null);
+			opponent.set(null);
 			roundResult = '';
 			if (unsubscribeFromSpecificGame) {
 				unsubscribeFromSpecificGame();
 				unsubscribeFromSpecificGame = null;
+			}
+			if (unsubscribeFromUserRoundHistory) {
+				unsubscribeFromUserRoundHistory();
+				unsubscribeFromUserRoundHistory = null;
 			}
 		}
 	}
@@ -333,18 +372,19 @@
 	<div class="container mx-auto max-w-3xl">
 		<Header {onlinePlayerCount} />
 
-		{#if currentPlayer && opponent}
-			<OpponentHistory history={opponentRoundHistory} />
+		{#if $currentPlayer && $opponent}
+			<PlayerHistory history={$currentPlayer.roundHistory} />
+			<OpponentHistory history={$opponent.roundHistory} />
 		{/if}
 
 		<main>
-			{#if !currentPlayer}
+			{#if !$currentPlayer}
 				<JoinGameForm bind:playerName {handleJoin} {joinError} />
 			{:else if gameState === 'waiting'}
 				<WaitingForOpponent />
 			{:else if gameState === 'playing'}
 				<GamePlay
-					{opponent}
+					opponent={$opponent}
 					gameSession={$currentGameSession}
 					{timeLeft}
 					{totalTime}
@@ -363,11 +403,7 @@
 			{/if}
 		</main>
 
-		{#if currentPlayer && opponent}
-			<PlayerHistory history={playerRoundHistory} />
-		{/if}
-
-		{#if currentPlayer}
+		{#if $currentPlayer}
 			<button
 				on:click={handleLeaveGame}
 				class="mt-4 bg-gray-500 text-white px-4 py-2 rounded font-semibold hover:bg-gray-600 transition duration-300"

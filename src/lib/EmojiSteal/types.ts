@@ -1,9 +1,10 @@
 export interface Player {
     id: string;
     name: string;
-    emoji: string;
     in_game: boolean;
     created_at: string;
+    roundHistory: RoundHistory[];
+    current_game_id: string | null;
 }
 
 export interface GameSession {

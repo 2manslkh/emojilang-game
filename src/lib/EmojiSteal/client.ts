@@ -2,7 +2,9 @@ import { PUBLIC_SUPABASE_ANON_KEY, PUBLIC_SUPABASE_URL } from '$env/static/publi
 import { createClient } from '@supabase/supabase-js';
 import { writable } from 'svelte/store';
 import type { Player, GameSession, RoundHistory } from './types';
-import { playerLogger, gameLogger, matchmakingLogger, roundLogger, dbLogger } from '$lib/logging';
+import { playerLogger, emojistealLogger, dbLogger } from '$lib/logging';
+import { removeFromMatchmaking } from './matchmaking';
+import { initializeWatchers } from './watcher';
 
 const supabaseUrl = PUBLIC_SUPABASE_URL;
 const supabaseKey = PUBLIC_SUPABASE_ANON_KEY;
@@ -18,26 +20,7 @@ export { supabase };
 export const onlinePlayers = writable<Player[]>([]);
 export const currentGame = writable<GameSession | null>(null);
 export const opponent = writable<Player | null>(null);
-
-export interface Player {
-    id: string;
-    name: string;
-    emoji: string;
-    in_game: boolean;
-    created_at: string;
-}
-
-export interface GameSession {
-    id: string;
-    player1_id: string;
-    player2_id: string | null;
-    player1_choice: 'cooperate' | 'betray' | null;
-    player2_choice: 'cooperate' | 'betray' | null;
-    status: 'waiting' | 'playing' | 'finished';
-    round_result?: string;
-    created_at: string;
-    updated_at: string;
-}
+export const currentPlayer = writable<Player | null>(null);
 
 export function watchOnlinePlayers() {
     updateOnlinePlayers(); // Initial fetch
@@ -79,9 +62,9 @@ export async function joinGame(name: string): Promise<Player | null> {
             .from('players')
             .select('*')
             .eq('name', name)
-            .single();
+            .maybeSingle();
 
-        if (checkError && checkError.code !== 'PGRST116') {
+        if (checkError) {
             dbLogger.error(`Error checking existing player: ${checkError.message}`);
             return null;
         }
@@ -100,14 +83,18 @@ export async function joinGame(name: string): Promise<Player | null> {
                 return null;
             }
 
+            const roundHistory = await getRoundHistory(existingPlayer.id);
+            const updatedPlayerWithHistory = { ...updatedPlayer, roundHistory };
+            currentPlayer.set(updatedPlayerWithHistory);
             playerLogger.info(`Player '${name}' rejoined game successfully`);
-            playerLogger.data('Updated player', updatedPlayer);
-            return updatedPlayer as Player;
+            playerLogger.data('Updated player', updatedPlayerWithHistory);
+            initializeWatchers(existingPlayer.id);
+            return updatedPlayerWithHistory;
         } else {
             playerLogger.info(`Creating new player '${name}'`);
             const { data: newPlayer, error: insertError } = await supabase
                 .from('players')
-                .insert({ name, emoji: '😀', in_game: true })
+                .insert({ name, in_game: true })
                 .select()
                 .single();
 
@@ -116,9 +103,13 @@ export async function joinGame(name: string): Promise<Player | null> {
                 return null;
             }
 
+            const roundHistory: RoundHistory[] = [];
+            const newPlayerWithHistory = { ...newPlayer, roundHistory };
+            currentPlayer.set(newPlayerWithHistory);
             playerLogger.info(`Player '${name}' joined game successfully`);
-            playerLogger.data('New player', newPlayer);
-            return newPlayer as Player;
+            playerLogger.data('New player', newPlayerWithHistory);
+            initializeWatchers(newPlayer.id);
+            return newPlayerWithHistory;
         }
     } catch (error) {
         playerLogger.error(`Unexpected error during join game: ${error}`);
@@ -127,7 +118,7 @@ export async function joinGame(name: string): Promise<Player | null> {
 }
 
 export async function makeChoice(gameId: string, playerId: string, choice: 'cooperate' | 'betray') {
-    gameLogger.info(`Player ${playerId} making choice ${choice} in game ${gameId}`);
+    emojistealLogger.info(`Player ${playerId} making choice ${choice} in game ${gameId}`);
 
     const { data: game, error: fetchError } = await supabase
         .from('game_sessions')
@@ -152,7 +143,7 @@ export async function makeChoice(gameId: string, playerId: string, choice: 'coop
     if (error) {
         dbLogger.error(`Error making choice and recording history: ${error.message}`);
     } else {
-        gameLogger.info(`Choice ${choice} recorded for player ${playerId} in game ${gameId}`);
+        emojistealLogger.info(`Choice ${choice} recorded for player ${playerId} in game ${gameId}`);
     }
 }
 
@@ -202,51 +193,6 @@ export async function waitForOpponentChoice(gameId: string): Promise<GameSession
     });
 }
 
-export async function findOpponent(playerId: string): Promise<{ gameId: string; opponent: Player | null } | null> {
-    matchmakingLogger.info(`Finding opponent for player ${playerId}`);
-
-    try {
-        const { data, error } = await supabase.rpc('find_or_create_game', { p_player_id: playerId });
-
-        if (error) {
-            dbLogger.error(`Error finding or creating game: ${error.message}`);
-            return null;
-        }
-
-        const game = data[0] as GameSession;
-        matchmakingLogger.data('RPC result', game);
-
-        let opponent: Player | null = null;
-        if (game.player2_id && game.player2_id !== playerId) {
-            const { data: opponentData } = await supabase
-                .from('players')
-                .select('*')
-                .eq('id', game.player2_id)
-                .single();
-            opponent = opponentData as Player;
-        } else if (game.player1_id !== playerId) {
-            const { data: opponentData } = await supabase
-                .from('players')
-                .select('*')
-                .eq('id', game.player1_id)
-                .single();
-            opponent = opponentData as Player;
-        }
-
-        if (opponent) {
-            matchmakingLogger.info(`Opponent found for player ${playerId}: ${opponent.id}`);
-        } else {
-            matchmakingLogger.info(`No immediate opponent found for player ${playerId}. Waiting in game ${game.id}`);
-        }
-
-        return { gameId: game.id, opponent };
-    } catch (error) {
-        matchmakingLogger.error(`Unexpected error in findOpponent: ${error}`);
-        return null;
-    }
-}
-
-
 export async function endGame(gameId: string) {
     const { error } = await supabase
         .from('game_sessions')
@@ -276,6 +222,12 @@ export async function endGame(gameId: string) {
 }
 
 export async function leaveGame(playerId: string) {
+    // Remove player from matchmaking queue if present
+    await supabase
+        .from('matchmaking_queue')
+        .delete()
+        .eq('player_id', playerId);
+
     // Update the player's status
     const { error: updateError } = await supabase
         .from('players')
@@ -396,12 +348,17 @@ export async function getFinalGameState(gameId: string): Promise<GameSession | n
     return data as GameSession;
 }
 
-export async function getRoundHistory(playerId: string, limit: number = 10) {
+export async function getRoundHistory(playerId: string, limit: number = 10): Promise<RoundHistory[]> {
+    if (!playerId) {
+        console.warn('getRoundHistory called with undefined playerId');
+        return [];
+    }
+
     const { data, error } = await supabase
         .from('round_history')
         .select('*')
         .eq('player_id', playerId)
-        .order('created_at', { ascending: false }) // Change to descending order
+        .order('created_at', { ascending: false })
         .limit(limit);
 
     if (error) {
@@ -409,17 +366,15 @@ export async function getRoundHistory(playerId: string, limit: number = 10) {
         return [];
     }
 
-    return data.reverse(); // Reverse the array to get oldest to newest
-}
+    const history = data.reverse(); // Reverse the array to get oldest to newest
 
-// Add this new function
-export async function removeFromMatchmaking(playerId: string) {
-    const { error } = await supabase
-        .from('players')
-        .update({ in_game: false })
-        .eq('id', playerId);
+    // Update the currentPlayer store with the new round history
+    currentPlayer.update(player => {
+        if (player && player.id === playerId) {
+            return { ...player, roundHistory: history };
+        }
+        return player;
+    });
 
-    if (error) {
-        console.error('Error removing player from matchmaking:', error);
-    }
+    return history;
 }
