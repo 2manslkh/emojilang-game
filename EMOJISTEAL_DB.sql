@@ -2,7 +2,9 @@
 DROP FUNCTION IF EXISTS update_updated_at_column() CASCADE;
 DROP FUNCTION IF EXISTS update_game_session(UUID, UUID) CASCADE;
 DROP FUNCTION IF EXISTS make_choice_and_record_history(UUID, UUID, TEXT, BOOLEAN) CASCADE;
+DROP FUNCTION IF EXISTS make_choice(UUID, UUID, TEXT) CASCADE;
 DROP FUNCTION IF EXISTS find_match(UUID) CASCADE;
+DROP FUNCTION IF EXISTS count_online_players() CASCADE;
 
 -- Drop existing tables if they exist
 DROP TABLE IF EXISTS round_history CASCADE;
@@ -115,34 +117,37 @@ $$ LANGUAGE 'plpgsql';
 GRANT EXECUTE ON FUNCTION update_game_session(UUID, UUID) TO authenticated, anon;
 
 -- Create a function to make a choice and record history
-CREATE OR REPLACE FUNCTION make_choice_and_record_history(
+CREATE OR REPLACE FUNCTION make_choice(
     p_game_id UUID,
     p_player_id UUID,
-    p_choice TEXT,
-    p_is_player1 BOOLEAN
+    p_choice TEXT
 )
 RETURNS SETOF game_sessions AS $$
 DECLARE
     v_updated_game game_sessions;
+    v_other_player_id UUID;
+    v_other_player_choice TEXT;
 BEGIN
     -- Update the game session
     UPDATE game_sessions
     SET 
-        player1_choice = CASE WHEN p_is_player1 THEN p_choice ELSE player1_choice END,
-        player2_choice = CASE WHEN NOT p_is_player1 THEN p_choice ELSE player2_choice END
-    WHERE id = p_game_id
+        player1_choice = CASE WHEN player1_id = p_player_id THEN p_choice ELSE player1_choice END,
+        player2_choice = CASE WHEN player2_id = p_player_id THEN p_choice ELSE player2_choice END
+    WHERE game_sessions.id = p_game_id
     RETURNING * INTO v_updated_game;
-
-    -- Insert into round_history
-    INSERT INTO round_history (player_id, choice)
-    VALUES (p_player_id, p_choice);
 
     -- Check if both players have made their choices
     IF v_updated_game.player1_choice IS NOT NULL AND v_updated_game.player2_choice IS NOT NULL THEN
-        -- Both players have made their choices, set the status to 'finished'
+        -- Both players have made their choices, insert into round_history for both players
+        INSERT INTO round_history (player_id, choice)
+        VALUES 
+            (v_updated_game.player1_id, v_updated_game.player1_choice),
+            (v_updated_game.player2_id, v_updated_game.player2_choice);
+
+        -- Set the status to 'finished'
         UPDATE game_sessions
         SET status = 'finished'
-        WHERE id = p_game_id
+        WHERE game_sessions.id = p_game_id
         RETURNING * INTO v_updated_game;
     END IF;
 
@@ -151,7 +156,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Grant execute permission on the function
-GRANT EXECUTE ON FUNCTION make_choice_and_record_history(UUID, UUID, TEXT, BOOLEAN) TO authenticated, anon;
+GRANT EXECUTE ON FUNCTION make_choice(UUID, UUID, TEXT) TO authenticated, anon;
 
 -- Create a function to end the round and kick inactive players
 CREATE OR REPLACE FUNCTION end_round_and_kick_inactive_player(p_game_id UUID)
@@ -289,12 +294,35 @@ RETURNS TABLE (id UUID, name TEXT, in_game BOOLEAN, created_at TIMESTAMPTZ, curr
 DECLARE
     v_opponent_id UUID;
     v_game_id UUID;
+    v_current_game_id UUID;
+    v_game_status TEXT;
 BEGIN
+    -- Check if the player is already in a game
+    SELECT players.current_game_id INTO v_current_game_id
+    FROM players
+    WHERE players.id = in_player_id;
+
+    IF v_current_game_id IS NOT NULL THEN
+        -- Check if the current game is finished
+        SELECT status INTO v_game_status
+        FROM game_sessions
+        WHERE game_sessions.id = v_current_game_id;
+
+        IF v_game_status != 'finished' THEN
+            -- Player is already in an active game, return their current data
+            RETURN QUERY
+            SELECT players.id, players.name, players.in_game, players.created_at, players.current_game_id
+            FROM players
+            WHERE players.id = in_player_id;
+            RETURN;
+        END IF;
+    END IF;
+
     -- Find an opponent in the queue
-    SELECT player_id INTO v_opponent_id
+    SELECT matchmaking_queue.player_id INTO v_opponent_id
     FROM matchmaking_queue
-    WHERE player_id != in_player_id
-    ORDER BY queued_at
+    WHERE matchmaking_queue.player_id != in_player_id
+    ORDER BY matchmaking_queue.queued_at
     LIMIT 1;
 
     IF v_opponent_id IS NOT NULL THEN
@@ -305,7 +333,7 @@ BEGIN
 
         -- Remove both players from the queue
         DELETE FROM matchmaking_queue
-        WHERE player_id IN (in_player_id, v_opponent_id);
+        WHERE matchmaking_queue.player_id IN (in_player_id, v_opponent_id);
 
         -- Update both players' current_game_id
         UPDATE players
@@ -345,3 +373,20 @@ GRANT EXECUTE ON FUNCTION update_players_current_game(UUID, UUID, UUID) TO authe
 
 -- Modify the players table
 ALTER TABLE players DROP COLUMN IF EXISTS emoji;
+
+-- Add this function to count online players
+CREATE OR REPLACE FUNCTION count_online_players()
+RETURNS INTEGER AS $$
+DECLARE
+    online_count INTEGER;
+BEGIN
+    SELECT COUNT(*) INTO online_count
+    FROM players
+    WHERE in_game = true;
+    
+    RETURN online_count;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Grant execute permission on the function
+GRANT EXECUTE ON FUNCTION count_online_players() TO authenticated, anon;

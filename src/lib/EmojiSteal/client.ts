@@ -120,30 +120,18 @@ export async function joinGame(name: string): Promise<Player | null> {
 export async function makeChoice(gameId: string, playerId: string, choice: 'cooperate' | 'betray') {
     emojistealLogger.info(`Player ${playerId} making choice ${choice} in game ${gameId}`);
 
-    const { data: game, error: fetchError } = await supabase
-        .from('game_sessions')
-        .select('*')
-        .eq('id', gameId)
-        .single();
-
-    if (fetchError) {
-        dbLogger.error(`Error fetching game session: ${fetchError.message}`);
-        return;
-    }
-
-    const isPlayer1 = game.player1_id === playerId;
-
-    const { error } = await supabase.rpc('make_choice_and_record_history', {
+    const { data, error } = await supabase.rpc('make_choice', {
         p_game_id: gameId,
         p_player_id: playerId,
-        p_choice: choice,
-        p_is_player1: isPlayer1
+        p_choice: choice
     });
 
     if (error) {
-        dbLogger.error(`Error making choice and recording history: ${error.message}`);
+        dbLogger.error(`Error making choice: ${error.message}`);
+        throw error;
     } else {
         emojistealLogger.info(`Choice ${choice} recorded for player ${playerId} in game ${gameId}`);
+        return data;
     }
 }
 

@@ -4,7 +4,7 @@ import { writable } from 'svelte/store';
 import type { Player, GameSession, RoundHistory } from './types';
 import { emojistealLogger, playerLogger, dbLogger } from '$lib/logging';
 
-export const onlinePlayers = writable<Player[]>([]);
+export const onlinePlayerCount = writable<number>(0);
 export const currentGameSession = writable<GameSession | null>(null);
 export const roundHistory = writable<RoundHistory[]>([]);
 
@@ -16,6 +16,7 @@ export function initializeWatchers(playerId: string) {
     emojistealLogger.info('Initializing watchers');
     subscribeToPlayers();
     subscribeToCurrentPlayer(playerId);
+    updateOnlinePlayerCount(); // Initial fetch
 }
 
 function subscribeToPlayers() {
@@ -26,12 +27,11 @@ function subscribeToPlayers() {
             { event: '*', schema: 'public', table: 'players' },
             (payload) => {
                 playerLogger.data('Players change received', payload);
-                updateOnlinePlayers();
+                updateOnlinePlayerCount();
             }
         )
         .subscribe();
 }
-
 function subscribeToCurrentPlayer(playerId: string) {
     playerLogger.info(`Subscribing to current player changes for player ${playerId}`);
     currentPlayerChannel = supabase
@@ -44,6 +44,18 @@ function subscribeToCurrentPlayer(playerId: string) {
             }
         )
         .subscribe();
+}
+
+async function updateOnlinePlayerCount() {
+    playerLogger.info('Updating online player count');
+    const { data, error } = await supabase.rpc('count_online_players');
+
+    if (error) {
+        dbLogger.error(`Error fetching online player count: ${error.message}`);
+    } else {
+        playerLogger.data('Online player count updated', data);
+        onlinePlayerCount.set(data);
+    }
 }
 
 async function handleCurrentPlayerUpdate(player: Player) {
@@ -64,20 +76,7 @@ async function handleCurrentPlayerUpdate(player: Player) {
     }
 }
 
-async function updateOnlinePlayers() {
-    playerLogger.info('Updating online players');
-    const { data, error } = await supabase
-        .from('players')
-        .select('*')
-        .eq('in_game', true);
 
-    if (error) {
-        dbLogger.error(`Error fetching online players: ${error.message}`);
-    } else {
-        playerLogger.data('Online players updated', data);
-        onlinePlayers.set(data as Player[]);
-    }
-}
 
 export function subscribeToSpecificGameSession(gameId: string) {
     emojistealLogger.info(`Subscribing to game session: ${gameId}`);
@@ -91,7 +90,8 @@ export function subscribeToSpecificGameSession(gameId: string) {
             { event: '*', schema: 'public', table: 'game_sessions', filter: `id=eq.${gameId}` },
             (payload) => {
                 emojistealLogger.data(`Game session change received for game ${gameId}`, payload);
-                currentGameSession.set(payload.new as GameSession);
+                const updatedSession = payload.new as GameSession;
+                currentGameSession.set(updatedSession);
                 emojistealLogger.info(`Updated currentGameSession store with new data`);
             }
         )

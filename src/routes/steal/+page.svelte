@@ -26,7 +26,7 @@
 		unsubscribeAll,
 		subscribeToSpecificGameSession,
 		subscribeToUserRoundHistory,
-		onlinePlayers,
+		onlinePlayerCount,
 		currentGameSession,
 		roundHistory
 	} from '$lib/EmojiSteal/watcher';
@@ -48,8 +48,6 @@
 
 	$: playerRoundHistory = $currentPlayer?.roundHistory || [];
 	$: opponentRoundHistory = $opponent?.roundHistory || [];
-
-	$: onlinePlayerCount = $onlinePlayers.length;
 
 	// Make gameState reactive based on currentGameSession and currentPlayer
 	$: gameState = getGameState($currentGameSession, $currentPlayer?.id);
@@ -179,7 +177,7 @@
 
 		gameLogger.data('Game session updated', session);
 
-		if (session.status === 'playing' && session.player1_id && session.player2_id) {
+		if (session.status === 'playing') {
 			if (!$opponent) {
 				const opponentId =
 					session.player1_id === $currentPlayer?.id ? session.player2_id : session.player1_id;
@@ -193,18 +191,21 @@
 						current_game_id: session.id
 					});
 					playerLogger.info(`Opponent set: ${opponentId}`);
-				} else {
-					playerLogger.error('Unable to set opponent: invalid opponent ID');
 				}
 			}
-			gameLogger.info('Starting round');
-			startRound();
-		}
 
-		if (session.status === 'finished') {
-			gameLogger.info('Game finished, ending round');
+			const playerChoice = getPlayerChoice(session, $currentPlayer?.id);
+			if (playerChoice === null) {
+				gameState = 'playing';
+			} else {
+				gameState = 'choosing';
+			}
+		} else if (session.status === 'finished') {
+			gameState = 'result';
 			endRound();
 		}
+
+		currentGameSession.set(session);
 	}
 
 	async function startRound() {
@@ -328,6 +329,7 @@
 		try {
 			await makeChoice($currentGameSession.id, $currentPlayer.id, choice);
 			gameLogger.info(`Choice made: ${choice}, waiting for opponent...`);
+			// The UI will be updated automatically when the game session changes
 		} catch (error) {
 			gameLogger.error(`Error in handleChoice: ${error}`);
 		}
@@ -370,12 +372,9 @@
 
 <div class="min-h-screen bg-white text-black p-4">
 	<div class="container mx-auto max-w-3xl">
-		<Header {onlinePlayerCount} />
+		<Header onlinePlayerCount={$onlinePlayerCount} />
 
-		{#if $currentPlayer && $opponent}
-			<PlayerHistory history={$currentPlayer.roundHistory} />
-			<OpponentHistory history={$opponent.roundHistory} />
-		{/if}
+		<OpponentHistory player={$opponent!} />
 
 		<main>
 			{#if !$currentPlayer}
@@ -403,6 +402,8 @@
 			{/if}
 		</main>
 
+		<PlayerHistory player={$currentPlayer!} />
+
 		{#if $currentPlayer}
 			<button
 				on:click={handleLeaveGame}
@@ -413,38 +414,3 @@
 		{/if}
 	</div>
 </div>
-
-<style>
-	.loader {
-		border: 5px solid #e5e5e5;
-		border-top: 5px solid #333;
-		border-radius: 50%;
-		width: 50px;
-		height: 50px;
-		animation: spin 1s linear infinite;
-		margin: 0 auto;
-	}
-
-	@keyframes spin {
-		0% {
-			transform: rotate(0deg);
-		}
-		100% {
-			transform: rotate(360deg);
-		}
-	}
-
-	:global(.animate-pulse) {
-		animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-	}
-
-	@keyframes pulse {
-		0%,
-		100% {
-			opacity: 1;
-		}
-		50% {
-			opacity: 0.5;
-		}
-	}
-</style>
