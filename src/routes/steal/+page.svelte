@@ -152,23 +152,6 @@
 		gameLogger.data('Game session updated', session);
 
 		if (session.status === 'playing') {
-			if (!$opponent) {
-				const opponentId =
-					session.player1_id === $currentPlayer?.id ? session.player2_id : session.player1_id;
-				if (opponentId) {
-					const opponentData = await getPlayerData(opponentId);
-					if (opponentData) {
-						opponent.set({
-							...opponentData,
-							current_game_id: session.id
-						});
-						playerLogger.info(`Opponent set: ${opponentId}`);
-					} else {
-						playerLogger.error(`Failed to fetch opponent data for ID: ${opponentId}`);
-					}
-				}
-			}
-
 			const playerChoice = getPlayerChoice(session, $currentPlayer?.id);
 			if (playerChoice === null) {
 				gameState = 'playing';

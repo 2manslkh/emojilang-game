@@ -9,5 +9,5 @@
 </h1>
 <p class="mb-8 text-xl text-center" in:fade={{ duration: 1000, delay: 400 }}>
 	{onlinePlayerCount}
-	{onlinePlayerCount === 1 ? 'player' : 'players'} online
+	{onlinePlayerCount === 1 ? 'player' : 'players'} in queue
 </p>

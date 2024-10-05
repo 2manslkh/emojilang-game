@@ -3,6 +3,8 @@ import type { RealtimeChannel } from '@supabase/supabase-js';
 import { writable, get } from 'svelte/store';
 import type { Player, GameSession, RoundHistory } from './types';
 import { emojistealLogger, playerLogger, dbLogger } from '$lib/logging';
+import { getPlayerData, getPlayerHistory } from './client';
+import { opponent } from './client';
 
 export const playersInQueue = writable<number>(0);
 export const currentGameSession = writable<GameSession | null>(null);
@@ -77,9 +79,31 @@ async function handleCurrentPlayerUpdate(player: Player) {
         } else {
             currentGameSession.set(gameSession);
             subscribeToSpecificGameSession(player.current_game_id);
+
+            // Fetch opponent data
+            const opponentId = gameSession.player1_id === player.id ? gameSession.player2_id : gameSession.player1_id;
+            if (opponentId) {
+                try {
+                    const opponentData = await getPlayerData(opponentId);
+                    if (opponentData) {
+                        const opponentHistory = await getPlayerHistory(opponentId);
+                        opponent.set({
+                            ...opponentData,
+                            roundHistory: opponentHistory,
+                            current_game_id: player.current_game_id
+                        });
+                        playerLogger.info(`Opponent set: ${opponentId}`);
+                    } else {
+                        playerLogger.error(`Failed to fetch opponent data for ID: ${opponentId}`);
+                    }
+                } catch (error) {
+                    playerLogger.error(`Error fetching opponent data: ${error}`);
+                }
+            }
         }
     } else {
         currentGameSession.set(null);
+        opponent.set(null);
         if (gameSessionChannel) {
             supabase.removeChannel(gameSessionChannel);
         }
