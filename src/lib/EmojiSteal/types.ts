@@ -3,8 +3,9 @@ export interface Player {
     name: string;
     in_game: boolean;
     created_at: string;
-    roundHistory: RoundHistory[];
     current_game_id: string | null;
+    roundHistory: RoundHistory[];
+    points: number;
 }
 
 export interface GameSession {
