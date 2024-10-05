@@ -29,7 +29,7 @@
 		currentGameSession,
 		subscribeToMatchmakingQueue
 	} from '$lib/EmojiSteal/watcher';
-	import type { GameSession } from '$lib/EmojiSteal/types';
+	import type { Choice, GameSession } from '$lib/EmojiSteal/types';
 	import { playerLogger, gameLogger, matchmakingLogger } from '$lib/logging';
 	import PlayersInQueue from './PlayersInQueue.svelte';
 
@@ -70,16 +70,16 @@
 	function getPlayerChoice(
 		session: GameSession | null,
 		playerId: string | undefined
-	): 'cooperate' | 'betray' | null {
-		if (!session || !playerId) return null;
+	): 'cooperate' | 'betray' | 'no_choice' {
+		if (!session || !playerId) return 'no_choice';
 		return session.player1_id === playerId ? session.player1_choice : session.player2_choice;
 	}
 
 	function getOpponentChoice(
 		session: GameSession | null,
 		playerId: string | undefined
-	): 'cooperate' | 'betray' | null {
-		if (!session || !playerId) return null;
+	): 'cooperate' | 'betray' | 'no_choice' {
+		if (!session || !playerId) return 'no_choice';
 		return session.player1_id === playerId ? session.player2_choice : session.player1_choice;
 	}
 
@@ -197,8 +197,7 @@
 	function handleTimerEnd() {
 		if (gameState === 'playing') {
 			// If the timer ends and the player hasn't made a choice, make a random choice
-			const randomChoice = Math.random() < 0.5 ? 'cooperate' : 'betray';
-			handleChoice(randomChoice);
+			handleChoice(null);
 		}
 	}
 
@@ -223,22 +222,22 @@
 	}
 
 	function calculateResult(
-		playerChoice: 'cooperate' | 'betray' | null,
-		opponentChoice: 'cooperate' | 'betray' | null
+		playerChoice: 'cooperate' | 'betray' | 'no_choice',
+		opponentChoice: 'cooperate' | 'betray' | 'no_choice'
 	) {
-		if (playerChoice === null && opponentChoice === null) {
+		if (playerChoice === 'no_choice' && opponentChoice === 'no_choice') {
 			return {
 				message: 'Both players did not make a choice. No points awarded.',
 				playerPoints: 0,
 				opponentPoints: 0
 			};
-		} else if (playerChoice === null) {
+		} else if (playerChoice === 'no_choice') {
 			return {
 				message: 'You did not make a choice. Opponent gains 1 point.',
 				playerPoints: 0,
 				opponentPoints: 1
 			};
-		} else if (opponentChoice === null) {
+		} else if (opponentChoice === 'no_choice') {
 			return {
 				message: 'Your opponent did not make a choice. You gain 1 point.',
 				playerPoints: 1,
@@ -277,7 +276,7 @@
 		}
 	}
 
-	async function handleChoice(choice: 'cooperate' | 'betray') {
+	async function handleChoice(choice: 'cooperate' | 'betray' | null) {
 		if (
 			!$currentGameSession ||
 			playerChoice !== null ||

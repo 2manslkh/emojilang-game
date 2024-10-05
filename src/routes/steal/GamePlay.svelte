@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
+	import { createEventDispatcher } from 'svelte';
 
 	export let opponent;
 	export let gameSession;
@@ -30,7 +31,11 @@
 		</div>
 	{:else}
 		<p class="text-3xl mb-4 animate-pulse">
-			Your choice: {playerChoice === 'cooperate' ? '🤝 Cooperate' : '🔪 Betray'}
+			Your choice: {playerChoice === 'cooperate'
+				? '🤝 Cooperate'
+				: playerChoice === 'betray'
+					? '🔪 Betray'
+					: '❓ No choice'}
 		</p>
 		<p class="text-xl mb-4">Waiting for opponent's choice...</p>
 	{/if}

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
 
-	export let playerChoice: 'cooperate' | 'betray' | null;
+	export let playerChoice: 'cooperate' | 'betray' | 'no_choice';
 </script>
 
 <div class="bg-gray-100 rounded-lg p-8 shadow-md" in:fade>

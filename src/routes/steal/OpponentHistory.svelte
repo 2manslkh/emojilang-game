@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Player } from '$lib/EmojiSteal/types';
+	import { ChoiceEnum, getChoiceColor, getChoiceEmoji, type Player } from '$lib/EmojiSteal/types';
 
 	export let player: Player | null;
 </script>
@@ -14,11 +14,11 @@
 		<div class="flex flex-wrap gap-1">
 			{#each player.roundHistory as round}
 				<span
-					class="inline-block px-2 py-1 rounded-full text-sm {round.choice === 'cooperate'
-						? 'bg-green-200 text-green-800'
-						: 'bg-red-200 text-red-800'}"
+					class="inline-block px-2 py-1 rounded-full text-sm {getChoiceColor(
+						round.choice as ChoiceEnum
+					)}"
 				>
-					{round.choice === 'cooperate' ? '🤝' : '🔪'}
+					{getChoiceEmoji(round.choice as ChoiceEnum)}
 				</span>
 			{/each}
 		</div>

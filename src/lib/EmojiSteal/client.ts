@@ -92,7 +92,7 @@ export async function joinGame(name: string): Promise<Player | null> {
     }
 }
 
-export async function makeChoice(gameId: string, playerId: string, choice: 'cooperate' | 'betray') {
+export async function makeChoice(gameId: string, playerId: string, choice: 'cooperate' | 'betray' | null) {
     emojistealLogger.info(`Player ${playerId} making choice ${choice} in game ${gameId}`);
 
     const { data, error } = await supabase.rpc('make_choice', {

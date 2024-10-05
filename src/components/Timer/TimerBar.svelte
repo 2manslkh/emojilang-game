@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount, onDestroy, createEventDispatcher } from 'svelte';
+	import { onDestroy, createEventDispatcher } from 'svelte';
 
 	export let totalTime: number;
 	export let startTime: string | undefined;

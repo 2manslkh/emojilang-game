@@ -6,21 +6,30 @@ DROP FUNCTION IF EXISTS find_match(UUID) CASCADE;
 DROP FUNCTION IF EXISTS count_online_players() CASCADE;
 
 -- Drop existing tables if they exist
+DROP TABLE IF EXISTS match_participants CASCADE;
+DROP TABLE IF EXISTS player_history CASCADE;
 DROP TABLE IF EXISTS game_sessions CASCADE;
 DROP TABLE IF EXISTS matchmaking_queue CASCADE;
-DROP TABLE IF EXISTS match_participants CASCADE;
 DROP TABLE IF EXISTS players CASCADE;
-DROP TABLE IF EXISTS player_history CASCADE;
 
 -- Drop indexes if they exist
 DROP INDEX IF EXISTS idx_players_in_game;
 DROP INDEX IF EXISTS idx_game_sessions_status;
 
--- Create the game_sessions table first
+-- Create the players table first
+CREATE TABLE players (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name TEXT NOT NULL UNIQUE,
+    in_game BOOLEAN NOT NULL DEFAULT false,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    points INTEGER DEFAULT 0
+);
+
+-- Create the game_sessions table
 CREATE TABLE game_sessions (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    player1_id UUID,
-    player2_id UUID,
+    player1_id UUID REFERENCES players(id),
+    player2_id UUID REFERENCES players(id),
     player1_choice TEXT CHECK (player1_choice IN ('cooperate', 'betray', NULL)),
     player2_choice TEXT CHECK (player2_choice IN ('cooperate', 'betray', NULL)),
     status TEXT NOT NULL CHECK (status IN ('waiting', 'playing', 'finished')),
@@ -29,20 +38,8 @@ CREATE TABLE game_sessions (
     winner UUID REFERENCES players(id)
 );
 
--- Create the players table
-CREATE TABLE players (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    name TEXT NOT NULL UNIQUE,
-    in_game BOOLEAN NOT NULL DEFAULT false,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    current_game_id UUID REFERENCES game_sessions(id),
-    points INTEGER DEFAULT 0
-);
-
--- Add foreign key constraints to game_sessions
-ALTER TABLE game_sessions
-ADD CONSTRAINT fk_player1 FOREIGN KEY (player1_id) REFERENCES players(id),
-ADD CONSTRAINT fk_player2 FOREIGN KEY (player2_id) REFERENCES players(id);
+-- Add current_game_id to players table
+ALTER TABLE players ADD COLUMN current_game_id UUID REFERENCES game_sessions(id);
 
 -- Create the matchmaking_queue table
 CREATE TABLE matchmaking_queue (
@@ -56,7 +53,7 @@ CREATE TABLE player_history (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     player_id UUID NOT NULL REFERENCES players(id),
     game_id UUID NOT NULL REFERENCES game_sessions(id),
-    choice TEXT NOT NULL CHECK (choice IN ('cooperate', 'betray')),
+    choice TEXT NOT NULL CHECK (choice IN ('cooperate', 'betray', 'no_choice')),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -88,20 +85,17 @@ CREATE INDEX IF NOT EXISTS idx_game_sessions_status ON game_sessions(status);
 CREATE INDEX IF NOT EXISTS idx_player_history_player_id ON player_history(player_id);
 CREATE INDEX IF NOT EXISTS idx_player_history_game_id ON player_history(game_id);
 
-
 -- Enable realtime
 ALTER PUBLICATION supabase_realtime ADD TABLE players;
 ALTER PUBLICATION supabase_realtime ADD TABLE game_sessions;
 ALTER PUBLICATION supabase_realtime ADD TABLE match_participants;
 ALTER PUBLICATION supabase_realtime ADD TABLE player_history;
 
-
 -- Grant necessary permissions for realtime
 GRANT SELECT ON players TO authenticated, anon;
 GRANT SELECT ON game_sessions TO authenticated, anon;
 GRANT SELECT ON match_participants TO authenticated, anon;
 GRANT SELECT ON player_history TO authenticated, anon;
-
 
 -- Create a function to update game session status
 CREATE OR REPLACE FUNCTION update_game_session(game_session_id UUID, new_player2_id UUID)
@@ -136,15 +130,15 @@ BEGIN
     SELECT * INTO v_game FROM game_sessions WHERE id = p_game_id;
 
     -- Calculate the points and determine the winner
-    IF v_game.player1_choice IS NULL AND v_game.player2_choice IS NULL THEN
+    IF v_game.player1_choice = 'no_choice' AND v_game.player2_choice = 'no_choice' THEN
         v_player1_points := 0;
         v_player2_points := 0;
-        v_winner := NULL; -- Both disconnected or didn't choose
-    ELSIF v_game.player1_choice IS NULL THEN
+        v_winner := NULL; -- Both didn't choose
+    ELSIF v_game.player1_choice = 'no_choice' THEN
         v_player1_points := 0;
         v_player2_points := 1;
         v_winner := v_game.player2_id;
-    ELSIF v_game.player2_choice IS NULL THEN
+    ELSIF v_game.player2_choice = 'no_choice' THEN
         v_player1_points := 1;
         v_player2_points := 0;
         v_winner := v_game.player1_id;
@@ -189,7 +183,7 @@ $$ LANGUAGE plpgsql;
 -- Grant execute permission on the function
 GRANT EXECUTE ON FUNCTION settle_game_result(UUID) TO authenticated, anon;
 
--- Update the make_choice function to return the winner
+-- Update the make_choice function to handle null choices and fix ambiguous column references
 CREATE OR REPLACE FUNCTION make_choice(
     p_game_id UUID,
     p_player_id UUID,
@@ -205,17 +199,38 @@ RETURNS TABLE (
 ) AS $$
 DECLARE
     v_updated_game game_sessions;
+    v_other_player_id UUID;
+    v_current_time TIMESTAMP WITH TIME ZONE;
 BEGIN
+    -- Get the current time
+    v_current_time := NOW();
+
     -- Update the game session
     UPDATE game_sessions
     SET 
-        player1_choice = CASE WHEN player1_id = p_player_id THEN p_choice ELSE player1_choice END,
-        player2_choice = CASE WHEN player2_id = p_player_id THEN p_choice ELSE player2_choice END
+        player1_choice = CASE WHEN game_sessions.player1_id = p_player_id THEN p_choice ELSE player1_choice END,
+        player2_choice = CASE WHEN game_sessions.player2_id = p_player_id THEN p_choice ELSE player2_choice END
     WHERE game_sessions.id = p_game_id
     RETURNING * INTO v_updated_game;
 
-    -- Check if both players have made their choices
-    IF v_updated_game.player1_choice IS NOT NULL AND v_updated_game.player2_choice IS NOT NULL THEN
+    -- Determine the other player's ID
+    IF v_updated_game.player1_id = p_player_id THEN
+        v_other_player_id := v_updated_game.player2_id;
+    ELSE
+        v_other_player_id := v_updated_game.player1_id;
+    END IF;
+
+    -- Check if both players have made their choices or if time has run out for the other player
+    IF (v_updated_game.player1_choice IS NOT NULL AND v_updated_game.player2_choice IS NOT NULL) OR
+       (v_current_time - v_updated_game.created_at > INTERVAL '15 seconds') THEN
+        -- If the other player hasn't made a choice, set it to 'no_choice'
+        UPDATE game_sessions
+        SET 
+            player1_choice = COALESCE(player1_choice, 'no_choice'),
+            player2_choice = COALESCE(player2_choice, 'no_choice')
+        WHERE id = p_game_id
+        RETURNING * INTO v_updated_game;
+
         -- Insert choices into player_history for both players
         INSERT INTO player_history (player_id, game_id, choice)
         VALUES 
