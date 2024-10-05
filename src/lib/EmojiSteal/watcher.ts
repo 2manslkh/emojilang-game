@@ -1,12 +1,13 @@
 import { supabase } from './client';
 import type { RealtimeChannel } from '@supabase/supabase-js';
-import { writable } from 'svelte/store';
+import { writable, get } from 'svelte/store';
 import type { Player, GameSession, RoundHistory } from './types';
 import { emojistealLogger, playerLogger, dbLogger } from '$lib/logging';
 
 export const playersInQueue = writable<number>(0);
 export const currentGameSession = writable<GameSession | null>(null);
 export const roundHistory = writable<RoundHistory[]>([]);
+export const currentPlayer = writable<Player | null>(null);
 
 let matchmakingQueueChannel: RealtimeChannel;
 let currentPlayerChannel: RealtimeChannel;
@@ -63,6 +64,7 @@ function subscribeToCurrentPlayer(playerId: string) {
 
 // Add this function to handle current player updates
 async function handleCurrentPlayerUpdate(player: Player) {
+    currentPlayer.set(player);
     if (player.current_game_id) {
         const { data: gameSession, error } = await supabase
             .from('game_sessions')
@@ -74,9 +76,13 @@ async function handleCurrentPlayerUpdate(player: Player) {
             dbLogger.error(`Error fetching game session: ${error.message}`);
         } else {
             currentGameSession.set(gameSession);
+            subscribeToSpecificGameSession(player.current_game_id);
         }
     } else {
         currentGameSession.set(null);
+        if (gameSessionChannel) {
+            supabase.removeChannel(gameSessionChannel);
+        }
     }
 }
 

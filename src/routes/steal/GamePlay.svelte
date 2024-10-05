@@ -1,11 +1,8 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
-	import { TimerBar } from '$components/Timer';
 
 	export let opponent;
 	export let gameSession;
-	export let timeLeft;
-	export let totalTime;
 	export let playerChoice;
 	export let handleChoice;
 </script>
@@ -15,7 +12,7 @@
 	{#if gameSession}
 		<p class="text-sm text-gray-500 mb-4">Game ID: {gameSession.id}</p>
 	{/if}
-	<TimerBar timeRemaining={timeLeft} {totalTime} class="mb-6" />
+	<slot />
 	{#if playerChoice === null}
 		<div class="flex justify-center space-x-4">
 			<button

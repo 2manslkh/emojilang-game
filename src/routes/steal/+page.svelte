@@ -18,30 +18,25 @@
 	import RoundResult from './RoundResult.svelte';
 	import PlayerHistory from './PlayerHistory.svelte';
 	import OpponentHistory from './OpponentHistory.svelte';
-	import Header from './Header.svelte';
 	import WaitingForOpponentChoice from './WaitingForOpponentChoice.svelte';
 
 	import {
 		initializeWatchers,
 		unsubscribeAll,
-		subscribeToSpecificGameSession,
 		subscribeToUserRoundHistory,
 		playersInQueue,
 		currentGameSession,
-		roundHistory,
 		subscribeToMatchmakingQueue
 	} from '$lib/EmojiSteal/watcher';
-	import type { Player, GameSession, RoundHistory } from '$lib/EmojiSteal/types';
-	import { playerLogger, gameLogger, matchmakingLogger, roundLogger } from '$lib/logging';
+	import type { GameSession } from '$lib/EmojiSteal/types';
+	import { playerLogger, gameLogger, matchmakingLogger } from '$lib/logging';
 	import PlayersInQueue from './PlayersInQueue.svelte';
-	import { supabase } from '$lib/EmojiSteal/client';
 
 	let playerName = '';
 	let joinError = '';
 	let roundResult = '';
 
 	let totalTime = 15;
-	let isTimerRunning = false;
 
 	let unsubscribeFromSpecificGame: (() => void) | null = null;
 	let unsubscribeFromUserRoundHistory: (() => void) | null = null;
@@ -89,6 +84,9 @@
 
 	onMount(() => {
 		subscribeToMatchmakingQueue();
+		if ($currentPlayer) {
+			initializeWatchers($currentPlayer.id);
+		}
 	});
 
 	onDestroy(() => {
@@ -160,10 +158,8 @@
 				if (opponentId) {
 					const opponentData = await getPlayerData(opponentId);
 					if (opponentData) {
-						const opponentHistory = await getPlayerHistory(opponentId);
 						opponent.set({
 							...opponentData,
-							roundHistory: opponentHistory,
 							current_game_id: session.id
 						});
 						playerLogger.info(`Opponent set: ${opponentId}`);
@@ -176,6 +172,7 @@
 			const playerChoice = getPlayerChoice(session, $currentPlayer?.id);
 			if (playerChoice === null) {
 				gameState = 'playing';
+				startRound(); // Start the timer when the game state changes to 'playing'
 			} else {
 				gameState = 'choosing';
 			}
@@ -189,12 +186,14 @@
 
 	function startRound() {
 		roundResult = '';
-		isTimerRunning = true;
 	}
 
 	function handleTimerEnd() {
-		isTimerRunning = false;
-		endRound();
+		if (gameState === 'playing') {
+			// If the timer ends and the player hasn't made a choice, make a random choice
+			const randomChoice = Math.random() < 0.5 ? 'cooperate' : 'betray';
+			handleChoice(randomChoice);
+		}
 	}
 
 	async function endRound() {
@@ -347,7 +346,11 @@
 					{playerChoice}
 					{handleChoice}
 				>
-					<TimerBar {totalTime} isRunning={isTimerRunning} on:timerEnd={handleTimerEnd} />
+					<TimerBar
+						{totalTime}
+						startTime={$currentGameSession?.created_at}
+						on:timerEnd={handleTimerEnd}
+					/>
 				</GamePlay>
 			{:else if gameState === 'result'}
 				<RoundResult
