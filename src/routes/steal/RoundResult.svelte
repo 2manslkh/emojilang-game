@@ -1,10 +1,40 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
+	import type { GameSession } from '$lib/EmojiSteal/types';
 
-	export let gameSession;
-	export let playerChoice;
-	export let opponentChoice;
-	export let roundResult;
+	export let gameSession: GameSession;
+	export let playerChoice: 'cooperate' | 'betray' | null;
+	export let opponentChoice: 'cooperate' | 'betray' | null;
+
+	function getChoiceDisplay(choice: 'cooperate' | 'betray' | null) {
+		if (choice === 'cooperate') return '🤝';
+		if (choice === 'betray') return '🔪';
+		return '❓'; // For null choices
+	}
+
+	function getResultMessage(
+		playerChoice: 'cooperate' | 'betray' | null,
+		opponentChoice: 'cooperate' | 'betray' | null
+	) {
+		if (playerChoice === null && opponentChoice === null) {
+			return 'Both players disconnected. No points awarded.';
+		} else if (playerChoice === null) {
+			return 'You disconnected. Your opponent gains 1 point.';
+		} else if (opponentChoice === null) {
+			return 'Your opponent disconnected. You gain 1 point.';
+		} else if (playerChoice === 'cooperate' && opponentChoice === 'cooperate') {
+			return 'Both cooperated! You each gain 2 points.';
+		} else if (playerChoice === 'betray' && opponentChoice === 'cooperate') {
+			return 'You betrayed! You gain 3 points, opponent gains 0.';
+		} else if (playerChoice === 'cooperate' && opponentChoice === 'betray') {
+			return 'You were betrayed! You gain 0 points, opponent gains 3.';
+		} else if (playerChoice === 'betray' && opponentChoice === 'betray') {
+			return 'Both betrayed! You each lose 1 point.';
+		}
+		return 'Unexpected result.';
+	}
+
+	$: resultMessage = getResultMessage(playerChoice, opponentChoice);
 </script>
 
 <div class="bg-gray-100 rounded-lg p-8 shadow-md" in:fade>
@@ -15,29 +45,13 @@
 	<div class="flex justify-center items-center space-x-8 mb-6">
 		<div class="text-center">
 			<p class="text-lg mb-2">You chose:</p>
-			<p class="text-5xl">
-				{#if playerChoice === 'cooperate'}
-					🤝
-				{:else if playerChoice === 'betray'}
-					🔪
-				{:else}
-					❓
-				{/if}
-			</p>
+			<p class="text-5xl">{getChoiceDisplay(playerChoice)}</p>
 		</div>
 		<div class="text-center">
 			<p class="text-lg mb-2">Opponent chose:</p>
-			<p class="text-5xl">
-				{#if opponentChoice === 'cooperate'}
-					🤝
-				{:else if opponentChoice === 'betray'}
-					🔪
-				{:else}
-					❓
-				{/if}
-			</p>
+			<p class="text-5xl">{getChoiceDisplay(opponentChoice)}</p>
 		</div>
 	</div>
-	<p class="text-xl font-bold mb-6 text-center">{roundResult}</p>
+	<p class="text-xl font-bold mb-6 text-center">{resultMessage}</p>
 	<p class="text-lg text-center">Next round starting soon...</p>
 </div>
