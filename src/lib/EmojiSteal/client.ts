@@ -22,35 +22,20 @@ export const currentGame = writable<GameSession | null>(null);
 export const opponent = writable<Player | null>(null);
 export const currentPlayer = writable<Player | null>(null);
 
-export function watchOnlinePlayers() {
-    updateOnlinePlayers(); // Initial fetch
+async function checkIfExistingPlayer(name: string): Promise<Player | null> {
+    try {
+        const { data: existingPlayer, error } = await supabase
+            .from('players')
+            .select()
+            .eq('name', name)
+            .maybeSingle();
 
-    const channel = supabase
-        .channel('public:players')
-        .on('postgres_changes',
-            { event: '*', schema: 'public', table: 'players' },
-            (payload) => {
-                console.log('Change received!', payload);
-                updateOnlinePlayers();
-            }
-        )
-        .subscribe();
+        if (error) throw error;
 
-    return () => {
-        supabase.removeChannel(channel);
-    };
-}
-
-async function updateOnlinePlayers() {
-    const { data, error } = await supabase
-        .from('players')
-        .select('*')
-        .eq('in_game', true);
-
-    if (error) {
-        console.error('Error fetching online players:', error);
-    } else {
-        onlinePlayers.set(data);
+        return existingPlayer;
+    } catch (error) {
+        dbLogger.error(`Error checking existing player: ${error}`);
+        return null;
     }
 }
 
@@ -58,16 +43,7 @@ export async function joinGame(name: string): Promise<Player | null> {
     playerLogger.info(`Attempting to join game with name: ${name}`);
 
     try {
-        const { data: existingPlayer, error: checkError } = await supabase
-            .from('players')
-            .select('*')
-            .eq('name', name)
-            .maybeSingle();
-
-        if (checkError) {
-            dbLogger.error(`Error checking existing player: ${checkError.message}`);
-            return null;
-        }
+        const existingPlayer = await checkIfExistingPlayer(name);
 
         if (existingPlayer) {
             playerLogger.info(`Player '${name}' already exists, updating status`);
@@ -83,7 +59,7 @@ export async function joinGame(name: string): Promise<Player | null> {
                 return null;
             }
 
-            const roundHistory = await getRoundHistory(existingPlayer.id);
+            const roundHistory = await getPlayerHistory(existingPlayer.id);
             const updatedPlayerWithHistory = { ...updatedPlayer, roundHistory };
             currentPlayer.set(updatedPlayerWithHistory);
             playerLogger.info(`Player '${name}' rejoined game successfully`);
@@ -266,9 +242,6 @@ export async function leaveGame(playerId: string) {
     currentGame.set(null);
 }
 
-// Initial fetch of players
-updateOnlinePlayers();
-
 export function watchGameSessions(playerId: string) {
     console.log(`Starting to watch game sessions for player ${playerId}`);
 
@@ -336,33 +309,60 @@ export async function getFinalGameState(gameId: string): Promise<GameSession | n
     return data as GameSession;
 }
 
-export async function getRoundHistory(playerId: string, limit: number = 10): Promise<RoundHistory[]> {
-    if (!playerId) {
-        console.warn('getRoundHistory called with undefined playerId');
-        return [];
-    }
+export async function getPlayerData(playerId: string): Promise<Player | null> {
+    try {
+        const { data, error } = await supabase
+            .from('players')
+            .select('*')
+            .eq('id', playerId)
+            .single();
 
-    const { data, error } = await supabase
-        .from('round_history')
-        .select('*')
-        .eq('player_id', playerId)
-        .order('created_at', { ascending: false })
-        .limit(limit);
+        if (error) throw error;
 
-    if (error) {
-        console.error('Error fetching round history:', error);
-        return [];
-    }
-
-    const history = data.reverse(); // Reverse the array to get oldest to newest
-
-    // Update the currentPlayer store with the new round history
-    currentPlayer.update(player => {
-        if (player && player.id === playerId) {
-            return { ...player, roundHistory: history };
+        if (data) {
+            const roundHistory = await getPlayerHistory(playerId);
+            return {
+                ...data,
+                roundHistory,
+            };
         }
-        return player;
-    });
 
-    return history;
+        return null;
+    } catch (error) {
+        console.error(`Error fetching player data: ${error}`);
+        return null;
+    }
+}
+
+export async function getPlayerHistory(playerId: string, limit: number = 10): Promise<RoundHistory[]> {
+    if (!playerId) {
+        console.warn('getPlayerHistory called with undefined playerId');
+        return [];
+    }
+
+    try {
+        const { data, error } = await supabase
+            .from('player_history')
+            .select('*')
+            .eq('player_id', playerId)
+            .order('created_at', { ascending: false })
+            .limit(limit);
+
+        if (error) throw error;
+
+        const history = data.reverse(); // Reverse the array to get oldest to newest
+
+        // Update the currentPlayer store with the new round history
+        currentPlayer.update(player => {
+            if (player && player.id === playerId) {
+                return { ...player, roundHistory: history };
+            }
+            return player;
+        });
+
+        return history;
+    } catch (error) {
+        console.error('Error fetching player history:', error);
+        return [];
+    }
 }

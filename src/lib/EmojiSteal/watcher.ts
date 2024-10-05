@@ -4,34 +4,49 @@ import { writable } from 'svelte/store';
 import type { Player, GameSession, RoundHistory } from './types';
 import { emojistealLogger, playerLogger, dbLogger } from '$lib/logging';
 
-export const onlinePlayerCount = writable<number>(0);
+export const playersInQueue = writable<number>(0);
 export const currentGameSession = writable<GameSession | null>(null);
 export const roundHistory = writable<RoundHistory[]>([]);
 
-let playersChannel: RealtimeChannel;
+let matchmakingQueueChannel: RealtimeChannel;
 let currentPlayerChannel: RealtimeChannel;
 let gameSessionChannel: RealtimeChannel;
 
 export function initializeWatchers(playerId: string) {
     emojistealLogger.info('Initializing watchers');
-    subscribeToPlayers();
+    subscribeToMatchmakingQueue();
     subscribeToCurrentPlayer(playerId);
-    updateOnlinePlayerCount(); // Initial fetch
+    updatePlayersInQueue(); // Initial fetch
 }
 
-function subscribeToPlayers() {
-    playerLogger.info('Subscribing to player changes');
-    playersChannel = supabase
-        .channel('public:players')
+export function subscribeToMatchmakingQueue() {
+    playerLogger.info('Subscribing to matchmaking queue changes');
+    updatePlayersInQueue();
+    matchmakingQueueChannel = supabase
+        .channel('public:matchmaking_queue')
         .on('postgres_changes',
-            { event: '*', schema: 'public', table: 'players' },
+            { event: '*', schema: 'public', table: 'matchmaking_queue' },
             (payload) => {
-                playerLogger.data('Players change received', payload);
-                updateOnlinePlayerCount();
+                playerLogger.data('Matchmaking queue change received', payload);
+                updatePlayersInQueue();
             }
         )
         .subscribe();
 }
+
+async function updatePlayersInQueue() {
+    playerLogger.info('Updating players in queue count');
+    const { data, error } = await supabase.rpc('count_players_in_queue');
+
+    if (error) {
+        dbLogger.error(`Error fetching players in queue count: ${error.message}`);
+    } else {
+        playerLogger.data('Players in queue count updated', data);
+        playersInQueue.set(data);
+    }
+}
+
+// Add this function
 function subscribeToCurrentPlayer(playerId: string) {
     playerLogger.info(`Subscribing to current player changes for player ${playerId}`);
     currentPlayerChannel = supabase
@@ -46,18 +61,7 @@ function subscribeToCurrentPlayer(playerId: string) {
         .subscribe();
 }
 
-async function updateOnlinePlayerCount() {
-    playerLogger.info('Updating online player count');
-    const { data, error } = await supabase.rpc('count_online_players');
-
-    if (error) {
-        dbLogger.error(`Error fetching online player count: ${error.message}`);
-    } else {
-        playerLogger.data('Online player count updated', data);
-        onlinePlayerCount.set(data);
-    }
-}
-
+// Add this function to handle current player updates
 async function handleCurrentPlayerUpdate(player: Player) {
     if (player.current_game_id) {
         const { data: gameSession, error } = await supabase
@@ -75,8 +79,6 @@ async function handleCurrentPlayerUpdate(player: Player) {
         currentGameSession.set(null);
     }
 }
-
-
 
 export function subscribeToSpecificGameSession(gameId: string) {
     emojistealLogger.info(`Subscribing to game session: ${gameId}`);
@@ -124,7 +126,7 @@ export function subscribeToUserRoundHistory(userId: string) {
 
 export function unsubscribeAll() {
     emojistealLogger.info('Unsubscribing from all channels');
-    if (playersChannel) supabase.removeChannel(playersChannel);
+    if (matchmakingQueueChannel) supabase.removeChannel(matchmakingQueueChannel);
     if (currentPlayerChannel) supabase.removeChannel(currentPlayerChannel);
     if (gameSessionChannel) supabase.removeChannel(gameSessionChannel);
 }
