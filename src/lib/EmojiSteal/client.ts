@@ -3,7 +3,6 @@ import { createClient } from '@supabase/supabase-js';
 import { writable } from 'svelte/store';
 import type { Player, GameSession, RoundHistory } from './types';
 import { playerLogger, emojistealLogger, dbLogger } from '$lib/logging';
-import { removeFromMatchmaking } from './matchmaking';
 import { initializeWatchers } from './watcher';
 
 const supabaseUrl = PUBLIC_SUPABASE_URL;
@@ -111,51 +110,6 @@ export async function makeChoice(gameId: string, playerId: string, choice: 'coop
     }
 }
 
-export async function endRoundAndKickInactivePlayer(gameId: string) {
-    const { data, error } = await supabase.rpc('end_round_and_kick_inactive_player', {
-        p_game_id: gameId
-    });
-
-    if (error) {
-        console.error('Error ending round and kicking inactive player:', error);
-        return null;
-    }
-
-    const updatedGame = data[0] as GameSession;
-    currentGame.set(updatedGame);
-
-    // If a player was kicked (didn't make a choice), remove them from matchmaking
-    if (updatedGame.player1_choice === null && updatedGame.player1_id) {
-        await removeFromMatchmaking(updatedGame.player1_id);
-    }
-    if (updatedGame.player2_choice === null && updatedGame.player2_id) {
-        await removeFromMatchmaking(updatedGame.player2_id);
-    }
-
-    return updatedGame;
-}
-
-export async function waitForOpponentChoice(gameId: string): Promise<GameSession | null> {
-    return new Promise((resolve) => {
-        const timeout = setTimeout(() => {
-            console.log('Timeout waiting for opponent choice');
-            supabase.removeChannel(channel);
-            resolve(null);
-        }, 30000); // 30 seconds timeout
-
-        const channel = supabase
-            .channel(`game_${gameId}`)
-            .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'game_sessions', filter: `id=eq.${gameId}` }, (payload) => {
-                const updatedGame = payload.new as GameSession;
-                if (updatedGame.player1_choice !== null && updatedGame.player2_choice !== null) {
-                    clearTimeout(timeout);
-                    supabase.removeChannel(channel);
-                    resolve(updatedGame);
-                }
-            })
-            .subscribe();
-    });
-}
 
 export async function endGame(gameId: string) {
     const { error } = await supabase
@@ -242,58 +196,6 @@ export async function leaveGame(playerId: string) {
     currentGame.set(null);
 }
 
-export function watchGameSessions(playerId: string) {
-    console.log(`Starting to watch game sessions for player ${playerId}`);
-
-    const channel = supabase
-        .channel(`public:game_sessions:${playerId}`)
-        .on(
-            'postgres_changes',
-            {
-                event: '*',
-                schema: 'public',
-                table: 'game_sessions',
-                filter: `player1_id=eq.${playerId} OR player2_id=eq.${playerId}`
-            },
-            async (payload) => {
-                console.log('Game session change detected:', payload);
-                const updatedGame = payload.new as GameSession;
-                console.log('Updated game session:', updatedGame);
-
-                if (updatedGame.status === 'playing' && updatedGame.player1_id && updatedGame.player2_id) {
-                    console.log('Game session is now in playing state');
-                    currentGame.set(updatedGame);
-                    const opponentId = updatedGame.player1_id === playerId ? updatedGame.player2_id : updatedGame.player1_id;
-                    console.log(`Fetching opponent (ID: ${opponentId}) details`);
-                    const { data: opponent, error } = await supabase
-                        .from('players')
-                        .select('*')
-                        .eq('id', opponentId)
-                        .single();
-
-                    if (error) {
-                        console.error('Error fetching opponent details:', error);
-                    } else if (opponent) {
-                        console.log('Opponent found:', opponent);
-                        // You might want to update a store or trigger a callback here
-                    } else {
-                        console.log('No opponent found');
-                    }
-                } else {
-                    console.log('Game session updated, but not yet in playing state or missing player information');
-                }
-            }
-        )
-        .subscribe();
-
-    console.log('Subscribed to game session changes');
-
-    return () => {
-        console.log('Unsubscribing from game session changes');
-        supabase.removeChannel(channel);
-    };
-}
-
 export async function getFinalGameState(gameId: string): Promise<GameSession | null> {
     const { data, error } = await supabase
         .from('game_sessions')
@@ -321,10 +223,8 @@ export async function getPlayerData(playerId: string): Promise<Player | null> {
 
         if (data) {
             const roundHistory = await getPlayerHistory(playerId);
-            return {
-                ...data,
-                roundHistory,
-            };
+            const playerData = { ...data, roundHistory };
+            return playerData;
         }
 
         return null;
@@ -351,18 +251,26 @@ export async function getPlayerHistory(playerId: string, limit: number = 10): Pr
         if (error) throw error;
 
         const history = data.reverse(); // Reverse the array to get oldest to newest
-
-        // Update the currentPlayer store with the new round history
-        currentPlayer.update(player => {
-            if (player && player.id === playerId) {
-                return { ...player, roundHistory: history };
-            }
-            return player;
-        });
-
         return history;
     } catch (error) {
         console.error('Error fetching player history:', error);
         return [];
+    }
+}
+
+export async function getCurrentGameSession(gameId: string): Promise<GameSession | null> {
+    try {
+        const { data, error } = await supabase
+            .from('game_sessions')
+            .select('*')
+            .eq('id', gameId)
+            .single();
+
+        if (error) throw error;
+
+        return data;
+    } catch (error) {
+        console.error('Error fetching current game session:', error);
+        return null;
     }
 }

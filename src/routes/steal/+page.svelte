@@ -7,7 +7,8 @@
 		currentPlayer,
 		opponent,
 		getPlayerData,
-		getPlayerHistory
+		getPlayerHistory,
+		getCurrentGameSession
 	} from '$lib/EmojiSteal/client';
 	import { joinQueue, removeFromMatchmaking } from '$lib/EmojiSteal/matchmaking';
 	import { TimerBar } from '$components/Timer';
@@ -117,7 +118,29 @@
 				currentPlayer.set(joinedPlayer);
 				joinError = '';
 				unsubscribeFromUserRoundHistory = subscribeToUserRoundHistory(joinedPlayer.id);
-				startMatchmaking();
+
+				// Fetch the current game session if the player is in a game
+				if (joinedPlayer.current_game_id) {
+					const currentSession = await getCurrentGameSession(joinedPlayer.current_game_id);
+					if (currentSession) {
+						currentGameSession.set(currentSession);
+						handleGameSessionChange(currentSession);
+
+						// Fetch opponent data if available
+						if (currentSession.player1_id && currentSession.player2_id) {
+							const opponentId =
+								currentSession.player1_id === joinedPlayer.id
+									? currentSession.player2_id
+									: currentSession.player1_id;
+							const opponentData = await getPlayerData(opponentId);
+							if (opponentData) {
+								opponent.set(opponentData);
+							}
+						}
+					}
+				} else {
+					startMatchmaking();
+				}
 			} else {
 				playerLogger.warn('Failed to join game');
 				joinError = 'Username already exists or an error occurred. Please try again.';
@@ -309,13 +332,16 @@
 			}
 		}
 	}
+
+	$: console.log('Current player points:', $currentPlayer?.points);
+	$: console.log('Opponent points:', $opponent?.points);
 </script>
 
 <div class="min-h-screen bg-white text-black p-4">
 	<div class="container mx-auto max-w-3xl">
 		<PlayersInQueue onlinePlayerCount={$playersInQueue} />
 
-		<OpponentHistory player={$opponent!} />
+		<OpponentHistory player={$opponent} />
 
 		<main>
 			{#if !$currentPlayer}
@@ -347,7 +373,7 @@
 			{/if}
 		</main>
 
-		<PlayerHistory player={$currentPlayer!} />
+		<PlayerHistory player={$currentPlayer} />
 
 		{#if $currentPlayer}
 			<button

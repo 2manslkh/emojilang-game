@@ -34,7 +34,8 @@ CREATE TABLE players (
     name TEXT NOT NULL UNIQUE,
     in_game BOOLEAN NOT NULL DEFAULT false,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    current_game_id UUID REFERENCES game_sessions(id)
+    current_game_id UUID REFERENCES game_sessions(id),
+    points INTEGER DEFAULT 0
 );
 
 -- Add foreign key constraints to game_sessions
@@ -118,7 +119,59 @@ $$ LANGUAGE 'plpgsql';
 -- Grant execute permission on the function
 GRANT EXECUTE ON FUNCTION update_game_session(UUID, UUID) TO authenticated, anon;
 
--- Update the make_choice function
+-- Add a new column to store the result
+ALTER TABLE game_sessions ADD COLUMN IF NOT EXISTS result JSONB;
+
+-- Create a function to calculate and store the game result
+CREATE OR REPLACE FUNCTION settle_game_result(p_game_id UUID)
+RETURNS VOID AS $$
+DECLARE
+    v_game game_sessions;
+    v_result JSONB;
+    v_player1_points INTEGER;
+    v_player2_points INTEGER;
+BEGIN
+    -- Fetch the game session
+    SELECT * INTO v_game FROM game_sessions WHERE id = p_game_id;
+
+    -- Calculate the result
+    v_result = CASE
+        WHEN v_game.player1_choice = 'cooperate' AND v_game.player2_choice = 'cooperate' THEN
+            '{"player1_points": 2, "player2_points": 2, "message": "Both cooperated! Each player gains 2 points."}'::JSONB
+        WHEN v_game.player1_choice = 'betray' AND v_game.player2_choice = 'cooperate' THEN
+            '{"player1_points": 3, "player2_points": 0, "message": "Player 1 betrayed! Player 1 gains 3 points, Player 2 gains 0."}'::JSONB
+        WHEN v_game.player1_choice = 'cooperate' AND v_game.player2_choice = 'betray' THEN
+            '{"player1_points": 0, "player2_points": 3, "message": "Player 2 betrayed! Player 1 gains 0 points, Player 2 gains 3."}'::JSONB
+        WHEN v_game.player1_choice = 'betray' AND v_game.player2_choice = 'betray' THEN
+            '{"player1_points": -1, "player2_points": -1, "message": "Both betrayed! Each player loses 1 point."}'::JSONB
+        ELSE
+            '{"player1_points": 0, "player2_points": 0, "message": "Invalid choices."}'::JSONB
+    END;
+
+    -- Extract points from the result
+    v_player1_points := (v_result->>'player1_points')::INTEGER;
+    v_player2_points := (v_result->>'player2_points')::INTEGER;
+
+    -- Update the game session with the result
+    UPDATE game_sessions
+    SET result = v_result, status = 'finished'
+    WHERE id = p_game_id;
+
+    -- Update player points
+    UPDATE players
+    SET points = points + v_player1_points
+    WHERE id = v_game.player1_id;
+
+    UPDATE players
+    SET points = points + v_player2_points
+    WHERE id = v_game.player2_id;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Grant execute permission on the function
+GRANT EXECUTE ON FUNCTION settle_game_result(UUID) TO authenticated, anon;
+
+-- Update the make_choice function to call settle_game_result
 CREATE OR REPLACE FUNCTION make_choice(
     p_game_id UUID,
     p_player_id UUID,
@@ -127,8 +180,6 @@ CREATE OR REPLACE FUNCTION make_choice(
 RETURNS SETOF game_sessions AS $$
 DECLARE
     v_updated_game game_sessions;
-    v_other_player_id UUID;
-    v_other_player_choice TEXT;
 BEGIN
     -- Update the game session
     UPDATE game_sessions
@@ -146,11 +197,11 @@ BEGIN
             (v_updated_game.player1_id, p_game_id, v_updated_game.player1_choice),
             (v_updated_game.player2_id, p_game_id, v_updated_game.player2_choice);
 
-        -- Set the status to 'finished'
-        UPDATE game_sessions
-        SET status = 'finished'
-        WHERE game_sessions.id = p_game_id
-        RETURNING * INTO v_updated_game;
+        -- Settle the game result
+        PERFORM settle_game_result(p_game_id);
+
+        -- Fetch the updated game session
+        SELECT * INTO v_updated_game FROM game_sessions WHERE id = p_game_id;
     END IF;
 
     RETURN NEXT v_updated_game;

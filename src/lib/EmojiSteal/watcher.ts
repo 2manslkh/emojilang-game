@@ -1,15 +1,14 @@
 import { supabase } from './client';
 import type { RealtimeChannel } from '@supabase/supabase-js';
-import { writable, get } from 'svelte/store';
+import { writable } from 'svelte/store';
 import type { Player, GameSession, RoundHistory } from './types';
 import { emojistealLogger, playerLogger, dbLogger } from '$lib/logging';
-import { getPlayerData, getPlayerHistory } from './client';
-import { opponent } from './client';
+import { getPlayerData } from './client';
+import { opponent, currentPlayer } from './client';
 
 export const playersInQueue = writable<number>(0);
 export const currentGameSession = writable<GameSession | null>(null);
 export const roundHistory = writable<RoundHistory[]>([]);
-export const currentPlayer = writable<Player | null>(null);
 
 let matchmakingQueueChannel: RealtimeChannel;
 let currentPlayerChannel: RealtimeChannel;
@@ -66,16 +65,24 @@ function subscribeToCurrentPlayer(playerId: string) {
 
 // Add this function to handle current player updates
 async function handleCurrentPlayerUpdate(player: Player) {
-    currentPlayer.set(player);
+    // Fetch the latest player data, including points
+    const updatedPlayerData = await getPlayerData(player.id);
+
+    if (updatedPlayerData) {
+        currentPlayer.set(updatedPlayerData); // Always update the currentPlayer
+        console.log('Updated current player:', updatedPlayerData);
+    }
+
+    // If player in current_game_id, fetch game session
     if (player.current_game_id) {
-        const { data: gameSession, error } = await supabase
+        const { data: gameSession, error: gameError } = await supabase
             .from('game_sessions')
             .select('*')
             .eq('id', player.current_game_id)
             .single();
 
-        if (error) {
-            dbLogger.error(`Error fetching game session: ${error.message}`);
+        if (gameError) {
+            dbLogger.error(`Error fetching game session: ${gameError.message}`);
         } else {
             currentGameSession.set(gameSession);
             subscribeToSpecificGameSession(player.current_game_id);
@@ -86,12 +93,7 @@ async function handleCurrentPlayerUpdate(player: Player) {
                 try {
                     const opponentData = await getPlayerData(opponentId);
                     if (opponentData) {
-                        const opponentHistory = await getPlayerHistory(opponentId);
-                        opponent.set({
-                            ...opponentData,
-                            roundHistory: opponentHistory,
-                            current_game_id: player.current_game_id
-                        });
+                        opponent.set(opponentData);
                         playerLogger.info(`Opponent set: ${opponentId}`);
                     } else {
                         playerLogger.error(`Failed to fetch opponent data for ID: ${opponentId}`);
