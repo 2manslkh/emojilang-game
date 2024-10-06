@@ -140,60 +140,66 @@ export async function endGame(gameId: string) {
 }
 
 export async function leaveGame(playerId: string) {
-    // Remove player from matchmaking queue if present
-    await supabase
-        .from('matchmaking_queue')
-        .delete()
-        .eq('player_id', playerId);
+    try {
+        // Remove player from matchmaking queue if present
+        await supabase
+            .from('matchmaking_queue')
+            .delete()
+            .eq('player_id', playerId);
 
-    // Update the player's status
-    const { error: updateError } = await supabase
-        .from('players')
-        .update({ in_game: false })
-        .eq('id', playerId);
+        // Find the current game session for the player
+        const { data: currentGame, error: gameError } = await supabase
+            .from('game_sessions')
+            .select('*')
+            .or(`player1_id.eq.${playerId},player2_id.eq.${playerId}`)
+            .eq('status', 'playing')
+            .single();
 
-    if (updateError) {
-        console.error('Error updating player status:', updateError);
-        return;
-    }
+        if (gameError && gameError.code !== 'PGRST116') {
+            console.error('Error finding current game session:', gameError);
+            return;
+        }
 
-    // Then, find and update any active game sessions
-    const { data: activeSessions, error: sessionError } = await supabase
-        .from('game_sessions')
-        .select('*')
-        .or(`player1_id.eq.${playerId},player2_id.eq.${playerId}`)
-        .in('status', ['waiting', 'playing']);
-
-    if (sessionError) {
-        console.error('Error finding active game sessions:', sessionError);
-        return;
-    }
-
-    for (const session of activeSessions) {
-        if (session.status === 'waiting') {
-            // If it's a waiting session, just delete it
-            await supabase
-                .from('game_sessions')
-                .delete()
-                .eq('id', session.id);
-        } else if (session.status === 'playing') {
-            // If it's a playing session, end the game
-            await supabase
+        if (currentGame) {
+            // End the current game session
+            const { error: updateError } = await supabase
                 .from('game_sessions')
                 .update({ status: 'finished' })
-                .eq('id', session.id);
+                .eq('id', currentGame.id);
+
+            if (updateError) {
+                console.error('Error updating game session:', updateError);
+                return;
+            }
 
             // Update the other player's status
-            const otherPlayerId = session.player1_id === playerId ? session.player2_id : session.player1_id;
-            await supabase
-                .from('players')
-                .update({ in_game: false })
-                .eq('id', otherPlayerId);
+            const otherPlayerId = currentGame.player1_id === playerId ? currentGame.player2_id : currentGame.player1_id;
+            if (otherPlayerId) {
+                await supabase
+                    .from('players')
+                    .update({ in_game: false, current_game_id: null })
+                    .eq('id', otherPlayerId);
+            }
         }
-    }
 
-    console.log('Left game successfully');
-    currentGame.set(null);
+        // Update the player's status
+        const { error: updateError } = await supabase
+            .from('players')
+            .update({ in_game: false, current_game_id: null })
+            .eq('id', playerId);
+
+        if (updateError) {
+            console.error('Error updating player status:', updateError);
+            return;
+        }
+
+        console.log('Left game successfully');
+
+
+
+    } catch (error) {
+        console.error('Unexpected error in leaveGame:', error);
+    }
 }
 
 export async function getFinalGameState(gameId: string): Promise<GameSession | null> {

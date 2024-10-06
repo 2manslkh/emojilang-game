@@ -27,7 +27,8 @@
 		subscribeToUserRoundHistory,
 		playersInQueue,
 		currentGameSession,
-		subscribeToMatchmakingQueue
+		subscribeToMatchmakingQueue,
+		subscribeToCurrentPlayer
 	} from '$lib/EmojiSteal/watcher';
 	import type { Choice, GameSession } from '$lib/EmojiSteal/types';
 	import { playerLogger, gameLogger, matchmakingLogger } from '$lib/logging';
@@ -41,6 +42,7 @@
 
 	let unsubscribeFromSpecificGame: (() => void) | null = null;
 	let unsubscribeFromUserRoundHistory: (() => void) | null = null;
+	let unsubscribeFromPlayer: (() => void) | null = null;
 
 	// Make gameState reactive based on currentGameSession and currentPlayer
 	$: gameState = getGameState($currentGameSession, $currentPlayer?.id);
@@ -118,6 +120,7 @@
 				currentPlayer.set(joinedPlayer);
 				joinError = '';
 				unsubscribeFromUserRoundHistory = subscribeToUserRoundHistory(joinedPlayer.id);
+				unsubscribeFromPlayer = subscribeToCurrentPlayer(joinedPlayer.id);
 
 				// Fetch the current game session if the player is in a game
 				if (joinedPlayer.current_game_id) {
@@ -196,7 +199,7 @@
 
 	function handleTimerEnd() {
 		if (gameState === 'playing') {
-			// If the timer ends and the player hasn't made a choice, make a random choice
+			// If the timer ends and the player hasn't made a choice, submit null choice
 			handleChoice(null);
 		}
 	}
@@ -280,8 +283,8 @@
 		if (
 			!$currentGameSession ||
 			playerChoice !== null ||
-			gameState !== 'playing' ||
-			!$currentPlayer
+			!$currentPlayer ||
+			(gameState !== 'playing' && choice !== null) // Allow null choice even if not in 'playing' state
 		) {
 			gameLogger.error('Invalid game state or choice already made');
 			return;
@@ -317,17 +320,30 @@
 
 	async function handleLeaveGame() {
 		if ($currentPlayer) {
-			await leaveGame($currentPlayer.id);
-			currentPlayer.set(null);
-			opponent.set(null);
-			roundResult = '';
-			if (unsubscribeFromSpecificGame) {
-				unsubscribeFromSpecificGame();
-				unsubscribeFromSpecificGame = null;
-			}
-			if (unsubscribeFromUserRoundHistory) {
-				unsubscribeFromUserRoundHistory();
-				unsubscribeFromUserRoundHistory = null;
+			try {
+				await leaveGame($currentPlayer.id);
+				if (unsubscribeFromSpecificGame) {
+					unsubscribeFromSpecificGame();
+					unsubscribeFromSpecificGame = null;
+				}
+				if (unsubscribeFromUserRoundHistory) {
+					unsubscribeFromUserRoundHistory();
+					unsubscribeFromUserRoundHistory = null;
+				}
+
+				if (unsubscribeFromPlayer) {
+					unsubscribeFromPlayer();
+					unsubscribeFromPlayer = null;
+				}
+				// Reset game state
+				gameState = 'waiting';
+				roundResult = '';
+				currentGameSession.set(null);
+				currentPlayer.set(null);
+				// Clear player state
+				opponent.set(null);
+			} catch (error) {
+				console.error('Error leaving game:', error);
 			}
 		}
 	}
@@ -361,12 +377,7 @@
 					/>
 				</GamePlay>
 			{:else if gameState === 'result'}
-				<RoundResult
-					gameSession={$currentGameSession}
-					{playerChoice}
-					{opponentChoice}
-					{roundResult}
-				/>
+				<RoundResult gameSession={$currentGameSession} {playerChoice} {opponentChoice} />
 			{:else if gameState === 'choosing'}
 				<WaitingForOpponentChoice {playerChoice} />
 			{/if}

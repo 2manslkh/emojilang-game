@@ -49,9 +49,9 @@ async function updatePlayersInQueue() {
 }
 
 // Add this function
-function subscribeToCurrentPlayer(playerId: string) {
+export function subscribeToCurrentPlayer(playerId: string) {
     playerLogger.info(`Subscribing to current player changes for player ${playerId}`);
-    currentPlayerChannel = supabase
+    const currentPlayerChannel = supabase
         .channel(`public:players:${playerId}`)
         .on('postgres_changes',
             { event: 'UPDATE', schema: 'public', table: 'players', filter: `id=eq.${playerId}` },
@@ -61,6 +61,12 @@ function subscribeToCurrentPlayer(playerId: string) {
             }
         )
         .subscribe();
+
+    return () => {
+        if (currentPlayerChannel) {
+            supabase.removeChannel(currentPlayerChannel);
+        }
+    };
 }
 
 // Add this function to handle current player updates
@@ -152,7 +158,9 @@ export function subscribeToUserRoundHistory(userId: string) {
         .subscribe();
 
     return () => {
-        supabase.removeChannel(channel);
+        if (channel) {
+            supabase.removeChannel(channel);
+        }
     };
 }
 
